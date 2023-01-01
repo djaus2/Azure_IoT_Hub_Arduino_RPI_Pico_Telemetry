@@ -4,7 +4,7 @@
 Adds some functioanlity, such as reading environment telemetry to [Azure/azure-sdk-for-c-arduino](https://github.com/Azure/azure-sdk-for-c-arduino) Rpi Pico example. This example has been added as a Pull Request to that repository which was pulled from the fork at [djaus2/azure-sdk-for-c-arduino](https://github.com/djaus2/azure-sdk-for-c-arduino). The first Sketch here (base) is that same proposed example Sketch and is in  ```examples/Azure_IoT_Hub_RPI_Pico``` in the djaus2 fork. (When merged in the origninal, it should be in the matching folder).
 
 ## Hardware
-I'm using a Freenove Basic Starter Kit and Rpi Pico. See the ReadMe in the Base for further info.
+I'm using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Base for further info.
 
 ## Sketches
 - Azure_IoT_Hub_RPI_Pico_Base

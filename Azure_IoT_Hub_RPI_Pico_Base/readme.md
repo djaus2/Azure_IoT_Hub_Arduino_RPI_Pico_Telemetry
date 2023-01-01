@@ -40,7 +40,7 @@ products:
     - [Changes made to the ESP8266 Sketch Example in porting to the Pico](#Changes-made-to-the-ESP8266-Example-when-porting-to-the-RPI-Pico)
 
 ## How to install Arduino BSP onto a RPI Pico
-- I was given a [Freenove Basic Pico Starter Kit](https://github.com/Freenove/Freenove_Basic_Starter_Kit_for_Raspberry_Pi_Pico) and a [RPI Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html#raspberry-pi-pico-w) for Xmas!!
+- I was given a [Freenove Ultimate Pico Starter Kit](https://github.com/Freenove/Freenove_Basic_Starter_Kit_for_Raspberry_Pi_Pico) and a [RPI Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html#raspberry-pi-pico-w) for Xmas!!
 - Ref: [https://freenove.com/fnk0058/](https://freenove.com/fnk0058/)
   - The repository [earlephilhower-arduino-pico on Github](https://github.com/earlephilhower/arduino-pico)  
   - Thx Earle.
