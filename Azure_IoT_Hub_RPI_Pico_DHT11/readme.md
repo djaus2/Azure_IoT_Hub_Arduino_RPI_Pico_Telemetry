@@ -49,6 +49,9 @@ MQTT connecting ... connected.
 16947 RPI Pico (Arduino) Sending telemetry . . . OK
 ```
 
+## Monitor Telemetry
+
+### In a Terminal
 - In a desktop terminal context that has AzureCli with the IoT Extensiomn installed (See Base ReadMe):  
 ```
 az iot hub monitor-events --login <your Azure IoT Hub owner connection string in quotes> --device-id <your device id>
@@ -81,5 +84,35 @@ az iot hub monitor-events --login <your Azure IoT Hub owner connection string in
         "component": "",
         "payload": "{\"msgCount\":165,\"temp\":31.2,\"humidity\":44}"
     }
+}
+```
+
+### In VS Code
+- Add the Azure IoT Hub Extension
+- Add The IoT Hub [Select and IoT Hub] and follow the directions.
+  - You need to select the Subscription 
+  - You will be prompted for connefction details
+  - Then select the Hub
+- In the left pane select the hub then the device.
+- Right click on that and select "Start Monitoring Built-In Endpoint"
+
+```
+[IoTHubMonitor] [3:40:22 PM] Message received from [PicoDev137]:
+{
+  "msgCount": 216,
+  "temp": 31.2,
+  "humidity": 44
+}
+[IoTHubMonitor] [3:40:25 PM] Message received from [PicoDev137]:
+{
+  "msgCount": 217,
+  "temp": 31.2,
+  "humidity": 44
+}
+[IoTHubMonitor] [3:40:28 PM] Message received from [PicoDev137]:
+{
+  "msgCount": 218,
+  "temp": 31.2,
+  "humidity": 44
 }
 ```
