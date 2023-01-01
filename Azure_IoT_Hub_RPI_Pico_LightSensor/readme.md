@@ -7,15 +7,15 @@ products:
 - azure-iot
 - azure-iot-hub
 peripherals:
-- Thermistor
+- Light Dependat Resistor (LDR)
 ---
 
 
-# Azure IoT Hub RPI Pico Thermistor
+# Azure IoT Hub RPI Pico LDR
 
 -   [Getting Started](#Getting-Started)
     
--   [Setup for the Thermistor](#Setup-for-the-Thermistor)
+-   [Setup for the LDR](#Setup-for-the-LDR)
 
 ## About
 
@@ -27,21 +27,21 @@ This example addes a Themistor Temperature Sensor to generate  Telemetry data.
 
 - Get the Pico sending some simulated data as per the Base project ReadMe.
 
-## Setup for the Thermistor
+## Setup for the KDR
 - Setup the WiFi and Azure IoT Hub connection in iot_configs.h as per the Base._ 
 - Test Sketch:.
   - From he root of the Freenove clone locally,
-    You might like to run Sketch_12.1_Temperature_and_Humidity_Sensor from ```Freenove_Ultimate_Starter_Kit_for_Raspberry_Pi_Pico-master\C\Sketches\Sketch_12.1_Thermometer``` in the cloned contents first to test the DHT11.
-- Load the sketch here: ```Azure_IoT_Hub_RPI_Pico_Thermistor.ino```
+    You might like to run Sketch_11.1_Photosensitive from ```Freenove_Ultimate_Starter_Kit_for_Raspberry_Pi_Pico-master\C\Sketches\Sketch_11.1_Photosensitive``` in the cloned contents first to test the DHT11.
+- Load the sketch here: ```Azure_IoT_Hub_RPI_Pico_LDR.ino```
 - Verify the code
 
 ## Circuit
 
-![DHT11-Circuit](./Light-Sensor-Circuit.png)
+![LDR-Circuit](./Light-Sensor-Circuit.png)
 
 Note: The LDR from above looks like:
 
-![DHT11-Circuit](./ldr.png)
+![LDR](./ldr.png)
 
 Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repository) 
 
