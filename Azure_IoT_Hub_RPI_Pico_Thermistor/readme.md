@@ -41,7 +41,7 @@ This example addes a Themistor Temperature Sensor to generate  Telemetry data.
 
 The thermistor is a small black blob component with two wires, like a resistor.
 
-Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repostory) 
+Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repository) 
 
 ## Running
 - Upload then switch to the Serial Monitor.
