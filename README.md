@@ -1,1 +1,1 @@
-# Azure IoT Hub Arduino_RPI Pico with Telemetry
+# Azure IoT Hub Arduino Raspberry Pi Pico with Telemetry
