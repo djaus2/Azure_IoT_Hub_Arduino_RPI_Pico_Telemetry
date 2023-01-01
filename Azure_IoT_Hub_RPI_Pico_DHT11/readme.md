@@ -1,20 +1,27 @@
 ---
 page_type: sample
-description: Connecting a RPI Pico W as an Arduino device, to Azure IoT using the Azure SDK for Embedded C. Based upon the ESP8256 version.
+description: Generate real enevironmental telemetry data on a RPI Pico W as an Arduino device and send to an Azure IoT Hub.
 languages:
 - c
 products:
 - azure-iot
-- azure-iot-pnp
-- azure-iot-dps
 - azure-iot-hub
+peripherals:
+- DHT11
 ---
+
 
 # Azure IoT Hub RPI Pico DHT11
 
 -   [Getting Started](#Getting-Started)
     
 -   [Setup for the DHT11](#Setup-for-the-DHT11)
+
+## About
+
+This example addes a DHT11 Temperature-Pressure Sensor to geneerate real Telemetry data.
+
+> Nb: THe SDK API is documented [here](https://azuresdkdocs.blob.core.windows.net/$web/c/az_iot/1.1.0-beta.2/index.html)
 
 ## Getting Started
 
