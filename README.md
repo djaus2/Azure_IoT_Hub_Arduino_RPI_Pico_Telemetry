@@ -16,9 +16,13 @@ I'm using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Ba
   - Makes use of formal generation of Json string.
   - This is a template for other sensors.
 - Azure IoT Hub RPI Pico LDR
-  - Reading light intensity using a Light Dependent Resistor (LDR).
+  - Reading light intensity using a Light Dependent Resistor (LDR)  as per the DHT11 template.
 - Azure_IoT_Hub_RPI_Pico_Thermistor
   - A Thermistor temperature sensor as per the DHT11 template.
   - Circuit and code quite similar to the LDR.
+ - Azure_IoT_Hub_RPI_Pico_BME280 *Coming*
+ 
+ ## 2Do
+ - Handle CD Messages, Methods, Properties etc.
 
 
