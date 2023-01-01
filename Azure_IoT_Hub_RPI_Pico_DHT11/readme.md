@@ -43,8 +43,7 @@ This example addes a DHT11 Temperature-Pressure Sensor to geneerate real Telemet
 
 ## Circuit
 
-![DHT11-Circuit](./DHT11-Circuit.png)
-
+![DHT11-Circuit](./DHT11-Circuit.png)  
 Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repository) 
 
 ## Running
