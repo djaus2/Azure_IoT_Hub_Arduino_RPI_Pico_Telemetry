@@ -19,6 +19,6 @@ I'm using a Freenove Basic Starter Kit and Rpi Pico. See the ReadMe in the Base 
   - Reading light intensity using a Light Dependent Resistor (LDR).
 - Azure_IoT_Hub_RPI_Pico_Thermistor
   - A Thermistor temperature sensor as per the DHT11 template.
-  - Circuit and code quite similar to the LDR
+  - Circuit and code quite similar to the LDR.
 
 
