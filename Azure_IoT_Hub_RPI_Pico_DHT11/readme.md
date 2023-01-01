@@ -41,6 +41,12 @@ This example addes a DHT11 Temperature-Pressure Sensor to geneerate real Telemet
   - Select and install.
 - Verify the code
 
+## Circuit
+
+![DHT11-Circuit](./DHT11-Circuit.png)
+
+Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repostory) 
+
 ## Running
 - Upload then switch to the Serial Monitor.
 - You should see something like:
