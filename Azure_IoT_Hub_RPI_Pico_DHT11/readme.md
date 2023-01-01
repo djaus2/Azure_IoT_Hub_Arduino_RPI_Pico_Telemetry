@@ -116,3 +116,35 @@ az iot hub monitor-events --login <your Azure IoT Hub owner connection string in
   "humidity": 44
 }
 ```
+
+## Code
+
+The main code change here is to getTelemetryPayload() :
+```
+// Sensors etc
+#include <dht.h>
+#include <ArduinoJson.h>
+
+int dhtPin = 15;                  // the number of the DHT11 sensor pin
+dht DHT;
+
+DynamicJsonDocument doc(1024);
+char jsonStr[64];
+char ret[64];
+
+static char* getTelemetryPayload()
+{
+  int chk = DHT.read11(dhtPin);
+  if (chk == DHTLIB_OK) {
+    doc["msgCount"]   = telemetry_send_count ++;
+    doc["temp"]   = DHT.temperature;
+    doc["humidity"]   = DHT.humidity;
+    serializeJson(doc, jsonStr);
+    az_span temp_span = az_span_create_from_str(jsonStr);
+    az_span_to_str((char *)telemetry_payload, sizeof(telemetry_payload), temp_span);
+  }
+  else
+    telemetry_payload[0] = 0;
+  return (char*)telemetry_payload;
+}
+```
