@@ -359,6 +359,7 @@ static void sendTelemetry()
   char *   payload = getTelemetryPayload();
   if (strlen(payload)!= 0)
   {
+    Serial.println(payload);
     mqtt_client.publish(telemetry_topic, payload, false);
     Serial.println("OK");
   }

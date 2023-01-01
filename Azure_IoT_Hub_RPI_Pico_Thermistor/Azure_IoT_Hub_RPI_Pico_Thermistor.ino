@@ -25,7 +25,6 @@
  */
 
 // Sensors etc
-#include <dht.h>
 #include <ArduinoJson.h>
 
 // C99 libraries
@@ -347,6 +346,7 @@ static void sendTelemetry()
     return;
   }
   char *   payload = getTelemetryPayload();
+  Serial.println(payload);
   if (strlen(payload)!= 0)
   {
     mqtt_client.publish(telemetry_topic, payload, false);

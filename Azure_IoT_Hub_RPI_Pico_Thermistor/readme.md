@@ -47,15 +47,19 @@ Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repostory)
 - Upload then switch to the Serial Monitor.
 - You should see something like:
 ```
-.........WiFi connected, IP address: 192.168.0.14
-Setting time using SNTP......done!
-Current time: Sun Jan  1 04:30:55 2023
+..........WiFi connected, IP address: 192.168.0.14
+Setting time using SNTP.done!
+Current time: Sun Jan  1 06:15:56 2023
 Client ID: PicoDev137
 Username: PicoHub137.azure-devices.net/PicoDev137/?api-version=2020-09-30&DeviceClientType=c%2F1.5.0-beta.1(ard;rpipico)
 MQTT connecting ... connected.
-11352 RPI Pico (Arduino) Sending telemetry . . . OK
-14052 RPI Pico (Arduino) Sending telemetry . . . OK
-16947 RPI Pico (Arduino) Sending telemetry . . . OK
+8852 RPI Pico (Arduino) Sending telemetry . . . {"msgCount":0,"tempC":32.22362124,"tempK":305.3736212}
+OK
+11052 RPI Pico (Arduino) Sending telemetry . . . {"msgCount":1,"tempC":31.8461691,"tempK":304.9961691}
+OK
+13802 RPI Pico (Arduino) Sending telemetry . . . {"msgCount":2,"tempC":31.94035926,"tempK":305.0903593}
+OK
+16466 RPI Pico (Arduino) Sending telemetry . . . {"msgCount":3,"tempC":32.03466403,"tempK":305.184664}
 ```
 
 ## Monitor Telemetry
@@ -67,13 +71,14 @@ az iot hub monitor-events --login <your Azure IoT Hub owner connection string in
 ```
 
 ```
+Starting event monitor, filtering on device: PicoDev137, use ctrl-c to stop...
 {
     "event": {
         "origin": "PicoDev137",
         "module": "",
         "interface": "",
         "component": "",
-        "payload": "{\"msgCount\":163,\"temp\":31.2,\"humidity\":45}"
+        "payload": "{\"msgCount\":13,\"tempC\":32.03466403,\"tempK\":305.184664}"
     }
 }
 {
@@ -82,7 +87,7 @@ az iot hub monitor-events --login <your Azure IoT Hub owner connection string in
         "module": "",
         "interface": "",
         "component": "",
-        "payload": "{\"msgCount\":164,\"temp\":31.2,\"humidity\":45}"
+        "payload": "{\"msgCount\":14,\"tempC\":31.94035926,\"tempK\":305.0903593}"
     }
 }
 {
@@ -91,7 +96,7 @@ az iot hub monitor-events --login <your Azure IoT Hub owner connection string in
         "module": "",
         "interface": "",
         "component": "",
-        "payload": "{\"msgCount\":165,\"temp\":31.2,\"humidity\":44}"
+        "payload": "{\"msgCount\":15,\"tempC\":31.94035926,\"tempK\":305.0903593}"
     }
 }
 ```
@@ -106,23 +111,28 @@ az iot hub monitor-events --login <your Azure IoT Hub owner connection string in
 - Right click on that and select "Start Monitoring Built-In Endpoint"
 
 ```
-[IoTHubMonitor] [3:40:22 PM] Message received from [PicoDev137]:
+[IoTHubMonitor] Start monitoring message arrived in built-in endpoint for device [PicoDev137] ...
+[IoTHubMonitor] Created partition receiver [0] for consumerGroup [$Default]
+[IoTHubMonitor] Created partition receiver [1] for consumerGroup [$Default]
+[IoTHubMonitor] Created partition receiver [2] for consumerGroup [$Default]
+[IoTHubMonitor] Created partition receiver [3] for consumerGroup [$Default]
+[IoTHubMonitor] [5:15:59 PM] Message received from [PicoDev137]:
 {
-  "msgCount": 216,
-  "temp": 31.2,
-  "humidity": 44
+  "msgCount": 0,
+  "tempC": 32.22362124,
+  "tempK": 305.3736212
 }
-[IoTHubMonitor] [3:40:25 PM] Message received from [PicoDev137]:
+[IoTHubMonitor] [5:16:01 PM] Message received from [PicoDev137]:
 {
-  "msgCount": 217,
-  "temp": 31.2,
-  "humidity": 44
+  "msgCount": 1,
+  "tempC": 31.8461691,
+  "tempK": 304.9961691
 }
-[IoTHubMonitor] [3:40:28 PM] Message received from [PicoDev137]:
+[IoTHubMonitor] [5:16:03 PM] Message received from [PicoDev137]:
 {
-  "msgCount": 218,
-  "temp": 31.2,
-  "humidity": 44
+  "msgCount": 2,
+  "tempC": 31.94035926,
+  "tempK": 305.0903593
 }
 ```
 
@@ -130,30 +140,25 @@ az iot hub monitor-events --login <your Azure IoT Hub owner connection string in
 
 The main code change here is to getTelemetryPayload() :
 ```
-// Sensors etc
-#include <dht.h>
 #include <ArduinoJson.h>
 
-int dhtPin = 15;                  // the number of the DHT11 sensor pin
-dht DHT;
+#define PIN_ADC0   26
 
-DynamicJsonDocument doc(1024);
-char jsonStr[64];
-char ret[64];
 
 static char* getTelemetryPayload()
 {
-  int chk = DHT.read11(dhtPin);
-  if (chk == DHTLIB_OK) {
+    int adcValue = analogRead(PIN_ADC0);                            //read ADC pin
+    double voltage = (float)adcValue / 1023.0 * 3.3;                // calculate voltage
+    double Rt = 10 * voltage / (3.3 - voltage);                     //calculate resistance value of thermistor
+    double tempK = 1 / (1 / (273.15 + 25) + log(Rt / 10) / 3950.0); //calculate temperature (Kelvin)
+    double tempC = tempK - 273.15;                                  //calculate temperature (Celsius)
     doc["msgCount"]   = telemetry_send_count ++;
-    doc["temp"]   = DHT.temperature;
-    doc["humidity"]   = DHT.humidity;
+    doc["tempC"]   = tempC;
+    doc["tempK"]   = tempK;
     serializeJson(doc, jsonStr);
     az_span temp_span = az_span_create_from_str(jsonStr);
     az_span_to_str((char *)telemetry_payload, sizeof(telemetry_payload), temp_span);
-  }
-  else
-    telemetry_payload[0] = 0;
+
   return (char*)telemetry_payload;
 }
 ```
