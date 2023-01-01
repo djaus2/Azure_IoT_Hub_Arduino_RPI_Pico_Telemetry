@@ -11,7 +11,7 @@ peripherals:
 ---
 
 
-# Azure IoT Hub RPI Pico DHT11
+# Azure IoT Hub RPI Pico Thermistor
 
 -   [Getting Started](#Getting-Started)
     
