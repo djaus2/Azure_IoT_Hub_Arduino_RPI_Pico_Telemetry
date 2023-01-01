@@ -15,7 +15,10 @@ I'm using a Freenove Basic Starter Kit and Rpi Pico. See the ReadMe in the Base 
   - Reads a DHT11 sensor and sends Temperature and Pressure as Telemetry.
   - Makes use of formal generation of Json string.
   - This is a template for other sensors.
+- Azure IoT Hub RPI Pico LDR
+  - Reading light intensity using a Light Dependent Resistor (LDR).
 - Azure_IoT_Hub_RPI_Pico_Thermistor
-  - A Thermistor temperature sensor as per the DHT11 template
+  - A Thermistor temperature sensor as per the DHT11 template.
+  - Circuit and code quite similar to the LDR
 
 
