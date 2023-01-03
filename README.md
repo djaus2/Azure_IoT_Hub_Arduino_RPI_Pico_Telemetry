@@ -37,7 +37,7 @@ and managing an Azure IoT Hub and releated entities. See:
 [Azure IoT Hub PowerShell Scripts](https://github.com/djaus2/az-iothub-ps)
 
 - Get an Azure Subscription (You can get a free one for a month or so).
-= When cloned open the PS folder in VS Code and from a terminal run:
+- Clone the above repository and open the PS folder in VS Code and from a terminal run:
 
 ```
 ./get-iothub
