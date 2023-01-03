@@ -27,7 +27,7 @@ This example addes a Themistor Temperature Sensor to generate  Telemetry data.
 
 - Get the Pico sending some simulated data as per the Base project ReadMe.
 
-## Setup for the KDR
+## Setup for the LDR
 - Setup the WiFi and Azure IoT Hub connection in iot_configs.h as per the Base._ 
 - Test Sketch:.
   - From he root of the Freenove clone locally,
