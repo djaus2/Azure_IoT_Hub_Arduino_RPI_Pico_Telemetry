@@ -99,8 +99,10 @@ OK
     - Toggles the builtIn LED
     - Note that this also toggles with MQTT telemetry sends.
 
-- You can also send Messages to the device from the cloud, THe Serial terminal with show them 
-but device does no further processing of them,
+- You can also send Messages to the device from the cloud.
+- From the same emnu as above.
+- A single enetr as no payload.
+- The Serial terminal with show them but device does no further processing of them,
 
 
 
