@@ -58,7 +58,6 @@
 #define AZURE_SDK_CLIENT_USER_AGENT "c%2F" AZ_SDK_VERSION_STRING "(ard;rpipico)"
 
 // Utility macros and defines
-#define LED_PIN 2
 #define sizeofarray(a) (sizeof(a) / sizeof(a[0]))
 #define ONE_HOUR_IN_SECS 3600
 #define NTP_SERVERS "pool.ntp.org", "time.nist.gov"
@@ -546,7 +545,7 @@ static void establishConnection()
     connectToAzureIoTHub();
   }
 
-  digitalWrite(LED_PIN, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 #define PIN_ADC0   26

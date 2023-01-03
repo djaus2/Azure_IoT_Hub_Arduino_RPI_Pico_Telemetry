@@ -54,7 +54,6 @@
 #define AZURE_SDK_CLIENT_USER_AGENT "c%2F" AZ_SDK_VERSION_STRING "(ard;rpipico)"
 
 // Utility macros and defines
-#define LED_PIN 2
 #define sizeofarray(a) (sizeof(a) / sizeof(a[0]))
 #define ONE_HOUR_IN_SECS 3600
 #define NTP_SERVERS "pool.ntp.org", "time.nist.gov"
@@ -303,7 +302,7 @@ static void establishConnection()
     connectToAzureIoTHub();
   }
 
-  digitalWrite(LED_PIN, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 static char* getTelemetryPayload()
@@ -319,7 +318,7 @@ static char* getTelemetryPayload()
 
 static void sendTelemetry()
 {
-  digitalWrite(LED_PIN, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   Serial.print(millis());
   
   Serial.print(" RPI Pico (Arduino) Sending telemetry . . . ");
@@ -334,15 +333,15 @@ static void sendTelemetry()
   mqtt_client.publish(telemetry_topic, getTelemetryPayload(), false);
   Serial.println("OK");
   delay(100);
-  digitalWrite(LED_PIN, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 // Arduino setup and loop main functions.
 
 void setup()
 {
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
   establishConnection();
 }
 
