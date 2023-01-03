@@ -19,15 +19,12 @@ peripherals:
 
 ## About
 
-This example addes a Themistor Temperature Sensor to generate  Telemetry data.
+This example addes Cloud to Device Method responses to the Themistor Temperature Sensor Telemetry Sketch..
 
 > Nb: THe SDK API is documented [here](https://azuresdkdocs.blob.core.windows.net/$web/c/az_iot/1.1.0-beta.2/index.html)
 
-## Getting Started
-
-- Get the Pico sending some simulated data as per the Base project ReadMe.
-
 ## Setup for the LDR
+- *Nb: Unchanged from the other Thermistor Sketch.*
 - Setup the WiFi and Azure IoT Hub connection in iot_configs.h as per the Base._ 
 - Test Sketch:.
   - From he root of the Freenove clone locally,
@@ -36,6 +33,8 @@ This example addes a Themistor Temperature Sensor to generate  Telemetry data.
 - Verify the code
 
 ## Circuit
+
+- *Unchanged*
 
 ![LDR-Circuit](./Light-Sensor-Circuit.png)
 
@@ -47,6 +46,7 @@ Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repository)
 
 ## Running
 - Upload then switch to the Serial Monitor.
+- **This Sketch has the Telemetry stopped. See VS Code for how to start it first.^^^
 - Cover and uncover the LDR. Covered = higher value.
 - You should see something like:
 ```
@@ -70,45 +70,6 @@ OK
 OK
 ```
 
-## Monitor Telemetry
-
-### In a Terminal
-- In a desktop terminal context that has AzureCli with the IoT Extensiomn installed (See Base ReadMe):  
-```
-az iot hub monitor-events --login <your Azure IoT Hub owner connection string in quotes> --device-id <your device id>
-```
-
-```
-Starting event monitor, filtering on device: PicoDev137, use ctrl-c to stop...
-{
-    "event": {
-        "origin": "PicoDev137",
-        "module": "",
-        "interface": "",
-        "component": "",
-        "payload": "{\"msgCount\":2,\"value\":176}"
-    }
-}
-{
-    "event": {
-        "origin": "PicoDev137",
-        "module": "",
-        "interface": "",
-        "component": "",
-        "payload": "{\"msgCount\":3,\"value\":80}"
-    }
-}
-{
-    "event": {
-        "origin": "PicoDev137",
-        "module": "",
-        "interface": "",
-        "component": "",
-        "payload": "{\"msgCount\":4,\"value\":141}"
-    }
-}
-```
-
 ### In VS Code
 - Add the Azure IoT Hub Extension
 - Add The IoT Hub [Select and IoT Hub] and follow the directions.
@@ -117,58 +78,38 @@ Starting event monitor, filtering on device: PicoDev137, use ctrl-c to stop...
   - Then select the Hub
 - In the left pane select the hub then the device.
 - Right click on that and select "Start Monitoring Built-In Endpoint"
+- You will see nothing so far.
+- Right Click on the Device in VS Code and select "Invoke Device Direct Method".
 
-```
-[IoTHubMonitor] Start monitoring message arrived in built-in endpoint for device [PicoDev137] ...
-[IoTHubMonitor] Created partition receiver [0] for consumerGroup [$Default]
-[IoTHubMonitor] Created partition receiver [1] for consumerGroup [$Default]
-[IoTHubMonitor] Created partition receiver [2] for consumerGroup [$Default]
-[IoTHubMonitor] Created partition receiver [3] for consumerGroup [$Default]
-[IoTHubMonitor] [6:43:06 PM] Message received from [PicoDev137]:
-{
-  "msgCount": 3,
-  "value": 76
-}
-[IoTHubMonitor] [6:43:09 PM] Message received from [PicoDev137]:
-{
-  "msgCount": 4,
-  "value": 128
-}
-[IoTHubMonitor] [6:43:11 PM] Message received from [PicoDev137]:
-{
-  "msgCount": 5,
-  "value": 143
-}
-[IoTHubMonitor] [6:45:21 PM] Message received from [PicoDev137]:
-{
-  "msgCount": 0,
-  "value": 78
-}
-[IoTHubMonitor] [6:45:23 PM] Message received from [PicoDev137]:
-{
-  "msgCount": 1,
-  "value": 79
-}
-```
+![LDR](./InvokeMethod.png)
+
+- In th epopup (top in middle) enter start, press enter twice
+-You should now see Telemetry in VS Code and in the Serial Terminal
+= Commands 
+  - Note case sensitive
+    - And only the first 4 characters matter- 
+  - start
+    - No Payload
+  - stop
+    - No payload
+  - frequency
+    - Requires a payload.- 
+    - After first return enter a period (in seconds) then press enter.
+  - Toggle
+    - Toggles the builtIn LED
+    - Note that this also toggles with MQTT telemetry sends.
+
+- You can also send Messages to the device from the cloud, THe Serial terminal with show them 
+but device does no further processing of them,
+
+
 
 ## Code
 
-The main code change here is to getTelemetryPayload() :
+There are substantial code additions to handle the methods. See the .ino file.
+See:
 ```
-#include <ArduinoJson.h>
-
-#define PIN_ADC0   26
-
-
-static char* getTelemetryPayload()
-{
-    int adcValue = analogRead(PIN_ADC0);                            //read ADC pin
-    doc["msgCount"]   = telemetry_send_count ++;
-    doc["value"]   = map(adcValue, 0, 1023, 0, 255);
-    serializeJson(doc, jsonStr);
-    az_span temp_span = az_span_create_from_str(jsonStr);
-    az_span_to_str((char *)telemetry_payload, sizeof(telemetry_payload), temp_span);
-
-  return (char*)telemetry_payload;
-}
+bool isNumeric(const char* s);
+bool DoMethod(char * method, char * payload);
+AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_number);
 ```

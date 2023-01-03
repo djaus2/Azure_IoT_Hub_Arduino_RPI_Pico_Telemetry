@@ -85,6 +85,10 @@ static char telemetry_topic[128];
 static uint8_t telemetry_payload[100];
 static uint32_t telemetry_send_count = 0;
 
+bool isNumeric(const char* s);
+bool DoMethod(char * method, char * payload);
+AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_number);
+
 static bool IsRunning=false;
 static bool LEDIsOn = false;
 static unsigned long TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
