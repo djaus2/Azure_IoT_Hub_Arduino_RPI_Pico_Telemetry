@@ -29,4 +29,25 @@ I'm using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Ba
  ## 2Do
  - Handle CD Messages, Methods, Properties etc.
 
+## Setting up the IoT Hub
+
+I have another repository that when cloned and opened in VS Code provides a menu driven context for creating 
+and managing an Azure IoT Hub and releated entities. See:
+
+[Azure IoT Hub PowerShell Scripts](https://github.com/djaus2/az-iothub-ps)
+
+- Get an Azure Subscription (You can get a free one for a month or so).
+= When cloned open the PS folder in VS Code and from a terminal run:
+
+```
+./get-iothub
+```
+
+![get-iothub.ps1](./get-iothub.png)
+
+= Select the subscription and login
+- Create a new Group
+- Create a new IoT Hub
+- Create a new Device
+- Get the Connectivity details *(Environment Variables)**
 
