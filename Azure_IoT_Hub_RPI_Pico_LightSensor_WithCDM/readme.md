@@ -84,7 +84,8 @@ OK
 ![LDR](./InvokeMethod.png)
 
 - In th epopup (top in middle) enter start, press enter twice
--You should now see Telemetry in VS Code and in the Serial Terminal
+- You should now see Telemetry in VS Code and in the Serial Terminal.
+
 = Commands 
   - Note case sensitive
     - And only the first 4 characters matter- 
@@ -103,7 +104,6 @@ OK
 - From the same emnu as above.
 - A single enetr as no payload.
 - The Serial terminal with show them but device does no further processing of them,
-
 
 
 ## Code
