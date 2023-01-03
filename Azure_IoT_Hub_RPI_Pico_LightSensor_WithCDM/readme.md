@@ -116,4 +116,5 @@ See:
 bool isNumeric(const char* s);
 bool DoMethod(char * method, char * payload);
 AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_number);
+void receivedCallback(char* topic, byte* payload, unsigned int length)l
 ```
