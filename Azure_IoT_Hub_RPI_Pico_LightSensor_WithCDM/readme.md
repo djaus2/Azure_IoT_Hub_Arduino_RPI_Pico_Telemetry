@@ -75,8 +75,10 @@ OK
 
 ![LDR](./InvokeMethod.png)
 
-- In th epopup (top in middle) enter start, press enter twice
-- You should now see Telemetry in VS Code and in the Serial Terminal.
+- In the popup (top in middle) enter start, press enter twice. (No payload)
+- You should now see Telemetry in VS Code:
+  - In VS Code Menu as above "Start Monitoring Built-In Event Endpoint"
+- Telemetry should now be visiable in the Serial Terminal.
 
 #### All Commands (CD Methods)
   - Note case sensitive
@@ -91,12 +93,12 @@ OK
   - Toggle
     - Toggles the builtIn LED
     - Note that this also toggles with MQTT telemetry sends.
-    - This could esily be a Cloud activate relay or other actuator.
+    - This could esily be a Cloud activated relay or other actuator.
 
 #### Messages
 - You can also send Messages to the device from the cloud.
-- From the same emnu as above.
-- A single enetr as no payload.
+- From the same menu as above.
+- A single enter as no payload.
 - The Serial terminal with show them but device does no further processing with them,
 
 
