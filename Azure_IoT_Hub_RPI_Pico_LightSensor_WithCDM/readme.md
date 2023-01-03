@@ -46,7 +46,7 @@ Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repository)
 
 ## Running
 - Upload then switch to the Serial Monitor.
-- **This Sketch has the Telemetry stopped. See VS Code for how to start it first.^^^
+- **This Sketch has the Telemetry stopped. See VS Code for how to start it first.**
 - Cover and uncover the LDR. Covered = higher value.
 - You should see something like:
 ```
@@ -59,14 +59,6 @@ MQTT connecting ... connected.
 11252 RPI Pico (Arduino) Sending telemetry . . . {"msgCount":0,"value":76}
 OK
 13952 RPI Pico (Arduino) Sending telemetry . . . {"msgCount":1,"value":167}
-OK
-16609 RPI Pico (Arduino) Sending telemetry . . . {"msgCount":2,"value":166}
-OK
-18802 RPI Pico (Arduino) Sending telemetry . . . {"msgCount":3,"value":76}
-OK
-21552 RPI Pico (Arduino) Sending telemetry . . . {"msgCount":4,"value":128}
-OK
-24252 RPI Pico (Arduino) Sending telemetry . . . {"msgCount":5,"value":143}
 OK
 ```
 
