@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: Generate  environmental telemetry data on a RPI Pico W as an Arduino device and send to an Azure IoT Hub.
+description: Generate  environmental telemetry data on a RPI Pico W as an Arduino device and send to an Azure IoT Hub. And send Cloud to Device Commands.
 languages:
 - c
 products:
@@ -11,11 +11,9 @@ peripherals:
 ---
 
 
-# Azure IoT Hub RPI Pico LDR
+# Azure IoT Hub RPI Pico LDR withCloud to Device Methods
 
--   [Getting Started](#Getting-Started)
-    
--   [Setup for the LDR](#Setup-for-the-LDR)
+  -   [Setup for the LDR](#Setup-for-the-LDR)
 
 ## About
 
