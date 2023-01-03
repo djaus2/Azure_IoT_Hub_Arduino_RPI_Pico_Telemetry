@@ -86,24 +86,26 @@ OK
 - In th epopup (top in middle) enter start, press enter twice
 - You should now see Telemetry in VS Code and in the Serial Terminal.
 
-= Commands 
+#### All Commands (CD Methods)
   - Note case sensitive
-    - And only the first 4 characters matter- 
+    - And only the first 4 characters matter.
   - start
     - No Payload
   - stop
     - No payload
   - frequency
-    - Requires a payload.- 
+    - Requires a payload.
     - After first return enter a period (in seconds) then press enter.
   - Toggle
     - Toggles the builtIn LED
     - Note that this also toggles with MQTT telemetry sends.
+    - This could esily be a Cloud activate relay or other actuator.
 
+#### Messages
 - You can also send Messages to the device from the cloud.
 - From the same emnu as above.
 - A single enetr as no payload.
-- The Serial terminal with show them but device does no further processing of them,
+- The Serial terminal with show them but device does no further processing with them,
 
 
 ## Code
