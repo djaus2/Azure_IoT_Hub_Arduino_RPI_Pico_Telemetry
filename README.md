@@ -53,6 +53,6 @@ In get-iothub, Menu 6 then 1. Info at bottom.
 - Create a new IoT Hub
 - Create a new Device
 - Get the Connectivity details *(Environment Variables)**
-  - Menu OPtion 6 then 1. Info at bottom.  
+  - Menu Option 6 then 1. Info at bottom.  
 Copy and paste into header file
 
