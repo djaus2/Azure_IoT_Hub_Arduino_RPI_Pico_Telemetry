@@ -43,6 +43,9 @@ and managing an Azure IoT Hub and releated entities. See:
 ./get-iothub
 ```
 
+> **New:** Can generate C Header File Device connectivity for Azure SDK for C Arduino:  
+In get-iothub, Menu 6 then 1. Info at bottom.
+
 ![get-iothub.ps1](./get-iothub.png)
 
 = Select the subscription and login
