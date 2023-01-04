@@ -49,5 +49,5 @@ and managing an Azure IoT Hub and releated entities. See:
 - Create a new Group
 - Create a new IoT Hub
 - Create a new Device
-- Get the Connectivity details *(Environment Variables)**
+- Get the Connectivity details **(Environment Variables)**
 
