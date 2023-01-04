@@ -26,8 +26,8 @@ I'm using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Ba
    - This version will interpret a number of Cloud to Device Commands (Methods) and run them. Added
      - Lacks ability to send acknowledgment back to the cloud.
  
- ## 2Do
- - Handle CD Messages, Methods, Properties etc.
+## 2Do
+ - Handle ~~CD Messages~~, ~~Methods~~, Properties etc.
 
 ## Setting up the IoT Hub
 
