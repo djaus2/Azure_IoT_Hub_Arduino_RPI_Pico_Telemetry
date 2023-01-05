@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: Generate  environmental telemetry data on a RPI Pico W as an Arduino device and send to an Azure IoT Hub. And send Cloud to Device Commands.
+description: Send Cloud to Device Commands and generate  environmental telemetry data on a RPI Pico W as an Arduino device and send to an Azure IoT Hub. 
 languages:
 - c
 products:
@@ -11,13 +11,13 @@ peripherals:
 ---
 
 
-# Azure IoT Hub RPI Pico LDR withCloud to Device Methods
+# Azure IoT Hub RPI Pico LDR with Cloud to Device Methods
 
   -   [Setup for the LDR](#Setup-for-the-LDR)
 
 ## About
 
-This example addes Cloud to Device Method responses to the Themistor Temperature Sensor Telemetry Sketch..
+This example adds Cloud to Device Method responses to the Themistor Temperature Sensor Telemetry Sketch..
 
 > Nb: THe SDK API is documented [here](https://azuresdkdocs.blob.core.windows.net/$web/c/az_iot/1.1.0-beta.2/index.html)
 
@@ -99,14 +99,26 @@ OK
 - A single enter as no payload.
 - The Serial terminal with show them but device does no further processing with them,
 
+## Azure IoT Explorer
+
+- Can monitor Telemetry with this as well as send Messages.
+- Also, can make Method calls.
+- Install the  most recent version of [Azure IoT
+    Explorer](https://github.com/Azure/azure-iot-explorer/releases).
+- More instruction on its usage can be found
+    [here](https://docs.microsoft.com/azure/iot-pnp/howto-use-iot-explorer)
+
+![DirectMethod](./DirectMethod.png)  
+***Sending a Method call and showing the response.***
+
 
 ## Code
 
 There are substantial code additions to handle the methods. See the .ino file.
 See:
 ```
-bool isNumeric(const char* s);
-bool DoMethod(char * method, char * payload);
+static bool isNumeric(const char* s);
+static bool DoMethod(char * method, char * payload);
+static char* get_Method_Response(az_span az_span_id, char * method, char * parameter, uint32_t id, uint16_t status); 
 AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_number);
-void receivedCallback(char* topic, byte* payload, unsigned int length)l
 ```

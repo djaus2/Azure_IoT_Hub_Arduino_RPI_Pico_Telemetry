@@ -22,9 +22,9 @@ I'm using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Ba
   - Circuit and code quite similar to the LDR.
  - Azure_IoT_Hub_RPI_Pico_BME280 *Coming*
  - Azure IoT Hub RPI Pico LDR with Cloud to Device Messages and Commands
-   - Messages: All versions will display Cloud to Device Messages to it. Unchanged
+   - Messages: All Sketches will display Cloud to Device Messages to it. Unchanged
    - This version will interpret a number of Cloud to Device Commands (Methods) and run them. Added
-     - Lacks ability to send acknowledgment back to the cloud.
+     - Now sends acknowledgment back to the cloud.
  
 ## 2Do
  - Handle ~~CD Messages~~, ~~Methods~~, Properties etc.

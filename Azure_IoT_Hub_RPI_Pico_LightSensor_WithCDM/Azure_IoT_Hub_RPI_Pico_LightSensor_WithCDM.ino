@@ -85,15 +85,100 @@ static char telemetry_topic[128];
 static uint8_t telemetry_payload[100];
 static uint32_t telemetry_send_count = 0;
 
-bool isNumeric(const char* s);
-bool DoMethod(char * method, char * payload);
+// Move to header if needed:
+static bool isNumeric(const char* s);
+static bool DoMethod(char * method, char * payload);
+static char* get_Method_Response(az_span az_span_id, char * method, char * parameter, uint32_t id, uint16_t status); 
 AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_number);
 
 static bool IsRunning=false;
 static bool LEDIsOn = false;
 static unsigned long TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
 
-#define _az_NUMBER_OF_DECIMAL_VALUES 16
+
+
+
+char * methodResponseBuffer;
+DynamicJsonDocument methodResponseDoc(64);
+// Called by receivedCallback() if call is a CD Method call after the method is actioned
+// Generate the payload to send back
+static char* get_Method_Response(
+  az_span az_span_id, 
+  char * method, 
+  char * parameter, 
+  uint32_t id,
+  uint16_t status 
+  )
+{
+  char jsonResponseStr[100];
+  methodResponseBuffer = (char *)malloc(100);
+  az_result rc = az_iot_hub_client_methods_response_get_publish_topic(
+    &client, //&hub_client,
+    az_span_id,
+    status,
+    methodResponseBuffer,
+    100,
+    NULL);
+    if (az_result_failed(rc))
+  {
+    Serial.println("Falied: az_iot_hub_client_methods_response_get_publish_topic");
+  }
+  methodResponseDoc["request_id"] = id;
+  methodResponseDoc["mothod"] = method;
+  methodResponseDoc["parameter"] = parameter;
+  serializeJson(methodResponseDoc, jsonResponseStr);
+  az_span temp_span = az_span_create_from_str(jsonResponseStr);
+  az_span_to_str((char *)telemetry_payload, sizeof(telemetry_payload), temp_span);
+  return (char*)telemetry_payload;
+}
+
+/* Suggested code for this from 
+   https://github.com/Azure/azure-sdk-for-c/blob/d0ae29572be3ecf4ff272b11c62f448649b63268/sdk/samples/iot/paho_iot_hub_twin_sample.c
+   (static void send_method_response(
+    az_iot_hub_client_method_request const* method_request,
+    az_iot_status status,
+    az_span response)
+{
+  int rc;
+
+  // Get the Methods Response topic to publish the method response.
+  char methods_response_topic_Buffer[128];
+  rc = az_iot_hub_client_methods_response_get_publish_topic(
+      &client, //&hub_client,
+      method_request->request_id,
+      (uint16_t)status,
+      methods_response_topic_Buffer,
+      sizeof(methods_response_topic_Buffere),
+      NULL);
+  if (az_result_failed(rc))
+  {
+    Serial.print(
+    //IOT_SAMPLE_LOG_ERROR(
+        //"Failed to get the Methods Response topic: az_result return code 0x%08x.", rc);
+                "Failed to get the Methods Response topic: az_result return code 0x%08x.");
+     Serial.println(rc);
+    exit(rc);
+  }
+
+  // Publish the method response.
+  mqtt_client.publish_P()
+  rc = MQTTClient_publish(
+      mqtt_client,
+      methods_response_topic_Buffer,
+      az_span_size(response),
+      az_span_ptr(response),
+      IOT_SAMPLE_MQTT_PUBLISH_QOS,
+      0,
+      NULL);
+  if (rc != MQTTCLIENT_SUCCESS)
+  {
+    //IOT_SAMPLE_LOG_ERROR("Failed to publish the Methods response: MQTTClient return code %d.", rc);
+    exit(rc);
+  }
+  //IOT_SAMPLE_LOG_SUCCESS("Client published the Methods response.");
+  //IOT_SAMPLE_LOG("Status: %u", (uint16_t)status);
+  //IOT_SAMPLE_LOG_AZ_SPAN("Payload:", response);
+}*/
 
 bool isNumeric(const char* s){
     while(*s){
@@ -105,7 +190,7 @@ bool isNumeric(const char* s){
 }
 
 
-
+//Perform the method with optional payload that is interpretted as an integer
 bool DoMethod(char * method, char * payload)
 {
   Serial.print("Method: ");
@@ -203,6 +288,11 @@ bool DoMethod(char * method, char * payload)
   return true;
 }
 
+#define _az_NUMBER_OF_DECIMAL_VALUES 16
+
+// Get char digits into an integer from the source as an az_span until char is not a digit
+// Digits are HEX as per _az_NUMBER_OF_DECIMAL_VALUES
+// From az_span_atou32() az_span.h https://azuresdkdocs.blob.core.windows.net/$web/c/az_iot/1.0.0/az__span_8h_source.html
 AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_number)
 {
   //_az_PRECONDITION_VALID_SPAN(source, 1, false);
@@ -323,6 +413,9 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
   // Get a 'porper' string from topic
   memset(_topic, '\0', sizeof(_topic));
   strncpy(_topic, topic, topicLen);
+  Serial.println("============");
+  Serial.println(_topic);
+  Serial.println("============");
 
   //Get a 'proper' string from the payload
   memset(_payload, '\0', sizeof(_payload));
@@ -366,6 +459,17 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
 
       //Call method
       bool methodResult = DoMethod(requestName,_payload);
+      char * resp = get_Method_Response(request.request_id,requestName,_payload ,id, 200);
+      bool responseResponse = mqtt_client.publish((char *)methodResponseBuffer, resp, false);
+      if ( responseResponse)
+      {
+          Serial.println("A_OK: CD Method Response to Cloud");
+      }
+      else
+      {
+          Serial.println("N_OK: CD Method Response to Cloud");
+      }
+      free(methodResponseBuffer);
       //Need to send this result back ??
       /*
       {
