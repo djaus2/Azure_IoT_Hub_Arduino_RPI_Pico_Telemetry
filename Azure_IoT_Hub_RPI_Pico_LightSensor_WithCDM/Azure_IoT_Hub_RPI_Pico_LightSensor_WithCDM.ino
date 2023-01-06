@@ -662,11 +662,13 @@ DynamicJsonDocument doc(1024);
 char jsonStr[64];
 char ret[64];
 
-static char* getTelemetryPayload()
+static char* getTelemetryPayload(int * value )
 {
     int adcValue = analogRead(PIN_ADC0);                            //read ADC pin
     doc["msgCount"]   = telemetry_send_count ++;
-    doc["value"]   = map(adcValue, 0, 1023, 0, 255);
+    *value = map(adcValue, 0, 1023, 0, 255);    
+    doc["value"] = *value;
+  
     serializeJson(doc, jsonStr);
     az_span temp_span = az_span_create_from_str(jsonStr);
     az_span_to_str((char *)telemetry_payload, sizeof(telemetry_payload), temp_span);
@@ -680,14 +682,43 @@ static void sendTelemetry()
   Serial.print(millis());
   
   Serial.print(" RPI Pico (Arduino) Sending telemetry . . . ");
- 
+
+  int telemetryValue;
+  char *   payload = getTelemetryPayload(&telemetryValue);
+  
+  // Add a property to the message  
+  az_iot_message_properties properties;
+  uint32_t msgLength;
+  az_result az_result;
+  if (telemetryValue>100)
+  {
+    //From: https://github.com/Azure/azure-sdk-for-c  Issue #1471
+    msgLength = (uint32_t)strlen(NO_WARNING);
+    az_span string = AZ_SPAN_LITERAL_FROM_STR(NO_WARNING);
+    uint8_t a[64];
+    az_span s = AZ_SPAN_FROM_BUFFER(a);
+    az_span_copy(s, string);
+    az_result = az_iot_message_properties_init(&properties, s, msgLength);
+  }
+  else
+  {
+     //From: https://github.com/Azure/azure-sdk-for-c  Issue #1471
+    msgLength = (uint32_t)strlen(WARNING);
+    az_span string = AZ_SPAN_LITERAL_FROM_STR(WARNING);
+    uint8_t a[64];
+    az_span s = AZ_SPAN_FROM_BUFFER(a);
+    az_span_copy(s, string);
+    az_result = az_iot_message_properties_init(&properties, s, msgLength);
+  }
+
+
   if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(
-          &client, NULL, telemetry_topic, sizeof(telemetry_topic), NULL)))
+          &client, &properties, telemetry_topic, sizeof(telemetry_topic), NULL)))
   {
     Serial.println("Failed az_iot_hub_client_telemetry_get_publish_topic");
     return;
   }
-  char *   payload = getTelemetryPayload();
+  
   Serial.println(payload);
   if (strlen(payload)!= 0)
   {

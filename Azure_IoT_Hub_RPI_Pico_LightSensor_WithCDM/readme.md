@@ -111,6 +111,61 @@ OK
 ![DirectMethod](./DirectMethod.png)  
 ***Sending a Method call and showing the response.***
 
+## Custom Telemetry Properties
+
+Code has been added that sends a Status Property embedded in the Telemetry. 
+The Staus is a warning, or not depending upon the telemetry value with respect to 100.
+
+```
+Fri Jan 06 2023 11:54:32 GMT+1100 (Australian Eastern Daylight Time):
+{
+  "body": {
+    "msgCount": 4,
+    "value": 126
+  },
+  "enqueuedTime": "Fri Jan 06 2023 11:54:32 GMT+1100 (Australian Eastern Daylight Time)",
+  "properties": {
+    "Status": "NO Warning Value greater 100"
+  }
+}
+Fri Jan 06 2023 11:54:42 GMT+1100 (Australian Eastern Daylight Time):
+{
+  "body": {
+    "msgCount": 5,
+    "value": 60
+  },
+  "enqueuedTime": "Fri Jan 06 2023 11:54:42 GMT+1100 (Australian Eastern Daylight Time)",
+  "properties": {
+    "Status": "Warning Value less than 100"
+  }
+}
+```
+The call to get the Telemetry Payload:
+```
+  char *   payload = getTelemetryPayload(&telemetryValue)
+```
+also returns the telemetry value that is then used to discriminate between the status property values.
+eg
+```
+  az_iot_message_properties properties;
+  uint32_t msgLength;
+  az_result az_result;
+  if (telemetryValue>100)
+  {
+    msgLength = (uint32_t)strlen(NO_WARNING);
+    az_span string = AZ_SPAN_LITERAL_FROM_STR(NO_WARNING);
+    uint8_t a[64];
+    az_span s = AZ_SPAN_FROM_BUFFER(a);
+    az_span_copy(s, string);
+    az_result = az_iot_message_properties_init(&properties, s, msgLength);
+  }
+```
+**properties** is then used in the returned telemetry:  
+(In previous version this was a NULL entry in the following function call)
+```
+az_iot_hub_client_telemetry_get_publish_topic(
+          &client, &properties, telemetry_topic, sizeof(telemetry_topic), NULL)
+```
 
 ## Code
 
@@ -121,4 +176,6 @@ static bool isNumeric(const char* s);
 static bool DoMethod(char * method, char * payload);
 static char* get_Method_Response(az_span az_span_id, char * method, char * parameter, uint32_t id, uint16_t status); 
 AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_number);
+For Telmetry Properties, 
+
 ```
