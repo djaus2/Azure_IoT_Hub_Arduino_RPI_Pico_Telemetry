@@ -6,18 +6,10 @@
 #define IOT_CONFIG_WIFI_PASSWORD "silly1371"
 
 // Azure IoT
-#define IOT_CONFIG_IOTHUB_FQDN "[your Azure IoT host name].azure-devices.net"
-#define IOT_CONFIG_DEVICE_ID "Device ID"
-#define IOT_CONFIG_DEVICE_KEY "Device Key"
+#define IOT_CONFIG_IOTHUB_FQDN  "Pico2Hub.azure-devices.net"
+#define IOT_CONFIG_DEVICE_ID  "Pico2Dev"
+#define IOT_CONFIG_DEVICE_KEY  "DNxsAYIbrQdJ+NU+qlcjRSm1zbrJExdAYyi/2A+aDJg="
 
-// Publish 1 message every 2 seconds
-#define TELEMETRY_FREQUENCY_MILLISECS 10000
 
-#define WARNING "Status=Warning Value less than 100"
-#define NO_WARNING "Status=NO Warning Value greater 100"
 
-//Used in AZ_NODISCARD az_result az_span_relaxed_atou32():
-// Get char digits into an integer from the source as an az_span until char is not a digit
-// Digits are HEX as per _az_NUMBER_OF_DECIMAL_VALUES
-#define _az_NUMBER_OF_DECIMAL_VALUES 16
 
