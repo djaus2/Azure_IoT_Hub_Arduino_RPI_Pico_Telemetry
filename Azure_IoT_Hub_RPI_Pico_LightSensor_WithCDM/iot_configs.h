@@ -6,10 +6,10 @@
 #define IOT_CONFIG_WIFI_PASSWORD "silly1371"
 
 // Azure IoT
-#define IOT_CONFIG_IOTHUB_FQDN "[your Azure IoT host name].azure-devices.net"
-#define IOT_CONFIG_DEVICE_ID "Device ID"
-#define IOT_CONFIG_DEVICE_KEY "Device Key"
+#define IOT_CONFIG_IOTHUB_FQDN  "Pico2Hub.azure-devices.net"
+#define IOT_CONFIG_DEVICE_ID  "Pico2Dev"
+#define IOT_CONFIG_DEVICE_KEY  "7f7E8ViMeDeNbTpS2crPuGrzTXkTdvwM+UEdUcshOxA="
 
-
+#define PIN_ADC0   26
 
 
