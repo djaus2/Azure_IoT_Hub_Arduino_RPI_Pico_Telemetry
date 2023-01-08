@@ -25,6 +25,10 @@ I'm using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Ba
    - Messages: All Sketches will display Cloud to Device Messages to it. Unchanged
    - This version will interpret a number of Cloud to Device Commands (Methods) and run them. Added
      - Now sends acknowledgment back to the cloud.
+ - CS_CDMessagesIoTHub
+   - A C# Console app to test sending a Cloud To Device Message
+   - Have logged an issue with Azure IoT Explorer: "[BUG] Unexpected end of JSON - CD Message #598" 
+   - Sending CD Messages from this app and sending CD Messages from VS Code don't get that error.
  
 ## 2Do
  - Handle ~~CD Messages~~, ~~Methods~~, Properties etc.

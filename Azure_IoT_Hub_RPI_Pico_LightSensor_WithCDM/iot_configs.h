@@ -7,8 +7,8 @@
 
 // Azure IoT
 #define IOT_CONFIG_IOTHUB_FQDN  "Pico2Hub.azure-devices.net"
-#define IOT_CONFIG_DEVICE_ID  "Pico2Dev"
-#define IOT_CONFIG_DEVICE_KEY  "7f7E8ViMeDeNbTpS2crPuGrzTXkTdvwM+UEdUcshOxA="
+#define IOT_CONFIG_DEVICE_ID  "Pico2Dev2"
+#define IOT_CONFIG_DEVICE_KEY  "DjsdX/664NaOzGX0GzBB9ko9cWU5TUapTnk6N1gZKAQ="
 
 #define PIN_ADC0   26
 

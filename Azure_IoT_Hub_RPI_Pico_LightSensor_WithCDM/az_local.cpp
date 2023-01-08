@@ -8,6 +8,26 @@
 
 #include "az_local.h"
 
+// Ref: https://www.ibm.com/docs/en/ibm-mq/7.5?topic=SSFKSJ_7.5.0/com.ibm.mq.javadoc.doc/WMQMQxrCClasses/struct_m_q_t_t_client__message.html
+ typedef struct
+  {
+           char struct_id[4];
+           int struct_version;
+           int payloadlen;
+           void* payload;
+           int qos;
+           int retained;
+           int dup;
+           int msgid;
+  } MQTTClient_message;
+
+//Ref: https://github.com/Azure/azure-sdk-for-c/blob/main/sdk/samples/iot/paho_iot_hub_c2d_sample.c#L175
+static void parse_c2d_message(
+    char* topic,
+    int topic_len,
+    MQTTClient_message const* message,
+    az_iot_hub_client_c2d_request* out_c2d_request);
+
 
 bool IsRunning;
 bool LEDIsOn;
@@ -265,6 +285,8 @@ AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_numb
   return AZ_OK;
 }
 
+DynamicJsonDocument messageResponseDoc(64);
+
 void receivedCallback(char* topic, byte* payload, unsigned int length)
 {
   Serial.println(1234);
@@ -357,18 +379,42 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
 
     Serial.print("Payload: ");
     Serial.println(_payload);
-    /*char * resp = get_Method_Response(request.request_id,requestName,_payload ,id, 200);
-    bool responseResponse = mqtt_client.publish((char *)methodResponseBuffer, resp, false);
-    if(methodResponseBuffer != NULL)
-      free(methodResponseBuffer);
-    if ( responseResponse)
+
+    // Parse c2d message.
+    az_iot_hub_client_c2d_request c2d_request;
+    int topic_len = strlen(_topic);
+
+    char * messageId = strstr(topic, "&messageId=");
+    messageId += strlen("&messageId=");
+    char requestId[40];
+    memset(requestId, '\0', sizeof(requestId));
+    strncpy(requestId,messageId,strlen("80f755cb-879c-4008-9687-524f5bb3a1c4"));
+    Serial.print("requestId:: ");
+    Serial.println(requestId);
+    
+    char jsonResponseStr[100];
+    messageResponseDoc["messageId"] = requestId; // "80f755cb-879c-4008-9687-524f5bb3a1c4";
+    messageResponseDoc["num"] = 23;
+    serializeJson(messageResponseDoc, jsonResponseStr);
+    Serial.println(jsonResponseStr);
+    az_span temp_span = az_span_create_from_str(jsonResponseStr);
+    az_span_to_str((char*)telemetry_payload, sizeof(telemetry_payload), temp_span);
+    if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(
+          &client, NULL, telemetry_topic, sizeof(telemetry_topic), NULL)))
     {
-        Serial.println("A_OK: CD Method Response to Cloud");
+      Serial.println("Failed az_iot_hub_client_telemetry_get_publish_topic");
+      return ;
+    } 
+
+    //Nb: By default, Acknoweledgement is not required for CD Messages.
+    if(mqtt_client.publish(telemetry_topic,(char*)telemetry_payload, false))
+    {     
+        Serial.println("A_OK: CD MESSAGE Response to Cloud");
     }
     else
     {
-        Serial.println("N_OK: CD Method Response to Cloud");
-    };*/
+        Serial.println("N_OK: CD MESSAGE Response to Cloud");
+    };
   }
 }
 
@@ -415,5 +461,7 @@ az_iot_message_properties * GetProperties(int value)
   else
     return NULL;
 }  
+
+
 
 
