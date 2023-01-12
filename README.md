@@ -29,6 +29,7 @@ I'm using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Ba
    - A C# Console app to test sending a Cloud To Device Message
    - Have logged an issue with Azure IoT Explorer: "[BUG] Unexpected end of JSON - CD Message #598" 
    - Sending CD Messages from this app and sending CD Messages from VS Code don't get that error.
+   - Working in progress wrt Message Replies.
  
 ## 2Do
  - Handle ~~CD Messages~~, ~~Methods~~, Properties etc.

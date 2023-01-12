@@ -128,7 +128,7 @@ static void initializeTime()
   Serial.println("done!");
 }
 
-static char* getCurrentLocalTimeString()
+ char* getCurrentLocalTimeString()
 {
   time_t now = time(NULL);
   return ctime(&now);
@@ -357,7 +357,7 @@ void setup()
   establishConnection();
   next_telemetry_send_time_ms = 0;
   telemetry_send_count = 0;
-  IsRunning=true;
+  IsRunning=false;
   LEDIsOn = false;
   TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
 }

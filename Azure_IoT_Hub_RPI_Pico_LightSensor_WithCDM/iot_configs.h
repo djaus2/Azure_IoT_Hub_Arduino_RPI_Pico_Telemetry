@@ -13,3 +13,9 @@
 #define PIN_ADC0   26
 
 
+
+//Nb: By default, Acknoweledgement is not required for CD Messages. So use none
+#define ACK_MODE full
+#define CD_MESSAGE_OUTCOME success
+
+

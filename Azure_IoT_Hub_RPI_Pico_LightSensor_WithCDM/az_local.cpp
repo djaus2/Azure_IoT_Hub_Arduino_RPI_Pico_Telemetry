@@ -7,26 +7,7 @@
 #include <ArduinoJson.h>
 
 #include "az_local.h"
-
-// Ref: https://www.ibm.com/docs/en/ibm-mq/7.5?topic=SSFKSJ_7.5.0/com.ibm.mq.javadoc.doc/WMQMQxrCClasses/struct_m_q_t_t_client__message.html
- typedef struct
-  {
-           char struct_id[4];
-           int struct_version;
-           int payloadlen;
-           void* payload;
-           int qos;
-           int retained;
-           int dup;
-           int msgid;
-  } MQTTClient_message;
-
-//Ref: https://github.com/Azure/azure-sdk-for-c/blob/main/sdk/samples/iot/paho_iot_hub_c2d_sample.c#L175
-static void parse_c2d_message(
-    char* topic,
-    int topic_len,
-    MQTTClient_message const* message,
-    az_iot_hub_client_c2d_request* out_c2d_request);
+#include "iot_configs.h"
 
 
 bool IsRunning;
@@ -35,6 +16,13 @@ unsigned long TelemetryFrequencyMilliseconds;
 char telemetry_topic[128];
 uint8_t telemetry_payload[100]; 
 az_iot_message_properties properties;
+
+//Ref: https://learn.microsoft.com/en-us/azure/iot-hub/iot-hub-devguide-messages-c2d
+enum CD_MESSAGE_ACKS {none,full,postive,negative} Ack_Mode = ACK_MODE;
+const char * CD_Message_Ack[] = {"none", "full", "postive", "negative"};
+//Ref: https://learn.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.feedbackstatuscode?view=azure-dotnet
+enum CD_MESSAGE_OUTCOMES {success, expired, deliveryCountExceeded, rejected, purged} MsgOutcome = CD_MESSAGE_OUTCOME;
+const char * CD_Message_Outcome[] = {"Success", "Expired", "Delivery Count Exceeded", "Rejected", "Purged"};
 
 
 char * methodResponseBuffer;
@@ -286,9 +274,11 @@ AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_numb
 }
 
 DynamicJsonDocument messageResponseDoc(64);
+char * originalMessageId;
 
 void receivedCallback(char* topic, byte* payload, unsigned int length)
 {
+  //messageResponseDoc.Clear();
   Serial.println(1234);
   char _topic[128];
   char _payload[128];
@@ -380,41 +370,110 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
     Serial.print("Payload: ");
     Serial.println(_payload);
 
-    // Parse c2d message.
-    az_iot_hub_client_c2d_request c2d_request;
-    int topic_len = strlen(_topic);
-
-    char * messageId = strstr(topic, "&messageId=");
-    messageId += strlen("&messageId=");
-    char requestId[40];
-    memset(requestId, '\0', sizeof(requestId));
-    strncpy(requestId,messageId,strlen("80f755cb-879c-4008-9687-524f5bb3a1c4"));
-    Serial.print("requestId:: ");
-    Serial.println(requestId);
-    
-    char jsonResponseStr[100];
-    messageResponseDoc["messageId"] = requestId; // "80f755cb-879c-4008-9687-524f5bb3a1c4";
-    messageResponseDoc["num"] = 23;
-    serializeJson(messageResponseDoc, jsonResponseStr);
-    Serial.println(jsonResponseStr);
-    az_span temp_span = az_span_create_from_str(jsonResponseStr);
-    az_span_to_str((char*)telemetry_payload, sizeof(telemetry_payload), temp_span);
-    if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(
-          &client, NULL, telemetry_topic, sizeof(telemetry_topic), NULL)))
+    Ack_Mode == none;
+    char * ackk = strstr(topic, "ack=");
+    //Serial.print(">");
+    //Serial.print(ackk);
+    //Serial.println("<");
+    ackk += strlen("ack=");
+    //Serial.print(">");
+    //Serial.print(ackk);
+    //Serial.println("<");
+    for (int i=0; i<4; i++)
     {
-      Serial.println("Failed az_iot_hub_client_telemetry_get_publish_topic");
-      return ;
-    } 
-
-    //Nb: By default, Acknoweledgement is not required for CD Messages.
-    if(mqtt_client.publish(telemetry_topic,(char*)telemetry_payload, false))
-    {     
-        Serial.println("A_OK: CD MESSAGE Response to Cloud");
+      if (strncmp( CD_Message_Ack[i],ackk,strlen(CD_Message_Ack[i]))==0)
+      {
+        Ack_Mode= (CD_MESSAGE_ACKS)i;
+        Serial.print("Ack: ");
+        Serial.println( CD_Message_Ack[(int)Ack_Mode]);
+        break;
+      }
     }
-    else
+    if(Ack_Mode != none)
     {
-        Serial.println("N_OK: CD MESSAGE Response to Cloud");
-    };
+      if (
+        (Ack_Mode==full) || 
+        ((Ack_Mode==postive) && (MsgOutcome==success)) || 
+        ((Ack_Mode==negative) && (MsgOutcome != success))
+      )
+      {
+        // Parse c2d message.
+        az_iot_hub_client_c2d_request c2d_request;
+        int topic_len = strlen(_topic);
+        //Serial.print(">");
+        //Serial.println(topic);
+        char * messageId = strstr(topic, "&messageId=");
+        //Serial.print(">");
+        //Serial.println(messageId);
+        messageId += strlen("&messageId=");
+        //Serial.print(">");
+        //Serial.println(messageId);
+
+ 
+        
+        if(originalMessageId!=NULL)
+          free(originalMessageId);
+        originalMessageId = (char *)  malloc(64);
+        memset(originalMessageId, '\0', 64);
+        int i=0;
+        while (  (i < strlen(messageId)) && (i<63))
+        {
+          if(!isalnum (messageId[i]))
+          {
+            if (messageId[i] !='-')
+              break;
+          }
+          originalMessageId[i] = messageId[i];
+          i++;
+        }
+        //strncpy(originalMessageId,messageId,3);
+        Serial.print("originalMessageId: ");
+        Serial.println(originalMessageId);
+        
+      char jsonResponseStr[100];
+      
+        /* Ref: https://learn.microsoft.com/en-us/azure/iot-hub/iot-hub-devguide-messages-c2d
+        *  https://learn.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.feedbackrecord.devicegenerationid?view=azure-dotnet
+          {
+            "originalMessageId": "0987654321",
+            "enqueuedTimeUtc" : "2015-07-28T16:24:48.789Z",
+            "statusCode" : "Success",
+            "description" : "Success",
+            "deviceId" : "123",
+            "deviceGenerationId" : "abcdefghijklmnopqrstuvwxyz 
+          }
+        */
+
+        //SEnding back the response for a Message doesn't seem to work
+        if (strlen(originalMessageId)!= 0)
+          messageResponseDoc["originalMessageId"] = originalMessageId;  //Autogenerated ??
+        //messageResponseDoc["enqueuedTimeUtc"] = getCurrentLocalTimeString(); //Autogenerated
+        messageResponseDoc["StatusCode"] = CD_Message_Outcome[(int)MsgOutcome];
+        messageResponseDoc["Description"] = CD_Message_Outcome[(int)MsgOutcome];
+        //messageResponseDoc["deviceId"] = IOT_CONFIG_DEVICE_ID;               // Autogenerated
+        //messageResponseDoc["deviceGenerationId"] = IOT_CONFIG_DEVICE_KEY;    //Autogenerated
+        serializeJson(messageResponseDoc, jsonResponseStr);
+        Serial.println(jsonResponseStr);
+        az_span temp_span = az_span_create_from_str(jsonResponseStr);
+        az_span_to_str((char*)telemetry_payload, sizeof(telemetry_payload), temp_span);
+        if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(
+              &client, NULL, telemetry_topic, sizeof(telemetry_topic), NULL)))
+        {
+          Serial.println("Failed az_iot_hub_client_telemetry_get_publish_topic");
+          return ;
+        } 
+
+        //Nb: By default, Acknoweledgement is not required for CD Messages.
+        if(mqtt_client.publish(telemetry_topic,(char*)telemetry_payload, false))
+        {     
+            Serial.println("A_OK: CD MESSAGE Response to Cloud");
+        }
+        else
+        {
+            Serial.println("N_OK: CD MESSAGE Response to Cloud");
+        };
+      }
+    }
   }
 }
 

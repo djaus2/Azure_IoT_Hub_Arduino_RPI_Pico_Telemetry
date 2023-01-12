@@ -21,6 +21,8 @@ az_iot_message_properties * GetProperties(int value);
 
 AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_number);
 
+char* getCurrentLocalTimeString();
+
 
 
 
