@@ -278,9 +278,10 @@ static int connectToAzureIoTHub()
     }
   }
 
-  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
-  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);  
-
+  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);  
+  Dev_Properties.MethodsSubscribed = true;
+  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
+  Dev_Properties.CDMessagesSubscribed = true;
   return 0;
 }
 
@@ -304,6 +305,7 @@ static void establishConnection()
   }
 
   digitalWrite(LED_BUILTIN, LOW);
+  Dev_Properties.LEDIsOn = false;
 }
 
 
@@ -318,6 +320,8 @@ static char* getTelemetryPayload(int * value )
 static void sendTelemetry()
 {
   digitalWrite(LED_BUILTIN, HIGH);
+  Dev_Properties.LEDIsOn = true;
+
   Serial.print(millis());
   
   Serial.print(" RPI Pico (Arduino) Sending telemetry . . . ");
@@ -346,6 +350,7 @@ static void sendTelemetry()
     Serial.println(" NOK");
   delay(100);
   digitalWrite(LED_BUILTIN, LOW);
+  Dev_Properties.LEDIsOn = false;
 }
 
 // Arduino setup and loop main functions.
@@ -353,18 +358,19 @@ static void sendTelemetry()
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LEDIsOn);
+  digitalWrite(LED_BUILTIN, false);
+  Dev_Properties.LEDIsOn = false;
+
   establishConnection();
   next_telemetry_send_time_ms = 0;
   telemetry_send_count = 0;
-  IsRunning=true;
-  LEDIsOn = false;
-  TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
+  Dev_Properties.IsRunning=true;
+  Dev_Properties.TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
 }
 
 void loop()
 {
-  if(IsRunning)
+  if(Dev_Properties.IsRunning)
   {
   if (millis() > next_telemetry_send_time_ms)
   {
@@ -376,7 +382,7 @@ void loop()
 
       sendTelemetry();
 
-      next_telemetry_send_time_ms = millis() + TelemetryFrequencyMilliseconds;
+      next_telemetry_send_time_ms = millis() + Dev_Properties.TelemetryFrequencyMilliseconds;
     }
   }
 

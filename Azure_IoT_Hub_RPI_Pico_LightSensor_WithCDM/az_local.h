@@ -50,3 +50,13 @@ extern az_iot_message_properties properties;
 
 // Nb: Here as it gets set when the Method start telemetry:
 extern unsigned long next_telemetry_send_time_ms;
+
+struct Properties {
+  unsigned long TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
+  bool MethodsSubscribed = false;
+  bool CDMessagesSubscribed = false;
+  bool IsRunning = false;
+  bool LEDIsOn = false;
+};
+
+extern struct Properties Dev_Properties;

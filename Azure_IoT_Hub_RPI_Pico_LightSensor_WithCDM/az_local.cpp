@@ -9,10 +9,12 @@
 #include "az_local.h"
 #include "iot_configs.h"
 
+struct Properties Dev_Properties;
 
-bool IsRunning;
-bool LEDIsOn;
-unsigned long TelemetryFrequencyMilliseconds;
+
+//bool IsRunning;
+//bool LEDIsOn;
+//unsigned long TelemetryFrequencyMilliseconds;
 char telemetry_topic[128];
 uint8_t telemetry_payload[1024]; 
 az_iot_message_properties properties;
@@ -167,12 +169,12 @@ bool DoMethod(char * method, char * payload)
   Serial.println(); 
   if (strncmp(method,"start",4)==0)
   {
-    if(!IsRunning)
+    if(!Dev_Properties.IsRunning)
     {
-      if(TelemetryFrequencyMilliseconds != 0)
+      if(Dev_Properties.TelemetryFrequencyMilliseconds != 0)
       {
         next_telemetry_send_time_ms = millis();
-        IsRunning = true;
+        Dev_Properties.IsRunning = true;
         Serial.println("Telemtry was started.");
       }
       else
@@ -184,9 +186,9 @@ bool DoMethod(char * method, char * payload)
   }
   else  if (strncmp(method,"stop",4)==0)
   {
-    if(IsRunning)
+    if(Dev_Properties.IsRunning)
     {
-      IsRunning = false;
+      Dev_Properties.IsRunning = false;
       Serial.println("Telemtry was stopped.");
     }
   }
@@ -199,10 +201,10 @@ bool DoMethod(char * method, char * payload)
     }
     else
     {
-      TelemetryFrequencyMilliseconds = value*1000;
+      Dev_Properties.TelemetryFrequencyMilliseconds = value*1000;
       if(value==0)
       {
-        IsRunning=false;
+        Dev_Properties.IsRunning=false;
         Serial.println("Telemtry is stopped.");
       }
       else
@@ -210,21 +212,23 @@ bool DoMethod(char * method, char * payload)
         Serial.print("Telemetry Period is now: ");
         Serial.print(value);
         Serial.println(" sec.");
-        IsRunning= true;
+        Dev_Properties.IsRunning= true;
         Serial.println("Telemtry is running.");
       }
     }
   }
   else if (strncmp(method,"toggle",4)==0)
   {
-    LEDIsOn = ! LEDIsOn;
-    if(LEDIsOn)
+    Dev_Properties.LEDIsOn = ! Dev_Properties.LEDIsOn;
+    if(Dev_Properties.LEDIsOn)
     {
       digitalWrite(LED_BUILTIN, HIGH);
+        Dev_Properties.LEDIsOn = true;
     }
     else
     {
       digitalWrite(LED_BUILTIN, LOW);
+        Dev_Properties.LEDIsOn = false;
     }
     Serial.print("LED Toggled.");
   }
@@ -232,22 +236,50 @@ bool DoMethod(char * method, char * payload)
   {
     if(value==0)
     {
-      mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
+       if( Dev_Properties.MethodsSubscribed == false)
+      {
+        mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
+        Dev_Properties.MethodsSubscribed = true;
+        Serial.println("CD METHODS turned OMN.");
+      }
     }
-    else // = 1
+    else if(value==1)
     {
-      mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
+      if( Dev_Properties.CDMessagesSubscribed == false)
+      {
+        mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
+        Dev_Properties.CDMessagesSubscribed = true;
+        Serial.println("CD MESSAGES turned ON.");
+      }
+    }
+    else
+    {
+       Serial.println("Invalid Subscription to turn on.");
     }
   }
   else if (strncmp(method,"unsubcribe",4)==0)
   {
     if(value==0)
     {
-      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
+      if( Dev_Properties.MethodsSubscribed == true)
+      {
+        mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
+        Dev_Properties.MethodsSubscribed = false;
+        Serial.println("CD METHODS turned OFF.");
+      }
     }
-    else // = 1
+    else  if(value==1)
     {
-      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
+      if( Dev_Properties.MethodsSubscribed == true)
+      {
+        mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
+        Dev_Properties.CDMessagesSubscribed = false;
+        Serial.println("CD MESSAGES turned OFF.");
+      }
+    }
+    else
+    {
+       Serial.println("Invalid Subscription to turn off.");
     }
   }  
   else
