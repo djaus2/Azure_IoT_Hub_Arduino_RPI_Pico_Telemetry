@@ -92,6 +92,13 @@ OK
     - Toggles the builtIn LED
     - Note that this also toggles with MQTT telemetry sends.
     - This could esily be a Cloud activated relay or other actuator.
+  - Subscribe
+    - method or 0: Methods
+    - message or msg or 1: Cd Messages
+  - Unsubscribe
+    - method or 0: Methods
+      - Nb: Best not to use this!!
+    - message or msg or 1: Cd Messages
 
 #### Messages
 - You can also send Messages to the device from the cloud.

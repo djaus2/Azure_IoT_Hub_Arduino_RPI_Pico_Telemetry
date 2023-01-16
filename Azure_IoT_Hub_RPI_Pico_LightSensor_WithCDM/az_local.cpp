@@ -138,7 +138,29 @@ bool DoMethod(char * method, char * payload)
       }
       else
       {
-        Serial.print(" which isn't a number.");
+        if(strlen(payload) > 2)
+        {
+          if (strncmp(payload,"method",3)==0)
+          {
+            value = 0;
+          }
+          else if (strncmp(payload,"message",3)==0)
+          {
+            value = 1;
+          }
+          else if (strncmp(payload,"msg",3)==0)
+          {
+            value = 1;
+          }
+          else
+          {
+            Serial.print(" which isn't a number.");
+          }
+        }
+        else
+        {
+          Serial.print(" which isn't a number.");
+        }
       }      
     }   
   }
@@ -206,6 +228,28 @@ bool DoMethod(char * method, char * payload)
     }
     Serial.print("LED Toggled.");
   }
+  else if (strncmp(method,"subscribe",4)==0)
+  {
+    if(value==0)
+    {
+      mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
+    }
+    else // = 1
+    {
+      mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
+    }
+  }
+  else if (strncmp(method,"unsubcribe",4)==0)
+  {
+    if(value==0)
+    {
+      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
+    }
+    else // = 1
+    {
+      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
+    }
+  }  
   else
   {
     Serial.print("Unrecognised Method: ");
