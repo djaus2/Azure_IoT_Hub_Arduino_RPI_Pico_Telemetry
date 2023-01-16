@@ -335,7 +335,7 @@ static void sendTelemetry()
     return;
   }
 
-  
+  Serial.println(telemetry_topic);
   Serial.println(payload);
   if (strlen(payload)!= 0)
   {
@@ -357,7 +357,7 @@ void setup()
   establishConnection();
   next_telemetry_send_time_ms = 0;
   telemetry_send_count = 0;
-  IsRunning=false;
+  IsRunning=true;
   LEDIsOn = false;
   TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
 }
@@ -375,6 +375,7 @@ void loop()
       }
 
       sendTelemetry();
+
       next_telemetry_send_time_ms = millis() + TelemetryFrequencyMilliseconds;
     }
   }

@@ -42,7 +42,7 @@ extern bool LEDIsOn;
 extern unsigned long TelemetryFrequencyMilliseconds ;
 extern az_iot_hub_client client;
 extern char telemetry_topic[128];
-extern uint8_t telemetry_payload[100];
+extern uint8_t telemetry_payload[1024];
 extern char * methodResponseBuffer;
 extern PubSubClient mqtt_client;
 extern az_iot_message_properties properties;
