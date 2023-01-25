@@ -54,6 +54,7 @@
 #include <ArduinoJson.h>
 
 #include "az_local.h"
+//void get_device_twin_document(void);
 
 // Additional sample headers
 
@@ -95,7 +96,6 @@ static char base64_decoded_device_key[32];
 
 static void connectToWiFi()
 {
-  Serial.begin(115200);
   Serial.println();
   Serial.print("Connecting to WIFI SSID ");
   Serial.println(ssid);
@@ -282,6 +282,8 @@ static int connectToAzureIoTHub()
   Dev_Properties.MethodsSubscribed = true;
   mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
   Dev_Properties.CDMessagesSubscribed = true;
+  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_TWIN_RESPONSE_SUBSCRIBE_TOPIC );
+  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_TWIN_PATCH_SUBSCRIBE_TOPIC);
   return 0;
 }
 
@@ -310,11 +312,11 @@ static void establishConnection()
 
 
 
-static char* getTelemetryPayload(int * value )
+static char* getTelemetryPayload(const char * propertyName, int * value )
 {
     int adcValue = analogRead(PIN_ADC0);                            //read ADC pin
     *value = map(adcValue, 0, 1023, 0, 255);
-    return  generateTelemetryPayload(telemetry_send_count++,*value);
+    return  generateTelemetryPayload(telemetry_send_count++,propertyName, *value);
 }
 
 static void sendTelemetry()
@@ -327,11 +329,11 @@ static void sendTelemetry()
   Serial.print(" RPI Pico (Arduino) Sending telemetry . . . ");
 
   int telemetryValue;
-  char *   payload = getTelemetryPayload(&telemetryValue);
+  char *   payload = getTelemetryPayload("LightIntensity", &telemetryValue);
   
   // Add a property to the message  
   az_iot_message_properties * properties = GetProperties(telemetryValue);
- 
+  
   if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(
           &client, properties, telemetry_topic, sizeof(telemetry_topic), NULL)))
   {
@@ -352,24 +354,37 @@ static void sendTelemetry()
   digitalWrite(LED_BUILTIN, LOW);
   Dev_Properties.LEDIsOn = false;
 }
-
+bool SentProp;
 // Arduino setup and loop main functions.
 
 void setup()
 {
+  Serial.begin(115200);
+
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, false);
-  Dev_Properties.LEDIsOn = false;
-
+  GotTwinDoc=false;
+  while(!Serial)
+  {}
   establishConnection();
+  InitProperties();
   next_telemetry_send_time_ms = 0;
   telemetry_send_count = 0;
-  Dev_Properties.IsRunning=true;
-  Dev_Properties.TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
+  SentProp = false;
+  delay(1000);
+  get_device_twin_document();
 }
 
 void loop()
 {
+  if (GotTwinDoc)
+  {
+    if (!SentProp)
+    {    
+          send_reported_property("period",1234);
+          SentProp=true;
+    }
+  }
   if(Dev_Properties.IsRunning)
   {
   if (millis() > next_telemetry_send_time_ms)

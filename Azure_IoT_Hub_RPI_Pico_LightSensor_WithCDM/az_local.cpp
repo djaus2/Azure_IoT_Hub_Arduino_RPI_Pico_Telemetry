@@ -7,9 +7,23 @@
 #include <ArduinoJson.h>
 
 #include "az_local.h"
+
 #include "iot_configs.h"
+#include <string.h>
 
 struct Properties Dev_Properties;
+
+
+char PropsJson[512] = "";
+
+bool GotTwinDoc;
+
+//Ref: https://learn.microsoft.com/en-us/azure/iot-hub/iot-hub-devguide-messages-c2d
+enum CD_MESSAGE_ACKS { none, full, postive, negative } Ack_Mode = ACK_MODE;
+const char* CD_Message_Ack[] = { "none", "full", "postive", "negative" };
+//Ref: https://learn.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.feedbackstatuscode?view=azure-dotnet
+enum CD_MESSAGE_OUTCOMES { success, expired, deliveryCountExceeded, rejected, purged } MsgOutcome = CD_MESSAGE_OUTCOME;
+const char* CD_Message_Outcome[] = { "Success", "Expired", "Delivery Count Exceeded", "Rejected", "Purged" };
 
 
 //bool IsRunning;
@@ -19,346 +33,21 @@ char telemetry_topic[128];
 uint8_t telemetry_payload[1024]; 
 az_iot_message_properties properties;
 
-//Ref: https://learn.microsoft.com/en-us/azure/iot-hub/iot-hub-devguide-messages-c2d
-enum CD_MESSAGE_ACKS {none,full,postive,negative} Ack_Mode = ACK_MODE;
-const char * CD_Message_Ack[] = {"none", "full", "postive", "negative"};
-//Ref: https://learn.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.feedbackstatuscode?view=azure-dotnet
-enum CD_MESSAGE_OUTCOMES {success, expired, deliveryCountExceeded, rejected, purged} MsgOutcome = CD_MESSAGE_OUTCOME;
-const char * CD_Message_Outcome[] = {"Success", "Expired", "Delivery Count Exceeded", "Rejected", "Purged"};
 
 
-char * methodResponseBuffer;
-DynamicJsonDocument methodResponseDoc(64);
-// Called by receivedCallback() if call is a CD Method call after the method is actioned
-// Generate the payload to send back
-char* get_Method_Response(
-  az_span az_span_id, 
-  char * method, 
-  char * parameter, 
-  uint32_t id,
-  uint16_t status 
-  )
-{
-  char jsonResponseStr[100];
-  methodResponseBuffer = (char *)malloc(100);
-  az_result rc = az_iot_hub_client_methods_response_get_publish_topic(
-    &client, //&hub_client,
-    az_span_id,
-    status,
-    methodResponseBuffer,
-    100,
-    NULL);
-    if (az_result_failed(rc))
-  {
-    Serial.println("Falied: az_iot_hub_client_methods_response_get_publish_topic");
-  }
-  methodResponseDoc["request_id"] = id;
-  methodResponseDoc["mothod"] = method;
-  methodResponseDoc["parameter"] = parameter;
-  serializeJson(methodResponseDoc, jsonResponseStr);
-  az_span temp_span = az_span_create_from_str(jsonResponseStr);
-  az_span_to_str((char *)telemetry_payload, sizeof(telemetry_payload), temp_span);
-  return (char*)telemetry_payload;
-}
-
-/* Suggested code for this from 
-   https://github.com/Azure/azure-sdk-for-c/blob/d0ae29572be3ecf4ff272b11c62f448649b63268/sdk/samples/iot/paho_iot_hub_twin_sample.c
-   (static void send_method_response(
-    az_iot_hub_client_method_request const* method_request,
-    az_iot_status status,
-    az_span response)
-{
-  int rc;
-
-  // Get the Methods Response topic to publish the method response.
-  char methods_response_topic_Buffer[128];
-  rc = az_iot_hub_client_methods_response_get_publish_topic(
-      &client, //&hub_client,
-      method_request->request_id,
-      (uint16_t)status,
-      methods_response_topic_Buffer,
-      sizeof(methods_response_topic_Buffere),
-      NULL);
-  if (az_result_failed(rc))
-  {
-    Serial.print(
-    //IOT_SAMPLE_LOG_ERROR(
-        //"Failed to get the Methods Response topic: az_result return code 0x%08x.", rc);
-                "Failed to get the Methods Response topic: az_result return code 0x%08x.");
-     Serial.println(rc);
-    exit(rc);
-  }
-
-  // Publish the method response.
-  mqtt_client.publish_P()
-  rc = MQTTClient_publish(
-      mqtt_client,
-      methods_response_topic_Buffer,
-      az_span_size(response),
-      az_span_ptr(response),
-      IOT_SAMPLE_MQTT_PUBLISH_QOS,
-      0,
-      NULL);
-  if (rc != MQTTCLIENT_SUCCESS)
-  {
-    //IOT_SAMPLE_LOG_ERROR("Failed to publish the Methods response: MQTTClient return code %d.", rc);
-    exit(rc);
-  }
-  //IOT_SAMPLE_LOG_SUCCESS("Client published the Methods response.");
-  //IOT_SAMPLE_LOG("Status: %u", (uint16_t)status);
-  //IOT_SAMPLE_LOG_AZ_SPAN("Payload:", response);
-}*/
-
-bool isNumeric(const char* s){
-    while(*s){
-        if(*s < '0' || *s > '9')
-            return false;
-        ++s;
-    }
-    return true;
-}
-
-
-//Perform the method with optional payload that is interpretted as an integer
-bool DoMethod(char * method, char * payload)
-{
-  Serial.print("Method: ");
-  Serial.print(method);
-  int value = -1;
-  if(payload != NULL)
-  {
-    // Actually should interpret as Json (2Do), but for simplicity just as a number fpr now. ???
-    if(strlen(payload) != 0)
-    {
-      Serial.print(" Payload: ");
-      Serial.print(payload);
-      if(isNumeric(payload))
-      {        
-        value =  atoi(payload);
-        Serial.print(" which is the number: ");
-        Serial.print(value);
-      }
-      else
-      {
-        if(strlen(payload) > 2)
-        {
-          if (strncmp(payload,"method",3)==0)
-          {
-            value = 0;
-          }
-          else if (strncmp(payload,"message",3)==0)
-          {
-            value = 1;
-          }
-          else if (strncmp(payload,"msg",3)==0)
-          {
-            value = 1;
-          }
-          else
-          {
-            Serial.print(" which isn't a number.");
-          }
-        }
-        else
-        {
-          Serial.print(" which isn't a number.");
-        }
-      }      
-    }   
-  }
-  Serial.println(); 
-  if (strncmp(method,"start",4)==0)
-  {
-    if(!Dev_Properties.IsRunning)
-    {
-      if(Dev_Properties.TelemetryFrequencyMilliseconds != 0)
-      {
-        next_telemetry_send_time_ms = millis();
-        Dev_Properties.IsRunning = true;
-        Serial.println("Telemtry was started.");
-      }
-      else
-      {
-        Serial.println("Telemetry is still stopped as period set to 0");
-        return false;
-      }
-    }
-  }
-  else  if (strncmp(method,"stop",4)==0)
-  {
-    if(Dev_Properties.IsRunning)
-    {
-      Dev_Properties.IsRunning = false;
-      Serial.println("Telemtry was stopped.");
-    }
-  }
-  else if (strncmp(method,"frequency",4)==0)
-  {
-    if(value<0)
-    {
-      Serial.println(("Invalid Telemetry Period value. Should be no. seconds."));
-      return false;
-    }
-    else
-    {
-      Dev_Properties.TelemetryFrequencyMilliseconds = value*1000;
-      if(value==0)
-      {
-        Dev_Properties.IsRunning=false;
-        Serial.println("Telemtry is stopped.");
-      }
-      else
-      {
-        Serial.print("Telemetry Period is now: ");
-        Serial.print(value);
-        Serial.println(" sec.");
-        Dev_Properties.IsRunning= true;
-        Serial.println("Telemtry is running.");
-      }
-    }
-  }
-  else if (strncmp(method,"toggle",4)==0)
-  {
-    Dev_Properties.LEDIsOn = ! Dev_Properties.LEDIsOn;
-    if(Dev_Properties.LEDIsOn)
-    {
-      digitalWrite(LED_BUILTIN, HIGH);
-        Dev_Properties.LEDIsOn = true;
-    }
-    else
-    {
-      digitalWrite(LED_BUILTIN, LOW);
-        Dev_Properties.LEDIsOn = false;
-    }
-    Serial.print("LED Toggled.");
-  }
-  else if (strncmp(method,"subscribe",4)==0)
-  {
-    if(value==0)
-    {
-       if( Dev_Properties.MethodsSubscribed == false)
-      {
-        mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
-        Dev_Properties.MethodsSubscribed = true;
-        Serial.println("CD METHODS turned OMN.");
-      }
-    }
-    else if(value==1)
-    {
-      if( Dev_Properties.CDMessagesSubscribed == false)
-      {
-        mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
-        Dev_Properties.CDMessagesSubscribed = true;
-        Serial.println("CD MESSAGES turned ON.");
-      }
-    }
-    else
-    {
-       Serial.println("Invalid Subscription to turn on.");
-    }
-  }
-  else if (strncmp(method,"unsubcribe",4)==0)
-  {
-    if(value==0)
-    {
-      if( Dev_Properties.MethodsSubscribed == true)
-      {
-        mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
-        Dev_Properties.MethodsSubscribed = false;
-        Serial.println("CD METHODS turned OFF.");
-      }
-    }
-    else  if(value==1)
-    {
-      if( Dev_Properties.MethodsSubscribed == true)
-      {
-        mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
-        Dev_Properties.CDMessagesSubscribed = false;
-        Serial.println("CD MESSAGES turned OFF.");
-      }
-    }
-    else
-    {
-       Serial.println("Invalid Subscription to turn off.");
-    }
-  }  
-  else
-  {
-    Serial.print("Unrecognised Method: ");
-    Serial.println(method);
-    return false;
-  }
-  return true;
-}
-
-// Get char digits into an integer from the source as an az_span until char is not a digit
-// Digits are HEX as per _az_NUMBER_OF_DECIMAL_VALUES
-// From az_span_atou32() az_span.h https://azuresdkdocs.blob.core.windows.net/$web/c/az_iot/1.0.0/az__span_8h_source.html
-AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_number)
-{
-  //_az_PRECONDITION_VALID_SPAN(source, 1, false);
-  //_az_PRECONDITION_NOT_NULL(out_number);
-
-  int32_t const span_size = az_span_size(source);
-
-  if (span_size < 1)
-  {
-    return AZ_ERROR_UNEXPECTED_CHAR;
-  }
-
-  // If the first character is not a digit or an optional + sign, return error.
-  int32_t starting_index = 0;
-  uint8_t* source_ptr = az_span_ptr(source);
-  uint8_t next_byte = source_ptr[0];
-
-  if (!isdigit(next_byte))
-  {
-    // There must be another byte after a sign.
-    // The loop below checks that it must be a digit.
-    if (next_byte != '+' || span_size < 2)
-    {
-      return AZ_ERROR_UNEXPECTED_CHAR;
-    }
-    starting_index++;
-  }
-
-  uint32_t value = 0;
-
-  for (int32_t i = starting_index; i < span_size; ++i)
-  {
-    next_byte = source_ptr[i];
-    if (!isdigit(next_byte)) 
-    {
-      if (i != starting_index)
-         break;
-      return AZ_ERROR_UNEXPECTED_CHAR;
-    }
-    uint32_t const d = (uint32_t)next_byte - '0';
-
-    // Check whether the next digit will cause an integer overflow.
-    // Before actually doing the math below, this is checking whether value * 10 + d > UINT32_MAX.
-    /*if ((UINT32_MAX - d) / _az_NUMBER_OF_DECIMAL_VALUES < value)
-    {
-      return AZ_ERROR_UNEXPECTED_CHAR;
-    }*/
-
-    value = value * _az_NUMBER_OF_DECIMAL_VALUES + d;
-  }
-
-  *out_number = value;
-  return AZ_OK;
-}
-//client..Complete();
 DynamicJsonDocument messageResponseDoc(1024);
+DynamicJsonDocument messageReceivedDoc(1024);
 char * originalMessageId;
+
 
 void receivedCallback(char* topic, byte* payload, unsigned int length)
 {
   //messageResponseDoc.Clear();
-  Serial.println(1234);
-  char _topic[128];
-  char _payload[128];
+  char _topic[512];
+  char _payload[512];
+
   char requestName[32];
+  Serial.println("Got IoT Hub Doc-Message-Method-Response");
 
   int topicLen = 0;
   while (topic[topicLen] !=0)
@@ -374,11 +63,291 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
   Serial.println("============");
 
   //Get a 'proper' string from the payload
-  memset(_payload, '\0', sizeof(_payload));
-  strncpy(_payload, (char *)payload, length);
-  Serial.println(length);
 
-  if(strncmp(_topic,"$iothub/methods/",strlen("$iothub/methods/"))==0)
+  memset(_payload, '\0', sizeof(_payload));
+  if(length !=0)
+  {
+    strncpy(_payload, (char *)payload, length);
+    Serial.println(_payload);
+  }
+
+   if(strncmp(_topic,"$iothub/twin/",strlen("$iothub/twin/"))==0)
+   {
+     int responseType;
+     char requestId[20];    
+     Serial.println("Twin: "); 
+     Serial.println("======");
+      char tmp[512];   
+      strcpy(tmp,_payload);
+      deserializeJson(messageReceivedDoc, _payload);
+      strcpy(_payload,tmp);
+     az_span const topic_span = az_span_create((uint8_t*)topic, 1+strlen(_topic));
+     az_span const message_span = az_span_create((uint8_t*)_payload, length);
+     // Parse message and retrieve twin_response info.
+     az_iot_hub_client_twin_response out_twin_response;
+
+      az_result rc
+        = az_iot_hub_client_twin_parse_received_topic(&client, topic_span, &out_twin_response);
+      if (az_result_failed(rc))
+      {
+        Serial.print("ERROR - Message from unknown topic: az_result return code: ");
+        Serial.println(rc, HEX);
+        Serial.print("Topic: ");
+        Serial.println(_topic);
+        return;
+      }
+       else
+      {
+        Serial.println(" Client received a valid TWIN topic response.");
+        Serial.print("  Topic:");
+        Serial.println(topic); //topic_span);
+        Serial.print("  Status: ");
+        int status = (int)out_twin_response.status;
+        Serial.print( status);
+        Serial.println(" 20X=OK");
+        Serial.print("  ResponseType: ");
+        responseType = (int32_t) out_twin_response.response_type;
+        Serial.print(responseType);
+        Serial.println(" 1=Get,2=Desired,3=Reported,4-Error.");
+        Serial.print("  RequestId: ");    
+        (void)az_span_to_str(requestId, sizeof(requestId), out_twin_response.request_id);
+        Serial.println( requestId);
+        if(status != 204)
+        {          
+          /*Serial.println("  Payload:");
+          Serial.print("   ");
+          Serial.println(_payload);*/
+        }
+        else
+        {
+          Serial.println("  No Payload");
+        }
+      }
+      Serial.println("=============");
+    if(strncmp(_topic,"$iothub/twin/res/",strlen("$iothub/twin/res/"))==0)
+    {
+      Serial.println("Twin/res: ");      
+      if (responseType==1)
+      { 
+        Serial.println("   IoT Hub Twin Document GET Response: ");
+        Serial.print("    Status: ");
+        Serial.print( (int)out_twin_response.status);
+        Serial.println(" 200=OK, 204=OK and no return payload");
+        SetProperties(_payload);
+        GotTwinDoc = true; 
+      }
+      else if (responseType==3)
+      { 
+        //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
+        Serial.println("  IoT Hub Twin Property Update Response: ");
+        Serial.print("   Status: ");
+        Serial.print( (int)out_twin_response.status);
+        Serial.println(" 200=OK, 204=OK and no return payload");
+        Serial.print("   Version: ");
+        uint32_t vern;
+        az_result az = az_span_atou32(out_twin_response.version, &vern);
+        Serial.println( vern);        
+        Serial.println(_payload);
+      }
+      else if (responseType==2)
+      { 
+        //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
+        Serial.println("  IoT Hub Twin Property Desired: ");
+        Serial.print("   Status: ");
+        Serial.print( (int)out_twin_response.status);
+        Serial.println(" 200=OK, 204=OK and no return payload");
+        Serial.print("Version: ");
+        uint32_t vern;
+        az_result az = az_span_atou32(out_twin_response.version, &vern);
+        Serial.println( vern);
+        Serial.println(_payload);
+      }
+      else if (responseType==4)
+      { 
+        //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
+        Serial.println(" IoT Hub Twin Property Error: ");
+        Serial.print("Status: ");
+        Serial.print( (int)out_twin_response.status);
+        Serial.println(" 200=OK, 204=OK and no return payload");
+        Serial.print("Version: ");
+        uint32_t vern;
+        az_result az = az_span_atou32(out_twin_response.version, &vern);
+        Serial.println( vern);
+        Serial.println(_payload);
+      }
+      else
+      {
+        Serial.println("Unknown Twin Res");
+      }
+      return;
+    }
+    else  if(strncmp(_topic,"$iothub/twin/PATCH/",strlen("$iothub/twin/PATCH/"))==0)
+    {
+      Serial.println(" IoT Hub Document PATCH: ");
+      Serial.println("Payload: ");
+      serializeJsonPretty(messageResponseDoc, Serial);
+      DynamicJsonDocument Props(512);
+      Serial.println("%%%%%");
+      Serial.println("-----");  
+      Serial.print("Loaded PropsJson: "); 
+      Serial.println(PropsJson); 
+      Serial.println("-----"); 
+      if (strlen(PropsJson)!=0)
+      {
+         deserializeJson(Props,PropsJson);
+      
+        JsonObject rootz = Props.as<JsonObject>();
+
+        for (JsonPair kv : rootz) {
+          Serial.print(kv.key().c_str());
+          Serial.print(": ");
+          Serial.println(kv.value().as<String>());
+        }
+
+      }
+      Serial.println("%%%%%");
+      if(strncmp(_topic,"$iothub/twin/res/",strlen("$iothub/twin/res/"))==0)
+      {
+        
+      }
+      else if(strncmp(_topic,"$iothub/twin/PATCH/properties",strlen("$iothub/twin/PATCH/properties"))==0)
+      {
+        Serial.print(" properties: ");
+        if(strncmp(_topic,"$iothub/twin/PATCH/properties/desired/",strlen("$iothub/twin/PATCH/properties/desired"))==0)
+        {
+          Serial.println(" desired ");
+
+          JsonObject rootx = messageResponseDoc.as<JsonObject>();
+          for (JsonPair kv : rootx) {
+              Serial.print(kv.key().c_str());
+              Serial.print(": ");
+              //JsonVariant val = kv.value();
+              //char* valStr = val.as<String>();
+              Serial.println(kv.value().as<String>());
+          }
+          String patch = rootx["patchId"].as<String>();
+          if (rootx["patchId"].isNull())
+          {
+              Serial.println("Null");
+              for (JsonPair kv : rootx) {
+                if (strncmp(kv.key().c_str(),"patchId",strlen("patchId"))==0)
+                {
+                  //continue;
+                }
+                else if (strncmp(kv.key().c_str(),"components",strlen("components"))==0)
+                {
+                  continue;
+                }
+                Props[kv.key().c_str()]= NULL;
+              }              
+          }
+          else //if (strncmp(patch.c_str(),"Init",strlen("Init"))==0)
+          {
+            Serial.println("Init");
+            for (JsonPair kv : rootx) {
+              if (strncmp(kv.key().c_str(),"patchId",strlen("patchId"))==0)
+              {
+                //continue;= 
+              }
+              if( !kv.value().is<JsonObject>())
+              {                       
+                if( kv.value().is<String>())
+                {
+                  String valStr = kv.value().as<String>();
+                  if (strncmp(valStr.c_str(),"false",strlen("false"))==0)
+                  {
+                    Props[kv.key().c_str()]= false;
+                  }
+                  else if (strncmp(valStr.c_str(),"true",strlen("true"))==0)
+                  {
+                    Props[kv.key().c_str()]= true;                   
+                  }
+                  else if (strncmp(kv.key().c_str(),"components",strlen("components"))==0)
+                  {
+                    Serial.println("components");
+                    //Props[kv.key().c_str()]= true;                   
+                  }
+                  /*else if (strncmp(kv.key().c_str(),"climate",strlen("climate")))
+                  {
+                    Serial.println("climate");
+                    //Props[kv.key().c_str()]= true;                   
+                  }*/
+                  else
+                  {
+                    Props[kv.key().c_str()]= valStr;
+                  }
+                }
+                else if( kv.value().is<int>())
+                  Props[kv.key().c_str()]= kv.value().as<int>();
+                else if( kv.value().is<bool>())
+                  Props[kv.key().c_str()]= kv.value().as<bool>();
+                else if( kv.value().is<double>())
+                  Props[kv.key().c_str()]= kv.value().as<double>();
+              }
+              else
+              {
+                if( kv.value().is<JsonObject>())
+                {
+                  Serial.println("Object");
+                }
+                if( kv.value().is<JsonArray>())
+                {
+                  Serial.println("Array");
+                }
+              }
+            }
+          }
+          JsonObject rooty = Props.as<JsonObject>();
+          Serial.println("....");
+          for (JsonPair kv : rooty) {
+            Serial.print(kv.key().c_str());
+            Serial.print(": ");
+            Serial.println(kv.value().as<String>());
+          }
+          //serializeJson(rooty, Serial);
+          //Serial.println();
+          //PropsJson[0]  ='\0';   
+          char numm[128];  
+          serializeJson(rooty, numm); 
+          if(strncmp(numm,"{\"\":",strlen("{\"\":"))==0)
+          {
+            Serial.println("Issue");
+            char temp[128];
+            char * tmp = numm + 0 + strlen("{\"\":");
+            //Serial.println(tmp);
+            strcpy(temp,"{\"fanOn\":");            
+            //Serial.println(temp);
+            strncat(temp,tmp,strlen(tmp));
+            //Serial.println(temp);
+            memset(numm, '\0', sizeof(numm));
+            strcpy(numm,temp); //, strlen(temp));
+          }
+          /*Serial.println("-----");
+          Serial.print("numm: "); 
+          Serial.println(numm);  */
+          strncpy(PropsJson,numm,strlen(numm));
+          Serial.println("-----");
+          Serial.print("Saved PropsJson: "); 
+          Serial.println(PropsJson); 
+          Serial.println("-----");          
+          Serial.println("....");
+        }   
+        else 
+        {
+          Serial.print("?");
+        }     
+      }
+      else 
+      {
+        Serial.print("??");
+      }
+    }     
+    Serial.println();
+    Serial.println(_payload);
+    send_reported_property("period",137);
+     return;
+   }
+  else if(strncmp(_topic,"$iothub/methods/",strlen("$iothub/methods/"))==0)
   {
     // Is a Direct Method
 
@@ -510,49 +479,12 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
   }
 }
 
-  DynamicJsonDocument doc(1024);
-  char jsonStr[1024];
 
-  char* generateTelemetryPayload(uint32_t telemetry_send_count, int value)
-  {   
-      doc["value"] = value;
-      doc["msgCount"] = telemetry_send_count;
-      serializeJson(doc, jsonStr);
-      az_span temp_span = az_span_create_from_str(jsonStr);
-      az_span_to_str((char*)telemetry_payload, sizeof(telemetry_payload), temp_span);
 
-      return (char*)telemetry_payload;
-  }
 
-az_iot_message_properties * GetProperties(int value)
-{
-  uint32_t msgLength;
-  az_result az_result;
-  if (value>100)
-  {
-    //From: https://github.com/Azure/azure-sdk-for-c  Issue #1471
-    msgLength = (uint32_t)strlen(NO_WARNING);
-    az_span string = AZ_SPAN_LITERAL_FROM_STR(NO_WARNING);
-    uint8_t a[64];
-    az_span s = AZ_SPAN_FROM_BUFFER(a);
-    az_span_copy(s, string);
-    az_result = az_iot_message_properties_init(&properties, s, msgLength);
-  }
-  else
-  {
-     //From: https://github.com/Azure/azure-sdk-for-c  Issue #1471
-    msgLength = (uint32_t)strlen(WARNING);
-    az_span string = AZ_SPAN_LITERAL_FROM_STR(WARNING);
-    uint8_t a[64];
-    az_span s = AZ_SPAN_FROM_BUFFER(a);
-    az_span_copy(s, string);
-    az_result = az_iot_message_properties_init(&properties, s, msgLength);
-  }
-  if(az_result = AZ_OK )
-    return &properties;
-  else
-    return NULL;
-}  
+
+
+
 
 
 

@@ -1,5 +1,9 @@
 # Azure IoT Hub Arduino Raspberry Pi Pico with Telemetry
 
+# Light Sensor SKETCH IS A WORK IN PROGRESS
+Adding Methods, Messages, Patches, Twins and Desired/Reported Properties.  
+Also refactoring each into separate source file.
+
 ## About
 Adds some functioanlity, such as reading environment telemetry to [Azure/azure-sdk-for-c-arduino](https://github.com/Azure/azure-sdk-for-c-arduino) Rpi Pico example. This example has been added as a Pull Request to that repository which was pulled from the fork at [djaus2/azure-sdk-for-c-arduino](https://github.com/djaus2/azure-sdk-for-c-arduino). The first Sketch here (base) is that same proposed example Sketch and is in  ```examples/Azure_IoT_Hub_RPI_Pico``` in the djaus2 fork. (When merged in the origninal, it should be in the matching folder).
 
