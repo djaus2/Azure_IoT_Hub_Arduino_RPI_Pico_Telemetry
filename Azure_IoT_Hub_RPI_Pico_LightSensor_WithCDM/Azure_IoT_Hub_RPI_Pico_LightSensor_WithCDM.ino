@@ -381,8 +381,9 @@ void loop()
   {
     if (!SentProp)
     {    
-          send_reported_property("period",1234);
-          SentProp=true;
+        int val = 1234;
+        send_reported_property("period",(byte *)&val, sizeof(val), DT_INT);
+        SentProp=true;
     }
   }
   if(Dev_Properties.IsRunning)

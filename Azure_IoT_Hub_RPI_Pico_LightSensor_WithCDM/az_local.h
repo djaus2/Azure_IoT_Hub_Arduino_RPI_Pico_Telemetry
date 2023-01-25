@@ -99,6 +99,8 @@ char* get_Method_Response(
 
 // az_local_twin_and_properties ///////////////////////////////////////////////////////////////////////////////////////////////
 
+enum CD_TWIN_PROPERTY_DATA_TYPE { DT_NULL, DT_INT, DT_BOOL, DT_DOUBLE, DT_STRING };
+
 struct Properties {
   unsigned long TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
   bool MethodsSubscribed = false;
@@ -118,7 +120,7 @@ void SetProperties( char * payload);
 // Desired Property Components
 const char * const components[] = {"system","climate"};
 
-void send_reported_property(const char * propertyName, int32_t propertyValue);
+void send_reported_property(const char* propertyName, byte * propertyValue, uint8_t propertySize, CD_TWIN_PROPERTY_DATA_TYPE propertyType);
 
 void build_reported_property_int(
     const char * desired_property_name,

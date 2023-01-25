@@ -344,7 +344,8 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
     }     
     Serial.println();
     Serial.println(_payload);
-    send_reported_property("period",137);
+
+    //send_reported_property("period",137);
      return;
    }
   else if(strncmp(_topic,"$iothub/methods/",strlen("$iothub/methods/"))==0)

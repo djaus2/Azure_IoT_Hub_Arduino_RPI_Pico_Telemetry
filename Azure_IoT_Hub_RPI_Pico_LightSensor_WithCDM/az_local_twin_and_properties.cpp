@@ -222,7 +222,7 @@ void build_reported_property_int(
 
 void build_reported_property_double(
     const char * desired_property_name,
-    int32_t device_property_value,
+    double device_property_value,
     az_span reported_property_payload,
     az_span* out_reported_property_payload)
 {
@@ -292,33 +292,50 @@ void build_reported_property_null(
   }
 }
 
-void send_reported_property(const char * propertyName, int32_t propertyValue)
+void send_reported_property(const char* propertyName, byte * propertyValue, uint8_t propertySize, CD_TWIN_PROPERTY_DATA_TYPE propertyType)
 {
-  int rc;
+    int rc;
 
-  Serial.println("Client sending reported property to service.");
+    Serial.println("Client sending reported property to service.");
 
-  // Get the Twin Patch topic to publish a reported property update.
-  char twin_patch_topic_buffer[128];
-  
-  rc = az_iot_hub_client_twin_patch_get_publish_topic(
-      &client,
-      twin_patch_topic_request_id,
-      twin_patch_topic_buffer,
-      sizeof(twin_patch_topic_buffer),
-      NULL);
-  if (az_result_failed(rc))
-  {
-    Serial.print("ERROR Failed to get the Twin Patch topic: az_result return code :");
-    Serial.println(rc, HEX);
-    return;
-  }
+    // Get the Twin Patch topic to publish a reported property update.
+    char twin_patch_topic_buffer[128];
 
-  // Build the updated reported property message.
-  char reported_property_payload_buffer[128];
-  az_span reported_property_payload = AZ_SPAN_FROM_BUFFER(reported_property_payload_buffer);
-  build_reported_property_int(propertyName,propertyValue,reported_property_payload, &reported_property_payload);
+    rc = az_iot_hub_client_twin_patch_get_publish_topic(
+        &client,
+        twin_patch_topic_request_id,
+        twin_patch_topic_buffer,
+        sizeof(twin_patch_topic_buffer),
+        NULL);
+    if (az_result_failed(rc))
+    {
+        Serial.print("ERROR Failed to get the Twin Patch topic: az_result return code :");
+        Serial.println(rc, HEX);
+        return;
+    }
 
+    // Build the updated reported property message.
+    char reported_property_payload_buffer[128];
+    az_span reported_property_payload = AZ_SPAN_FROM_BUFFER(reported_property_payload_buffer);
+    switch (propertyType)
+    {
+    case DT_NULL:
+        build_reported_property_null(propertyName,  reported_property_payload, &reported_property_payload);
+        break;
+    case DT_INT:
+        build_reported_property_int(propertyName,* ((int *)propertyValue), reported_property_payload, &reported_property_payload);
+        break;
+    case DT_BOOL:
+        build_reported_property_bool(propertyName,* ((bool *) propertyValue), reported_property_payload, &reported_property_payload);
+        break;
+    case DT_DOUBLE:
+        build_reported_property_double(propertyName,* ((double *)propertyValue), reported_property_payload, &reported_property_payload);
+        break;
+    default:
+        Serial.println("Data Type DT_ not yet implemented");
+        return;
+        break;
+    }
   bool res;
   // Publish the twin document request.
   res = mqtt_client.publish(
@@ -337,8 +354,29 @@ void send_reported_property(const char * propertyName, int32_t propertyValue)
   Serial.println("Client published the Twin Patch reported property message.");
   Serial.print("Sent Property: ");
   Serial.print(propertyName);
-  Serial.print("<int> Value: ");
-  Serial.println(propertyValue);
+
+  switch (propertyType)
+  {
+  case DT_NULL:
+      Serial.print("Value: ");
+      Serial.println("NULL");
+      break;
+  case DT_INT:
+      Serial.print("<int> Value: ");
+      Serial.println(*((int *)propertyValue));     
+      break;
+  case DT_BOOL:
+      Serial.print("<bool> Value: ");
+        Serial.println(* ((bool *)propertyValue));  
+  case DT_DOUBLE:
+      Serial.print("<double> Value: ");
+      Serial.println(* ((double *)propertyValue));      
+      break;
+  default:
+      Serial.println("Data Type DT_ not yet implemented");
+      return;
+      break;
+  }
 
 }
 
