@@ -1,6 +1,6 @@
 # Azure IoT Hub Arduino Raspberry Pi Pico with Telemetry
 
-# Light Sensor SKETCH IS A WORK IN PROGRESS
+# Light Sensor CD SKETCH IS A WORK IN PROGRESS
 Adding Methods, Messages, Patches, Twins and Desired/Reported Properties.  
 Also refactoring each into separate source file.
 
