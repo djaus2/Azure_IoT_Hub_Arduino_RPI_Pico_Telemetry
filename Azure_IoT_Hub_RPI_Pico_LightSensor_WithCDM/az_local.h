@@ -120,6 +120,8 @@ void SetProperties( char * payload);
 // Desired Property Components
 const char * const components[] = {"system","climate"};
 
+void ReportProperties();
+
 void send_reported_property(const char* propertyName, byte * propertyValue, uint8_t propertySize, CD_TWIN_PROPERTY_DATA_TYPE propertyType);
 
 void build_reported_property_int(
@@ -146,3 +148,10 @@ void build_reported_property_null(
     const char * desired_property_name,
     az_span reported_property_payload,
     az_span* out_reported_property_payload);
+
+/////////////////////////////
+
+#define PRINT_BEGIN(A) {Serial.println();Serial.println(A);for (int i=0;i<strlen(A);i++){Serial.print('-');}Serial.println();}
+#define PRINT_END(A) {for (int i=0;i<strlen(A);i++){Serial.print('-');}Serial.println();Serial.println();}
+#define PRINT_BEGIN_SUB(A) {Serial.println(A);for (int i=0;i<strlen(A);i++){Serial.print('.');}Serial.println();}
+#define PRINT_END_SUB(A) {for (int i=0;i<strlen(A);i++){Serial.print('.');}Serial.println();}

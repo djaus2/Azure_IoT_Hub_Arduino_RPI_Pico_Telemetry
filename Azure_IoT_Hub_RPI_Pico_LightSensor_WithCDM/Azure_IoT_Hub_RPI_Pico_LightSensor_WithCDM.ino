@@ -381,8 +381,7 @@ void loop()
   {
     if (!SentProp)
     {    
-        int val = 1234;
-        send_reported_property("period",(byte *)&val, sizeof(val), DT_INT);
+        ReportProperties();
         SentProp=true;
     }
   }

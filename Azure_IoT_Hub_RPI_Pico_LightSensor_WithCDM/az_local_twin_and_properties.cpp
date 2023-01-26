@@ -8,13 +8,15 @@
 #include "az_local.h"
 
 #include "iot_configs.h"
-#include <string.h>
+#include <string.h> 
 
+// Set properties initally at startup to some default values
+// Would be useful to get these properties from a file.
+// But will get them from the IoT Hub
 void InitProperties()
 {
-  Serial.println();
-  Serial.println("Inital Device Properties:");  
-  // Clear the storage
+  PRINT_BEGIN("Set Inital Device Properties on Device:"); 
+  // Clear the storage 
   memset(PropsJson,0,strlen(PropsJson));
   Dev_Properties.IsRunning =false;
   Dev_Properties.TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
@@ -28,17 +30,28 @@ void InitProperties()
   doc["MethodsSubscribed"]=Dev_Properties.MethodsSubscribed;
   doc["CDMessagesSubscribed"]=Dev_Properties.CDMessagesSubscribed;
   doc["LEDIsOn"]=Dev_Properties.LEDIsOn;
+  // Save properties as Json string to storage. Relying on DynamicJsonDocument can lead to memmory leaks.
   serializeJson(doc, PropsJson);
-  //Serial.println(PropsJson);
   serializeJsonPretty(doc, Serial);
   Serial.println();
-  Serial.println();
+  PRINT_END("Inital Device Properties:")
+}
+
+void ReportProperties()
+{
+    PRINT_BEGIN("Reporting Device Properties")
+    send_reported_property("IsRunning", (byte *)&Dev_Properties.IsRunning, sizeof(Dev_Properties.IsRunning), DT_BOOL);
+    send_reported_property("TelemetryFrequencyMilliseconds", (byte*)&Dev_Properties.TelemetryFrequencyMilliseconds, sizeof(Dev_Properties.TelemetryFrequencyMilliseconds), DT_INT);
+    send_reported_property("MethodsSubscribed", (byte*)&Dev_Properties.MethodsSubscribed , sizeof(Dev_Properties.MethodsSubscribed), DT_BOOL);
+    send_reported_property("CDMessagesSubscribed", (byte*)&Dev_Properties.CDMessagesSubscribed, sizeof(Dev_Properties.CDMessagesSubscribed), DT_BOOL);
+    send_reported_property("LEDIsOn", (byte*)&Dev_Properties.LEDIsOn, sizeof(Dev_Properties.LEDIsOn), DT_BOOL);
+    PRINT_END("Reporting Device Properties")
 }
 
 void get_device_twin_document(void)
 {
   int rc;
-  Serial.println("Client requesting device twin document from service.");
+  PRINT_BEGIN("Client requesting device twin document from service.");
 
   // Get the Twin Document topic to publish the twin document request.
   char twin_document_topic_buffer[128];
@@ -51,7 +64,7 @@ void get_device_twin_document(void)
   if (az_result_failed(rc))
   {
     Serial.print(
-        "Failed to get the Twin Document topic: az_result return code ");
+        " - Failed to get the Twin Document topic: az_result return code ");
     Serial.println(rc,HEX);
     exit(rc);
   }
@@ -61,30 +74,31 @@ void get_device_twin_document(void)
        twin_document_topic_buffer, NULL, 0,  NULL);
   if (!res)
   {
-    Serial.println("FAILED to publish the Twin Document request. ");
+    Serial.println(" - FAILED to publish the Twin Document request. ");
     exit(99);
   }
   else
   {
-    Serial.println("OK Published the Twin Document request. ");    
+    Serial.println(" - OK Published the Twin Document request. ");    
   }
+  PRINT_END("Client requesting device twin document from service.");
 }
 
 void SetProperties( char * payload)
 {
   DynamicJsonDocument doc(512);;
-  Serial.println();
-  Serial.println("Set Desired Properties");
+  PRINT_BEGIN("Set Desired Properties");
   deserializeJson(doc, payload);
-  Serial.println("Payload: Json pretty print:");
+  PRINT_BEGIN_SUB("Payload: Json pretty print:");
   serializeJsonPretty(doc, Serial);
-  Serial.println("###################");
+  Serial.println();
+  PRINT_END_SUB("Payload: Json pretty print:");
   char desired[128];
     //serializeJson(Props, PropsJson); 
    JsonObject roota = doc.as<JsonObject>();
    if (doc.containsKey("desired")) 
    {
-     Serial.println("Desired Properties:");
+     PRINT_BEGIN_SUB("Desired Properties:");
      JsonObject jv = roota["desired"];
      serializeJson(jv, PropsJson);
      for (JsonPair kv : jv) {
@@ -92,7 +106,7 @@ void SetProperties( char * payload)
         JsonVariant jvv = kv.value();
         if (strcmp("components",key)==0)
         {
-            Serial.println("Has Components");
+            Serial.println("- Has Components");
             JsonObject jvComponents = jvv.as<JsonObject>();
             size_t NumberOfElements = sizeof(components)/sizeof(components[0]);
             for (int i=0;i< NumberOfElements; i++)
@@ -114,10 +128,11 @@ void SetProperties( char * payload)
         }
         else  if (strcmp("modules",key)==0)
         {
-            Serial.println("Has Modules");
+            Serial.println(" - Has Modules");
         }
         else
         {
+          Serial.print(" - ");
           Serial.print(key);
           Serial.print(": ");
           if (jvv.is<String>())
@@ -158,6 +173,7 @@ void SetProperties( char * payload)
         }
       }
     }
+   PRINT_END("Set Desired Properties");
 
 /*
     for (JsonPair kv : roota) {
@@ -172,7 +188,7 @@ void SetProperties( char * payload)
       Serial.println(desired);
     }
   }*/
- Serial.println("###################");  
+ //Serial.println("###################");  
  /*
   Serial.println("Saving Properties");
   DynamicJsonDocument Props(512);
@@ -296,7 +312,7 @@ void send_reported_property(const char* propertyName, byte * propertyValue, uint
 {
     int rc;
 
-    Serial.println("Client sending reported property to service.");
+    PRINT_BEGIN_SUB("Client sending reported property to service.");
 
     // Get the Twin Patch topic to publish a reported property update.
     char twin_patch_topic_buffer[128];
@@ -351,9 +367,10 @@ void send_reported_property(const char* propertyName, byte * propertyValue, uint
         Serial.println(rc);
     return;
   }
-  Serial.println("Client published the Twin Patch reported property message.");
-  Serial.print("Sent Property: ");
-  Serial.print(propertyName);
+  Serial.println(" - Client published the Twin reported property message.");
+    Serial.print("  - Sent Property: ");
+  Serial.println(propertyName);
+  Serial.print("    - ");
 
   switch (propertyType)
   {
@@ -367,7 +384,8 @@ void send_reported_property(const char* propertyName, byte * propertyValue, uint
       break;
   case DT_BOOL:
       Serial.print("<bool> Value: ");
-        Serial.println(* ((bool *)propertyValue));  
+      Serial.println(* ((bool *)propertyValue));  
+      break;
   case DT_DOUBLE:
       Serial.print("<double> Value: ");
       Serial.println(* ((double *)propertyValue));      
@@ -377,7 +395,6 @@ void send_reported_property(const char* propertyName, byte * propertyValue, uint
       return;
       break;
   }
-
 }
 
 void UpdateProperties()
