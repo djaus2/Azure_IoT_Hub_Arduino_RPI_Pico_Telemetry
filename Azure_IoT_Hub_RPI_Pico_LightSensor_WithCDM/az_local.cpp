@@ -47,7 +47,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
   char _payload[512];
 
   char requestName[32];
-  Serial.println("Got IoT Hub Doc-Message-Method-Response");
+  PRINT_BEGIN("Got IoT Hub Doc-Message-Method-Response");
 
   int topicLen = 0;
   while (topic[topicLen] !=0)
@@ -75,8 +75,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
    {
      int responseType;
      char requestId[20];    
-     Serial.println("Twin: "); 
-     Serial.println("======");
+     PRINT_BEGIN_SUB("Twin: "); 
       char tmp[512];   
       strcpy(tmp,_payload);
       deserializeJson(messageReceivedDoc, _payload);
@@ -96,9 +95,9 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
         Serial.println(_topic);
         return;
       }
-       else
+      else
       {
-        Serial.println(" Client received a valid TWIN topic response.");
+        PRINT_BEGIN_SUB(" Client received a valid TWIN topic response.");
         Serial.print("  Topic:");
         Serial.println(topic); //topic_span);
         Serial.print("  Status: ");
@@ -109,9 +108,12 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
         responseType = (int32_t) out_twin_response.response_type;
         Serial.print(responseType);
         Serial.println(" 1=Get,2=Desired,3=Reported,4-Error.");
-        Serial.print("  RequestId: ");    
-        (void)az_span_to_str(requestId, sizeof(requestId), out_twin_response.request_id);
-        Serial.println( requestId);
+        if (responseType != 2)
+        {
+          Serial.print("  RequestId: ");    
+          (void)az_span_to_str(requestId, sizeof(requestId), out_twin_response.request_id);
+          Serial.println( requestId);
+        }
         if(status != 204)
         {          
           /*Serial.println("  Payload:");
@@ -179,11 +181,13 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
       {
         Serial.println("Unknown Twin Res");
       }
+      PRINT_END_SUB("Twin: ");
+      PRINT_END("Got IoT Hub Doc-Message-Method-Response");
       return;
     }
     else  if(strncmp(_topic,"$iothub/twin/PATCH/",strlen("$iothub/twin/PATCH/"))==0)
     {
-      Serial.println(" IoT Hub Document PATCH: ");
+      PRINT_BEGIN_SUB(" IoT Hub Document PATCH: ");
       Serial.println("Payload: ");
       serializeJsonPretty(messageResponseDoc, Serial);
       DynamicJsonDocument Props(512);
@@ -345,13 +349,14 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
     Serial.println();
     Serial.println(_payload);
 
-    //send_reported_property("period",137);
-     return;
+    PRINT_END_SUB(" IoT Hub Document PATCH: ");
+    PRINT_END("Got IoT Hub Doc-Message-Method-Response");
+    return;
    }
   else if(strncmp(_topic,"$iothub/methods/",strlen("$iothub/methods/"))==0)
   {
     // Is a Direct Method
-
+    PRINT_BEGIN_SUB(" IoT Hub Direct Method: ");
     //Get the Method Request
     az_iot_hub_client_method_request  request;
     az_span az_topic = az_span_create_from_str(_topic);
@@ -405,11 +410,14 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
       }
       */
     }
+    PRINT_END_SUB(" IoT Hub Direct Method: ");
+    PRINT_END("Got IoT Hub Doc-Message-Method-Response");
   }
   else
   {
     // Is a Message
-    Serial.print("Received  Message: [");
+    PRINT_BEGIN_SUB("Received  Hub Message:");
+    Serial.print("Topic: [");
     Serial.print(_topic);
     Serial.print("] ");
 
@@ -477,6 +485,8 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
 
       }
     }
+    PRINT_END_SUB("Received  Hub Message:");
+    PRINT_END("Got IoT Hub Doc-Message-Method-Response");
   }
 }
 

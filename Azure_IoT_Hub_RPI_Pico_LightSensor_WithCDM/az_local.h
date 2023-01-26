@@ -120,7 +120,9 @@ void SetProperties( char * payload);
 // Desired Property Components
 const char * const components[] = {"system","climate"};
 
+void SaveProperies();
 void ReportProperties();
+
 
 void send_reported_property(const char* propertyName, byte * propertyValue, uint8_t propertySize, CD_TWIN_PROPERTY_DATA_TYPE propertyType);
 

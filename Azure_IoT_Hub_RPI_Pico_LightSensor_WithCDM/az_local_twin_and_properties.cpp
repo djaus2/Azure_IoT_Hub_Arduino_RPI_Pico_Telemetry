@@ -15,15 +15,21 @@
 // But will get them from the IoT Hub
 void InitProperties()
 {
-  PRINT_BEGIN("Set Inital Device Properties on Device:"); 
-  // Clear the storage 
-  memset(PropsJson,0,strlen(PropsJson));
-  Dev_Properties.IsRunning =false;
-  Dev_Properties.TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
-  Dev_Properties.MethodsSubscribed = false;
-  Dev_Properties.CDMessagesSubscribed = false;
-  Dev_Properties.LEDIsOn = false;
+    PRINT_BEGIN("Set Inital Device Properties on Device:");
+    // Clear the storage 
+    memset(PropsJson, 0, strlen(PropsJson));
+    Dev_Properties.IsRunning = false;
+    Dev_Properties.TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
+    Dev_Properties.MethodsSubscribed = false;
+    Dev_Properties.CDMessagesSubscribed = false;
+    Dev_Properties.LEDIsOn = false;
+    SaveProperies();
+    PRINT_END("Inital Device Properties:");
+}
 
+void SaveProperies()
+{
+  PRINT_BEGIN("Save Device Properties on Device:");
   DynamicJsonDocument doc(512);
   doc["IsRunning"] = Dev_Properties.IsRunning;
   doc["TelemetryFrequencyMilliseconds"]= Dev_Properties.TelemetryFrequencyMilliseconds;
@@ -34,24 +40,24 @@ void InitProperties()
   serializeJson(doc, PropsJson);
   serializeJsonPretty(doc, Serial);
   Serial.println();
-  PRINT_END("Inital Device Properties:")
+  PRINT_END("Save Device Properties on Device:");
 }
 
 void ReportProperties()
 {
-    PRINT_BEGIN("Reporting Device Properties")
+    PRINT_BEGIN("Reporting Device Properties to Hub:")
     send_reported_property("IsRunning", (byte *)&Dev_Properties.IsRunning, sizeof(Dev_Properties.IsRunning), DT_BOOL);
     send_reported_property("TelemetryFrequencyMilliseconds", (byte*)&Dev_Properties.TelemetryFrequencyMilliseconds, sizeof(Dev_Properties.TelemetryFrequencyMilliseconds), DT_INT);
     send_reported_property("MethodsSubscribed", (byte*)&Dev_Properties.MethodsSubscribed , sizeof(Dev_Properties.MethodsSubscribed), DT_BOOL);
     send_reported_property("CDMessagesSubscribed", (byte*)&Dev_Properties.CDMessagesSubscribed, sizeof(Dev_Properties.CDMessagesSubscribed), DT_BOOL);
     send_reported_property("LEDIsOn", (byte*)&Dev_Properties.LEDIsOn, sizeof(Dev_Properties.LEDIsOn), DT_BOOL);
-    PRINT_END("Reporting Device Properties")
+    PRINT_END("Reporting Device Properties to Hub")
 }
 
 void get_device_twin_document(void)
 {
   int rc;
-  PRINT_BEGIN("Client requesting device twin document from service.");
+  PRINT_BEGIN("Client requesting device twin document from service:");
 
   // Get the Twin Document topic to publish the twin document request.
   char twin_document_topic_buffer[128];
@@ -81,13 +87,13 @@ void get_device_twin_document(void)
   {
     Serial.println(" - OK Published the Twin Document request. ");    
   }
-  PRINT_END("Client requesting device twin document from service.");
+  PRINT_END("Client requesting device twin document from service:");
 }
 
 void SetProperties( char * payload)
 {
   DynamicJsonDocument doc(512);;
-  PRINT_BEGIN("Set Desired Properties");
+  PRINT_BEGIN("Set Desired Properties:");
   deserializeJson(doc, payload);
   PRINT_BEGIN_SUB("Payload: Json pretty print:");
   serializeJsonPretty(doc, Serial);
@@ -132,82 +138,82 @@ void SetProperties( char * payload)
         }
         else
         {
-          Serial.print(" - ");
-          Serial.print(key);
-          Serial.print(": ");
-          if (jvv.is<String>())
-          {
-            Serial.print("<String>");
-            Serial.println( jvv.as<String>().c_str());
-          }
-          else  if (jvv.is<bool>())
-          {
-            Serial.print("<bool>");
-            Serial.println( jvv.as<bool>());
-          }
-          else  if (jvv.is<int>())
-          {
-            Serial.print("<int>");
-            Serial.println( jvv.as<int>());
-          }
-          else  if (jvv.is<float>())
-          {
-            Serial.print("<float>");
-            Serial.println( jvv.as<float>());
-          }
-          else  if (jvv.is<double>())
-          {
-            Serial.print("<double>");
-            Serial.println( jvv.as<double>());
-          }
-          else  if (jvv.is<unsigned char>())
-          {
-            Serial.print("<char>");
-            Serial.println( jvv.as<unsigned char>());
-          }
-          else  
-          {
-            Serial.print("< ??? >");
-            Serial.println( jvv.as<String>().c_str());
-          }
+            uint32_t iVal;
+            bool bVal;
+            double dVal;
+            String sVal;
+            Serial.print(" - ");
+            Serial.print(key);
+            Serial.print(": ");
+
+            if (jvv.is<String>())
+            {
+                sVal = jvv.as<String>();
+                Serial.print("<String>");
+                Serial.println(jvv.as<String>().c_str());
+            }
+            else  if (jvv.is<bool>())
+            {
+                bVal = jvv.as<bool>();
+                Serial.print("<bool>");
+                Serial.println(jvv.as<bool>());
+            }
+            else  if (jvv.is<int>())
+            {
+                iVal = jvv.as<int>();
+                Serial.print("<int>");
+                Serial.println(jvv.as<int>());
+            }
+            else  if (jvv.is<float>())
+            {
+                dVal = jvv.as<double>();
+                Serial.print("<float>");
+                Serial.println(jvv.as<float>());
+            }
+            else  if (jvv.is<double>())
+            {
+                dVal = jvv.as<double>();
+                Serial.print("<double>");
+                Serial.println(jvv.as<double>());
+            }
+            else  if (jvv.is<unsigned char>())
+            {
+                iVal = (uint8_t)jvv.is<unsigned char>();
+                Serial.print("<char>");
+                Serial.println(jvv.as<unsigned char>());
+            }
+            else
+            {
+                Serial.print("< ??? >");
+                Serial.println(jvv.as<String>().c_str());
+            }
+
+            // Following assumes correct type of value. Should check.
+            if (strcmp(key, "IsRunning") == 0)
+            {
+                Dev_Properties.IsRunning = bVal;
+            }
+            else if (strcmp(key, "TelemetryFrequencyMilliseconds") == 0)
+            {
+                Dev_Properties.TelemetryFrequencyMilliseconds = iVal;
+            }
+            else if (strcmp(key, "MethodsSubscribed") == 0)
+            {
+                Dev_Properties.MethodsSubscribed = bVal;
+            }
+            else if (strcmp(key, "CDMessagesSubscribed") == 0)
+            {
+                Dev_Properties.CDMessagesSubscribed = bVal;
+            }
+            else if (strcmp(key, "LEDIsOn") == 0)
+            {
+                Dev_Properties.LEDIsOn = bVal;
+            }
         }
       }
     }
-   PRINT_END("Set Desired Properties");
-
-/*
-    for (JsonPair kv : roota) {
-    Serial.print(kv.key().c_str());
-    Serial.println(": ");
-    Serial.println(kv.value().as<String>());
-    if (strncmp("desired",  kv.key().c_str(), strlen("desired"))==0)
-    {
-      Serial.print("GOT desired: ");
-      
-      strcpy(desired,kv.value().as<String>().c_str());
-      Serial.println(desired);
-    }
-  }*/
- //Serial.println("###################");  
- /*
-  Serial.println("Saving Properties");
-  DynamicJsonDocument Props(512);
-  JsonObject rootzw = messageReceivedDoc.as<JsonObject>();
-  const char * msg = rootzw["desired"];
-  Serial.println(msg);
-  deserializeJson(Props,msg); 
-
-
-  Serial.println("Properties: Json pretty print:");
-  serializeJsonPretty(Props, Serial);
-  Serial.println();
-  JsonObject rootz = Props.as<JsonObject>();
-  Serial.println("... As Json Object:");
-  for (JsonPair kv : rootz) {
-    Serial.print(kv.key().c_str());
-    Serial.print(": ");
-    Serial.println(kv.value().as<String>());
-  }*/
+   SaveProperies();
+   PRINT_END("Set Desired Properties:");
 }
 
 #define IOT_SAMPLE_EXIT_IF_AZ_FAILED(A,B) if(allOK){ int rc = A; if (az_result_failed(rc)){Serial.print("Error - "); Serial.println(log); allOK = false;}}
