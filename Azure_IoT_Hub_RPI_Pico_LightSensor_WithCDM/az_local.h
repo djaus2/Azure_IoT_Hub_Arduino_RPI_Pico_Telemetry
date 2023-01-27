@@ -107,6 +107,7 @@ struct Properties {
   bool CDMessagesSubscribed = false;
   bool IsRunning = false;
   bool LEDIsOn = false;
+  bool fanOn = false;
 };
 
 extern char  PropsJson[512];
@@ -120,8 +121,9 @@ void SetProperties( char * payload);
 // Desired Property Components
 const char * const components[] = {"system","climate"};
 
-void SaveProperies();
+void SaveProperties();
 void ReportProperties();
+void PrinteProperties();
 
 
 void send_reported_property(const char* propertyName, byte * propertyValue, uint8_t propertySize, CD_TWIN_PROPERTY_DATA_TYPE propertyType);
@@ -153,7 +155,13 @@ void build_reported_property_null(
 
 /////////////////////////////
 
-#define PRINT_BEGIN(A) {Serial.println();Serial.println(A);for (int i=0;i<strlen(A);i++){Serial.print('-');}Serial.println();}
-#define PRINT_END(A) {for (int i=0;i<strlen(A);i++){Serial.print('-');}Serial.println();Serial.println();}
-#define PRINT_BEGIN_SUB(A) {Serial.println(A);for (int i=0;i<strlen(A);i++){Serial.print('.');}Serial.println();}
-#define PRINT_END_SUB(A) {for (int i=0;i<strlen(A);i++){Serial.print('.');}Serial.println();}
+#define PRINT_BEGIN(A) {int PLENGTH = strlen(A); Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();Serial.print(A);Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();
+#define PRINT_END for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();}
+#define PRINT_BEGIN_SUB(A) {int QLENGTH = strlen(A);for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();Serial.println(A);for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();
+#define PRINT_END_SUB for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();}
+#define PRINT_BEGIN_SUB_SUB(A) {int RLENGTH = strlen(A);for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();Serial.println(A);for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();
+#define PRINT_END_SUB_SUB for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();}
+#define PRINT_BEGIN_SUB_SUB_SUB(A) {Serial.println(A);for (int i=0;i<strlen(A);i++){Serial.print('~');}Serial.println();
+#define PRINT_END_SUB_SUB_SUB }//for (int i=0;i<strlen(A);i++){Serial.print('~');}Serial.println();}
+#define PRINT_BEGIN_SUB_SUB_SUB_SUB(A) {Serial.println(A);for (int i=0;i<strlen(A);i++){Serial.print(',');}Serial.println();
+#define PRINT_END_SUB_SUB_SUB_SUB }//for (int i=0;i<strlen(A);i++){Serial.print(',');}Serial.println();}

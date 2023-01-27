@@ -368,11 +368,12 @@ void setup()
   {}
   establishConnection();
   InitProperties();
+  PrinteProperties();
   next_telemetry_send_time_ms = 0;
   telemetry_send_count = 0;
   SentProp = false;
   delay(1000);
-  get_device_twin_document();
+  //get_device_twin_document();
 }
 
 void loop()
@@ -381,7 +382,7 @@ void loop()
   {
     if (!SentProp)
     {    
-        ReportProperties();
+        //ReportProperties();
         SentProp=true;
     }
   }
