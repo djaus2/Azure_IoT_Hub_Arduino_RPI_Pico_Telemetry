@@ -58,8 +58,9 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
       // Get a 'proper' string from topic
       memset(_topic, '\0', sizeof(_topic));
       strncpy(_topic, topic, topicLen);
-      Serial.print("  Topic: ");
-      Serial.println(_topic);
+      //Serial.print("  Topic: ");
+      //Serial.println(_topic);
+      Serial.println("Got Topic");
 
       //Get a 'proper' string from the payload
 
@@ -68,12 +69,16 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
       {
           strncpy(_payload, (char*)payload, length);
           Serial.println("  Got Payload");
-          Serial.println(_payload);
+          //Serial.println(_payload);
+      }
+      else
+      {
+          Serial.println("No Payload");
       }
 
       if (strncmp(_topic, "$iothub/twin/", strlen("$iothub/twin/")) == 0)
       {
-          PRINT_BEGIN_SUB("Twin: ")
+          PRINT_BEGIN_SUB_1("Twin: ")
           {
               int responseType;
               char requestId[20];
@@ -98,7 +103,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
               }
               else
               {
-                  PRINT_BEGIN_SUB_SUB(" Client received a valid TWIN topic response.")
+                  PRINT_BEGIN_SUB_2(" Client received a valid TWIN topic response.")
                   {
                       Serial.print("  Topic:");
                       Serial.println(topic); //topic_span);
@@ -129,76 +134,78 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
 
                       if (strncmp(_topic, "$iothub/twin/res/", strlen("$iothub/twin/res/")) == 0)
                       {
-                          PRINT_BEGIN_SUB_SUB_SUB("Twin/res/... ");
-                          if (responseType == 1)
+                          PRINT_BEGIN_SUB_3("Twin/res/... ")
                           {
-                              PRINT_BEGIN_SUB_SUB_SUB_SUB("   IoT Hub Twin Document GET Response: ")
+                              if (responseType == 1)
                               {
-                                  Serial.print("    Status: ");
-                                  Serial.print((int)out_twin_response.status);
-                                  Serial.println(" 200=OK, 204=OK and no return payload");
-                                  SetProperties(_payload);
-                                  GotTwinDoc = true;
+                                  PRINT_BEGIN_SUB_4("   IoT Hub Twin Document GET Response: ")
+                                  {
+                                      Serial.print("    Status: ");
+                                      Serial.print((int)out_twin_response.status);
+                                      Serial.println(" 200=OK, 204=OK and no return payload");
+                                      SetProperties(_payload);
+                                      GotTwinDoc = true;
+                                  }
+                                  PRINT_END_SUB_4
                               }
-                              PRINT_END_SUB_SUB_SUB_SUB
-                          }
-                          else if (responseType == 3)
-                          {
-                              //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
-                              PRINT_BEGIN_SUB_SUB_SUB("  IoT Hub Twin Property Update Response: ")
+                              else if (responseType == 3)
                               {
-                                  Serial.print("   Status: ");
-                                  Serial.print((int)out_twin_response.status);
-                                  Serial.println(" 200=OK, 204=OK and no return payload");
-                                  Serial.print("   Version: ");
-                                  uint32_t vern;
-                                  az_result az = az_span_atou32(out_twin_response.version, &vern);
-                                  Serial.println(vern);
-                                  Serial.println(_payload);
+                                  //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
+                                  PRINT_BEGIN_SUB_4("  IoT Hub Twin Property Update Response: ")
+                                  {
+                                      Serial.print("   Status: ");
+                                      Serial.print((int)out_twin_response.status);
+                                      Serial.println(" 200=OK, 204=OK and no return payload");
+                                      Serial.print("   Version: ");
+                                      uint32_t vern;
+                                      az_result az = az_span_atou32(out_twin_response.version, &vern);
+                                      Serial.println(vern);
+                                      Serial.println(_payload);
+                                  }
+                                  PRINT_END_SUB_4
                               }
-                              PRINT_END_SUB_SUB_SUB_SUB
-                          }
-                          else if (responseType == 2)
-                          {
-                              //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
-                              PRINT_BEGIN_SUB_SUB_SUB_SUB("  IoT Hub Twin Property Desired: ")
+                              else if (responseType == 2)
                               {
-                                  Serial.print("   Status: ");
-                                  Serial.print((int)out_twin_response.status);
-                                  Serial.println(" 200=OK, 204=OK and no return payload");
-                                  Serial.print("Version: ");
-                                  uint32_t vern;
-                                  az_result az = az_span_atou32(out_twin_response.version, &vern);
-                                  Serial.println(vern);
-                                  Serial.println(_payload);
+                                  //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
+                                  PRINT_BEGIN_SUB_4("  IoT Hub Twin Property Desired: ")
+                                  {
+                                      Serial.print("   Status: ");
+                                      Serial.print((int)out_twin_response.status);
+                                      Serial.println(" 200=OK, 204=OK and no return payload");
+                                      Serial.print("Version: ");
+                                      uint32_t vern;
+                                      az_result az = az_span_atou32(out_twin_response.version, &vern);
+                                      Serial.println(vern);
+                                      Serial.println(_payload);
+                                  }
+                                  PRINT_END_SUB_4
                               }
-                              PRINT_END_SUB_SUB_SUB_SUB
-                          }
-                          else if (responseType == 4)
-                          {
-                              //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
-                              PRINT_BEGIN_SUB_SUB_SUB_SUB(" IoT Hub Twin Property Error: ")
+                              else if (responseType == 4)
                               {
-                                  Serial.print("Status: ");
-                                  Serial.print((int)out_twin_response.status);
-                                  Serial.println(" 200=OK, 204=OK and no return payload");
-                                  Serial.print("Version: ");
-                                  uint32_t vern;
-                                  az_result az = az_span_atou32(out_twin_response.version, &vern);
-                                  Serial.println(vern);
-                                  Serial.println(_payload);
+                                  //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
+                                  PRINT_BEGIN_SUB_4(" IoT Hub Twin Property Error: ")
+                                  {
+                                      Serial.print("Status: ");
+                                      Serial.print((int)out_twin_response.status);
+                                      Serial.println(" 200=OK, 204=OK and no return payload");
+                                      Serial.print("Version: ");
+                                      uint32_t vern;
+                                      az_result az = az_span_atou32(out_twin_response.version, &vern);
+                                      Serial.println(vern);
+                                      Serial.println(_payload);
+                                  }
+                                  PRINT_END_SUB_4
                               }
-                              PRINT_END_SUB_SUB_SUB_SUB
+                              else
+                              {
+                                  Serial.println("Unknown Twin Res");
+                              }
                           }
-                          else
-                          {
-                              Serial.println("Unknown Twin Res");
-                          }
-                          PRINT_END_SUB_SUB_SUB
+                          PRINT_END_SUB_3
                       }
                       else  if (strncmp(_topic, "$iothub/twin/PATCH/", strlen("$iothub/twin/PATCH/")) == 0)
                       {
-                          PRINT_BEGIN_SUB_SUB(" IoT Hub Document PATCH: ")
+                          PRINT_BEGIN_SUB_3(" IoT Hub Document PATCH: ")
                           {
                               Serial.println("Patch Document: ");
                               DynamicJsonDocument patchDoc(512);
@@ -231,11 +238,11 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                               }
                               if (strncmp(_topic, "$iothub/twin/PATCH/properties", strlen("$iothub/twin/PATCH/properties")) == 0)
                               {
-                                  PRINT_BEGIN_SUB_SUB_SUB(" PATCH/properties: ")
+                                  PRINT_BEGIN_SUB_4(" PATCH/properties: ")
                                   {
                                       if (strncmp(_topic, "$iothub/twin/PATCH/properties/desired/", strlen("$iothub/twin/PATCH/properties/desired")) == 0)
                                       {
-                                          PRINT_BEGIN_SUB_SUB_SUB_SUB(" PATCH/properties/desired: ");
+                                          PRINT_BEGIN_SUB_5(" PATCH/properties/desired: ");
                                           {
                                               JsonObject rootx = patchDoc.as<JsonObject>();
                                               for (JsonPair kv : rootx) {
@@ -350,9 +357,8 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                                       strcpy(numm, temp); //, strlen(temp));
                                                   }
                                                   strncpy(PropsJson, numm, strlen(numm));
-                                                  Serial.println("-----");
-                                                  Serial.print("Saved Patched PropsJson on device: ");
-                                                  Serial.println("-----");
+                                                  Serial.println("- Saved Patched PropsJson on device.");
+                                                  Serial.println("------------------------------------");
 
                                               }
  /*                                             }
@@ -361,30 +367,30 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                                   Serial.print("?");
                                               }*/
                                           }
-                                          PRINT_END_SUB_SUB_SUB_SUB
+                                          PRINT_END_SUB_5
                                       }
                                       else
                                       {
                                           Serial.print("??");
                                       }
                                   }
-                                  PRINT_END_SUB_SUB_SUB
+                                  PRINT_END_SUB_4
                               }
                               Serial.println();
                               Serial.println(_payload);
                           }
-                          PRINT_END_SUB_SUB
+                          PRINT_END_SUB_3
                       }
                   }
-                  PRINT_END_SUB_SUB
+                  PRINT_END_SUB_2
               }
           }
-          PRINT_END_SUB
+          PRINT_END_SUB_1
       }
       else if (strncmp(_topic, "$iothub/methods/", strlen("$iothub/methods/")) == 0)
       {
         // Is a Direct Method
-        PRINT_BEGIN_SUB(" IoT Hub Direct Method: ")
+        PRINT_BEGIN_SUB_1(" IoT Hub Direct Method: ")
         {
             //Get the Method Request
             az_iot_hub_client_method_request  request;
@@ -440,16 +446,16 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                 */
             }
         }
-        PRINT_END_SUB
+        PRINT_END_SUB_1
       }
       else
       {
         // Is a Message
-        PRINT_BEGIN_SUB("Received  Hub Message:");
+        PRINT_BEGIN_SUB_1("Received  Hub Message:");
         {
             Serial.print("Topic: [");
             Serial.print(_topic);
-            Serial.print("] ");
+            Serial.println("] ");
 
             Serial.print("Payload: ");
             Serial.println(_payload);
@@ -516,10 +522,10 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                 }
             }
         }
-        PRINT_END_SUB
+        PRINT_END_SUB_1
       }
   }
-  PRINT_END
+  PRINT_END("END Callback")
 }
 
 

@@ -368,7 +368,10 @@ void setup()
   {}
   establishConnection();
   InitProperties();
-  PrinteProperties();
+  SaveProperties();
+  LoadProperties();
+  PrintProperties();
+  PrintStructProperties();
   next_telemetry_send_time_ms = 0;
   telemetry_send_count = 0;
   SentProp = false;

@@ -115,15 +115,18 @@ extern bool GotTwinDoc;
 extern struct Properties Dev_Properties;
 
 void InitProperties(void);
+void SaveProperties();
+void LoadProperties();
+void ReportProperties();
+void PrintProperties();
+void PrintStructProperties();
 void get_device_twin_document(void);
 void SetProperties( char * payload);
 
 // Desired Property Components
 const char * const components[] = {"system","climate"};
 
-void SaveProperties();
-void ReportProperties();
-void PrinteProperties();
+
 
 
 void send_reported_property(const char* propertyName, byte * propertyValue, uint8_t propertySize, CD_TWIN_PROPERTY_DATA_TYPE propertyType);
@@ -155,13 +158,23 @@ void build_reported_property_null(
 
 /////////////////////////////
 
-#define PRINT_BEGIN(A) {int PLENGTH = strlen(A); Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();Serial.print(A);Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();
-#define PRINT_END for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();}
-#define PRINT_BEGIN_SUB(A) {int QLENGTH = strlen(A);for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();Serial.println(A);for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();
-#define PRINT_END_SUB for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();}
-#define PRINT_BEGIN_SUB_SUB(A) {int RLENGTH = strlen(A);for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();Serial.println(A);for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();
-#define PRINT_END_SUB_SUB for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();}
-#define PRINT_BEGIN_SUB_SUB_SUB(A) {Serial.println(A);for (int i=0;i<strlen(A);i++){Serial.print('~');}Serial.println();
-#define PRINT_END_SUB_SUB_SUB }//for (int i=0;i<strlen(A);i++){Serial.print('~');}Serial.println();}
-#define PRINT_BEGIN_SUB_SUB_SUB_SUB(A) {Serial.println(A);for (int i=0;i<strlen(A);i++){Serial.print(',');}Serial.println();
-#define PRINT_END_SUB_SUB_SUB_SUB }//for (int i=0;i<strlen(A);i++){Serial.print(',');}Serial.println();}
+//#define MAX(a,b) (((a)>(b))?(a):(b))  ..is defined elsewhere
+
+#define PRINT_BEGIN(A) {int PLENGTH = 80; Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();Serial.print(A);Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();
+#define PRINT_END(B) Serial.print(" - ");Serial.print(B);Serial.println(); for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();}
+#define PRINT_BEGIN_SUB_1(A) {int QLENGTH = 60;for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();Serial.println(A);for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();
+#define PRINT_END_SUB_1 for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();}
+#define PRINT_BEGIN_SUB_2(A) {int RLENGTH = 50;for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();Serial.println(A);for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();
+#define PRINT_END_SUB_2 for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();}
+
+#define PRINT_BEGIN_SUB_3(A) { int SLENGTH = MAX(strlen(A),40); for (int i = 0; i < SLENGTH; i++) { Serial.print('~'); }Serial.println(); Serial.println(A); for (int i=0;i<SLENGTH;i++){Serial.print('~');}Serial.println();
+
+#define PRINT_END_SUB_3 } // /*for (int i=0;i<SLength;i++){Serial.print('~');}Serial.println();*/}
+
+#define PRINT_BEGIN_SUB_4(A) { int TLength = MAX(strlen(A),30); for (int i = 0; i < TLength; i++) { Serial.print(','); }Serial.println(); Serial.println(A); for (int i=0;i<TLength;i++){Serial.print(',');}Serial.println();
+
+#define PRINT_END_SUB_4  }///*for (int i=0;i<TLength;i++){Serial.print(',');}Serial.println();*/}
+
+#define PRINT_BEGIN_SUB_5(A) { int ULength = MAX(strlen(A),20); for (int i = 0; i < TLength; i++) { Serial.print('+'); }Serial.println();  Serial.println(A); for (int i = 0; i < TLength; i++) { Serial.print('+'); }Serial.println();
+
+#define PRINT_END_SUB_5 }// /*for (int i=0;i<ULength;i++){Serial.print('+');}Serial.println();*/}

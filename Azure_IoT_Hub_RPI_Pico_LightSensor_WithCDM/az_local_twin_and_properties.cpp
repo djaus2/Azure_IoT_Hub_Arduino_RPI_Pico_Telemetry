@@ -25,10 +25,28 @@ void InitProperties()
         Dev_Properties.CDMessagesSubscribed = false;
         Dev_Properties.LEDIsOn = false;
         Dev_Properties.fanOn = false;
-        Serial.println(" - Default properties set.");
-        SaveProperties();
     }
-    PRINT_END
+    PRINT_END("Default properties set.");
+}
+
+void PrintStructProperties()
+{
+    PRINT_BEGIN("Print Device Properties (as per the struct):")
+    {
+        Serial.print("IsRunning: ");
+        Serial.println(Dev_Properties.IsRunning);
+        Serial.print("TelemetryFrequencyMilliseconds: ");
+        Serial.println(Dev_Properties.TelemetryFrequencyMilliseconds);
+        Serial.print("MethodsSubscribed: ");
+        Serial.println(Dev_Properties.MethodsSubscribed);
+        Serial.print("CDMessagesSubscribed: ");
+        Serial.println(Dev_Properties.CDMessagesSubscribed);
+        Serial.print("LEDIsOn: ");
+        Serial.println(Dev_Properties.LEDIsOn);
+        Serial.print("fanOn: ");
+        Serial.println(Dev_Properties.fanOn);
+    }
+    PRINT_END("Properties print (as per struct) end.");
 }
 
 void SaveProperties()
@@ -45,25 +63,50 @@ void SaveProperties()
       // Save properties as Json string to storage. Relying on DynamicJsonDocument can lead to memmory leaks.
       serializeJson(doc, PropsJson);
       serializeJsonPretty(doc, Serial);
+
       Serial.println();
   }
-  PRINT_END
+  PRINT_END("Saved properties.");
 }
 
-void PrinteProperties()
+void LoadProperties()
 {
-    PRINT_BEGIN("Print Device Properties on Device:")
+    PRINT_BEGIN("Load Device Properties from Device:");
     {
-        DynamicJsonDocument Props(512);
+        DynamicJsonDocument doc(512);
         if (strlen(PropsJson) == 0)
         {
             strcpy(PropsJson, "{}");
         }
-        PRINT_BEGIN_SUB("Loading Current PropsJson on the device: ")
+        char temp[512];
+        strcpy(temp, PropsJson);
+        deserializeJson(doc, temp);
+        Dev_Properties.IsRunning = doc["IsRunning"];
+        Dev_Properties.TelemetryFrequencyMilliseconds = doc["TelemetryFrequencyMilliseconds"] ;
+        Dev_Properties.MethodsSubscribed = doc["MethodsSubscribed"];
+        Dev_Properties.CDMessagesSubscribed = doc["CDMessagesSubscribed"];
+        Dev_Properties.LEDIsOn = doc["LEDIsOn"];
+        Dev_Properties.fanOn = doc["fanOn"];
+    }
+    PRINT_END("Loaded properties.");
+}
+
+void PrintProperties()
+{
+    PRINT_BEGIN("Print Device Properties on Device:")
+    {
+        if (strlen(PropsJson) == 0)
+        {
+            strcpy(PropsJson, "{}");
+        }
+        PRINT_BEGIN_SUB_1("Loading Current PropsJson on the device: ")
         {
             if ((strlen(PropsJson) != 0) && (strcmp(PropsJson, "{}") != 0))
             {
-                deserializeJson(Props, PropsJson);
+                DynamicJsonDocument Props(512);
+                char temp[512];
+                strcpy(temp, PropsJson);
+                deserializeJson(Props, temp);
 
                 JsonObject rootz = Props.as<JsonObject>();
 
@@ -78,10 +121,10 @@ void PrinteProperties()
                 Serial.println("Empty Properties on Device.");
             }
         }
-        PRINT_END_SUB
+        PRINT_END_SUB_1
         Serial.println();
     }
-    PRINT_END
+    PRINT_END("Properties print end")
 }
 
 void ReportProperties()
@@ -92,7 +135,7 @@ void ReportProperties()
     send_reported_property("MethodsSubscribed", (byte*)&Dev_Properties.MethodsSubscribed , sizeof(Dev_Properties.MethodsSubscribed), DT_BOOL);
     send_reported_property("CDMessagesSubscribed", (byte*)&Dev_Properties.CDMessagesSubscribed, sizeof(Dev_Properties.CDMessagesSubscribed), DT_BOOL);
     send_reported_property("LEDIsOn", (byte*)&Dev_Properties.LEDIsOn, sizeof(Dev_Properties.LEDIsOn), DT_BOOL);
-    PRINT_END
+    PRINT_END("Reported")
 }
 
 void get_device_twin_document(void)
@@ -128,7 +171,7 @@ void get_device_twin_document(void)
   {
     Serial.println(" - OK Published the Twin Document request. ");    
   }
-  PRINT_END
+  PRINT_END("Request done")
 }
 
 void SetProperties( char * payload)
@@ -137,18 +180,18 @@ void SetProperties( char * payload)
   PRINT_BEGIN("Set Desired Properties:");
   {
       deserializeJson(doc, payload);
-      PRINT_BEGIN_SUB("Payload: Json pretty print:")
+      PRINT_BEGIN_SUB_1("Payload: Json pretty print:")
       {
           serializeJsonPretty(doc, Serial);
           Serial.println();
       }
-      PRINT_END_SUB
+      PRINT_END_SUB_1
           char desired[128];
       //serializeJson(Props, PropsJson); 
       JsonObject roota = doc.as<JsonObject>();
       if (doc.containsKey("desired"))
       {
-          PRINT_BEGIN_SUB("Desired Properties:")
+          PRINT_BEGIN_SUB_1("Desired Properties:")
           {
               JsonObject jv = roota["desired"];
               serializeJson(jv, PropsJson);
@@ -257,11 +300,11 @@ void SetProperties( char * payload)
                   }
               }
           }
-          PRINT_END_SUB
+          PRINT_END_SUB_1
       }
       SaveProperties();
   }
-  PRINT_END
+  PRINT_END("Desired Properties Set")
 }
 
 #define IOT_SAMPLE_EXIT_IF_AZ_FAILED(A,B) if(allOK){ int rc = A; if (az_result_failed(rc)){Serial.print("Error - "); Serial.println(log); allOK = false;}}
@@ -366,7 +409,7 @@ void send_reported_property(const char* propertyName, byte * propertyValue, uint
 {
     int rc;
 
-    PRINT_BEGIN_SUB("Client sending reported property to service.")
+    PRINT_BEGIN_SUB_1("Client sending reported property to service.")
     {
 
         // Get the Twin Patch topic to publish a reported property update.
@@ -451,7 +494,7 @@ void send_reported_property(const char* propertyName, byte * propertyValue, uint
             break;
         }
     }
-    PRINT_END_SUB
+    PRINT_END_SUB_1
 }
 
 void UpdateProperties()
