@@ -49,21 +49,54 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
   char requestName[32];
   PRINT_BEGIN("Got IoT Hub Doc-Message-Method-Response");
   {
+      // Get a 'proper' string from topic
       int topicLen = 0;
+
+      // Get topic without parameters
+      int topicLen2 = 0;
+
+      if (topic[0] == '$')
+      {
+          topicLen++;
+      }
       while (topic[topicLen] != 0)
       {
           topicLen++;
       }
 
-      // Get a 'proper' string from topic
       memset(_topic, '\0', sizeof(_topic));
       strncpy(_topic, topic, topicLen);
+
+      topicLen = 0;
+      if (topic[0] == '$')
+      {
+          topicLen++;
+      }
+      while (_topic[topicLen] != 0)
+      {
+          //Search for first param: After last / or starts with $).
+          if (_topic[topicLen] == '/')
+          {
+              topicLen2 = topicLen;
+          }
+          else if (_topic[topicLen] == '?')
+          {
+              topicLen2 = topicLen - 1;
+              break;
+          }
+          topicLen++;
+      }
+
+      char shortTopic[128];
+      memset(shortTopic, '\0', sizeof(shortTopic));
+      strncpy(shortTopic, _topic, topicLen2);;
+
       //Serial.print("  Topic: ");
       //Serial.println(_topic);
-      Serial.println("Got Topic");
+      Serial.print("Got Topic: ");
+      Serial.println(shortTopic);
 
       //Get a 'proper' string from the payload
-
       memset(_payload, '\0', sizeof(_payload));
       if (length != 0)
       {
