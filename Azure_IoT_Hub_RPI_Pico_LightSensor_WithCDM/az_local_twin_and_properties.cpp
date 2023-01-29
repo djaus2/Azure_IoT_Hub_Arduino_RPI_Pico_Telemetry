@@ -99,7 +99,7 @@ void PrintProperties()
         {
             strcpy(PropsJson, "{}");
         }
-        PRINT_BEGIN_SUB_1("Loading Current PropsJson on the device: ")
+        PRINT_BEGIN_SUB_1("Print: Loading Current PropsJson on the device: ")
         {
             if ((strlen(PropsJson) != 0) && (strcmp(PropsJson, "{}") != 0))
             {
@@ -130,11 +130,13 @@ void PrintProperties()
 void ReportProperties()
 {
     PRINT_BEGIN("Reporting Device Properties to Hub:")
-    send_reported_property("IsRunning", (byte *)&Dev_Properties.IsRunning, sizeof(Dev_Properties.IsRunning), DT_BOOL);
-    send_reported_property("TelemetryFrequencyMilliseconds", (byte*)&Dev_Properties.TelemetryFrequencyMilliseconds, sizeof(Dev_Properties.TelemetryFrequencyMilliseconds), DT_INT);
-    send_reported_property("MethodsSubscribed", (byte*)&Dev_Properties.MethodsSubscribed , sizeof(Dev_Properties.MethodsSubscribed), DT_BOOL);
-    send_reported_property("CDMessagesSubscribed", (byte*)&Dev_Properties.CDMessagesSubscribed, sizeof(Dev_Properties.CDMessagesSubscribed), DT_BOOL);
-    send_reported_property("LEDIsOn", (byte*)&Dev_Properties.LEDIsOn, sizeof(Dev_Properties.LEDIsOn), DT_BOOL);
+    {
+        send_reported_property("IsRunning", (byte*)&Dev_Properties.IsRunning, sizeof(Dev_Properties.IsRunning), DT_BOOL);
+        send_reported_property("TelemetryFrequencyMilliseconds", (byte*)&Dev_Properties.TelemetryFrequencyMilliseconds, sizeof(Dev_Properties.TelemetryFrequencyMilliseconds), DT_INT);
+        send_reported_property("MethodsSubscribed", (byte*)&Dev_Properties.MethodsSubscribed, sizeof(Dev_Properties.MethodsSubscribed), DT_BOOL);
+        send_reported_property("CDMessagesSubscribed", (byte*)&Dev_Properties.CDMessagesSubscribed, sizeof(Dev_Properties.CDMessagesSubscribed), DT_BOOL);
+        send_reported_property("LEDIsOn", (byte*)&Dev_Properties.LEDIsOn, sizeof(Dev_Properties.LEDIsOn), DT_BOOL);
+    }
     PRINT_END("Reported")
 }
 
@@ -142,34 +144,36 @@ void get_device_twin_document(void)
 {
   int rc;
   PRINT_BEGIN("Client requesting device twin document from service:");
+  {
 
-  // Get the Twin Document topic to publish the twin document request.
-  char twin_document_topic_buffer[128];
-  rc = az_iot_hub_client_twin_document_get_publish_topic(
-      &client,
-      twin_document_topic_request_id,
-      twin_document_topic_buffer,
-      sizeof(twin_document_topic_buffer),
-      NULL);
-  if (az_result_failed(rc))
-  {
-    Serial.print(
-        " - Failed to get the Twin Document topic: az_result return code ");
-    Serial.println(rc,HEX);
-    exit(rc);
-  }
-  bool res;
-  // Publish the twin document request.
-  res = mqtt_client.publish(
-       twin_document_topic_buffer, NULL, 0,  NULL);
-  if (!res)
-  {
-    Serial.println(" - FAILED to publish the Twin Document request. ");
-    exit(99);
-  }
-  else
-  {
-    Serial.println(" - OK Published the Twin Document request. ");    
+      // Get the Twin Document topic to publish the twin document request.
+      char twin_document_topic_buffer[128];
+      rc = az_iot_hub_client_twin_document_get_publish_topic(
+          &client,
+          twin_document_topic_request_id,
+          twin_document_topic_buffer,
+          sizeof(twin_document_topic_buffer),
+          NULL);
+      if (az_result_failed(rc))
+      {
+          Serial.print(
+              " - Failed to get the Twin Document topic: az_result return code ");
+          Serial.println(rc, HEX);
+          exit(rc);
+      }
+      bool res;
+      // Publish the twin document request.
+      res = mqtt_client.publish(
+          twin_document_topic_buffer, NULL, 0, NULL);
+      if (!res)
+      {
+          Serial.println(" - FAILED to publish the Twin Document request. ");
+          exit(99);
+      }
+      else
+      {
+          Serial.println(" - OK Published the Twin Document request. ");
+      }
   }
   PRINT_END("Request done")
 }

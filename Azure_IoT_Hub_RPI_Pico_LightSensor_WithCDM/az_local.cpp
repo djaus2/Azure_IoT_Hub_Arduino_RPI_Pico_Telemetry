@@ -12,7 +12,7 @@
 #include <string.h>
 
 struct Properties Dev_Properties;
-
+int NumTabs = 0;
 
 char PropsJson[512] = "";
 
@@ -245,30 +245,31 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                               deserializeJson(patchDoc, _payload);
                               serializeJsonPretty(patchDoc, Serial);
                               Serial.println();
-                              Serial.println("-------------------");
                               DynamicJsonDocument Props(512);
-                              if (strlen(PropsJson) == 0)
+                              PRINT_BEGIN_SUB_4("Loading Current PropsJson on the device : ");
                               {
-                                  strcpy(PropsJson, "{}");
-                              }
-                              Serial.println("Loading Current PropsJson on the device: ");
-                              Serial.println("-------------------");
-                              if ((strlen(PropsJson) != 0) && (strcmp(PropsJson,"{}") !=0))
-                              {
-                                  deserializeJson(Props, PropsJson);
+                                  if (strlen(PropsJson) == 0)
+                                  {
+                                      strcpy(PropsJson, "{}");
+                                  }
+                                  if ((strlen(PropsJson) != 0) && (strcmp(PropsJson, "{}") != 0))
+                                  {
+                                      deserializeJson(Props, PropsJson);
 
-                                  JsonObject rootz = Props.as<JsonObject>();
+                                      JsonObject rootz = Props.as<JsonObject>();
 
-                                  for (JsonPair kv : rootz) {
-                                      Serial.print(kv.key().c_str());
-                                      Serial.print(": ");
-                                      Serial.println(kv.value().as<String>());
+                                      for (JsonPair kv : rootz) {
+                                          Serial.print(kv.key().c_str());
+                                          Serial.print(": ");
+                                          Serial.println(kv.value().as<String>());
+                                      }
+                                  }
+                                  else
+                                  {
+                                      Serial.println("Empty Properties on Device.");
                                   }
                               }
-                              else
-                              {
-                                  Serial.println("Empty Properties on Device.");
-                              }
+                              PRINT_END_SUB_4
                               if (strncmp(_topic, "$iothub/twin/PATCH/properties", strlen("$iothub/twin/PATCH/properties")) == 0)
                               {
                                   PRINT_BEGIN_SUB_4(" PATCH/properties: ")
@@ -390,9 +391,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                                       strcpy(numm, temp); //, strlen(temp));
                                                   }
                                                   strncpy(PropsJson, numm, strlen(numm));
-                                                  Serial.println("- Saved Patched PropsJson on device.");
-                                                  Serial.println("------------------------------------");
-
+                                                  Serial.println("\t\t\t\t\t - Saved Patched PropsJson on device.");
                                               }
  /*                                             }
                                               else
@@ -409,8 +408,6 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                   }
                                   PRINT_END_SUB_4
                               }
-                              Serial.println();
-                              Serial.println(_payload);
                           }
                           PRINT_END_SUB_3
                       }
