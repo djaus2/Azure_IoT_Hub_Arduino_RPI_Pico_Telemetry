@@ -161,9 +161,46 @@ void build_reported_property_null(
 
 //#define MAX(a,b) (((a)>(b))?(a):(b))  ..is defined elsewhere
 
-#define SERIALPRINT(A) { for (int i=0;i<NumTabs;i++)Serial.print('\t');Serial.print(A);}
-#define SERIALPRINTLN(A) { for (int i=0;i<NumTabs;i++)Serial.print('\t');Serial.println(A);}
+#define InsertTabs(_numtabs_) for (int i=0;i<_numtabs_;i++)Serial.print('\t')
 
+#define SERIALPRINT(A) { InsertTabs(NumTabs);Serial.print(A);}
+#define SERIALPRINTLN(A) { InsertTabs(NumTabs);Serial.println(A);}
+
+#define _PRINT_BEGIN_SUB(_noTabs_,_A_,_ch_,_PLENGTH_) \
+{ \
+int NumTabs = _noTabs_;if (NumTabs == 0) { Serial.println(); } \
+int PLENGTH = _PLENGTH_; \
+char __ch__=_ch_; \
+InsertTabs(NumTabs); for (int i = 0; i < PLENGTH; i++) { Serial.print(__ch__); }Serial.println(); \
+InsertTabs(NumTabs); Serial.println(_A_); \
+InsertTabs(NumTabs); for (int i = 0; i < PLENGTH; i++) { Serial.print(__ch__); }Serial.println(); \
+
+
+#define _PRINT_END_SUB(_noTabs_) \
+if (NumTabs != _noTabs_) {Serial.println("Number of tabs don't match!");} \
+InsertTabs(NumTabs); for (int i = 0; i < PLENGTH; i++) { Serial.print(__ch__); }Serial.println(); \
+} \
+
+#define PRINT_BEGIN(A_) _PRINT_BEGIN_SUB(0,A_,'=',80);
+#define PRINT_END(B) Serial.print(" - ");Serial.print(B);Serial.println(); for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();}
+
+#define PRINT_BEGIN_SUB_1(A_) _PRINT_BEGIN_SUB(1,A_,'*',60);
+#define PRINT_END_SUB_1 _PRINT_END_SUB(1);
+
+#define PRINT_BEGIN_SUB_2(A_) _PRINT_BEGIN_SUB(2,A_,'-',60);
+#define PRINT_END_SUB_2 _PRINT_END_SUB(2);
+
+#define PRINT_BEGIN_SUB_3(A_) _PRINT_BEGIN_SUB(3,A_,'.',50);
+#define PRINT_END_SUB_3 _PRINT_END_SUB(3);
+
+#define PRINT_BEGIN_SUB_4(A_) _PRINT_BEGIN_SUB(4,A_,'_',40);
+#define PRINT_END_SUB_4 _PRINT_END_SUB(4);
+
+#define PRINT_BEGIN_SUB_5(A_) _PRINT_BEGIN_SUB(5,A_,'+',30);
+#define PRINT_END_SUB_5 _PRINT_END_SUB(5);
+
+
+/*
 #define PRINT_BEGIN(A) {int NumTabs=0;int PLENGTH = 80; Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();Serial.print(A);Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();
 #define PRINT_END(B) Serial.print(" - ");Serial.print(B);Serial.println(); for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();}
 #define PRINT_BEGIN_SUB_1(A) {int NumTabs=1;Serial.print("\t");int QLENGTH = 60;for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();Serial.print("\t");Serial.println(A);Serial.print("\t");for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();
@@ -182,4 +219,4 @@ void build_reported_property_null(
 #define PRINT_BEGIN_SUB_5(A) {NumTabs=5;Serial.print("\t\t\t\t\t");int ULENGTH = MAX(strlen(A),20); for (int i = 0; i < ULENGTH; i++) { Serial.print('+'); }Serial.println();  Serial.print("\t\t\t\t\t");Serial.println(A); Serial.print("\t\t\t\t\t");for (int i = 0; i < ULENGTH; i++) { Serial.print('+'); }Serial.println();
 
 #define PRINT_END_SUB_5 Serial.print("\t\t\t\t\t");for (int i=0;i<ULENGTH;i++){Serial.print('+');}Serial.println();}
-
+*/
