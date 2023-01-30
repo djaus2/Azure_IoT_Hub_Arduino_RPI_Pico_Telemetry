@@ -199,24 +199,3 @@ InsertTabs(NumTabs); for (int i = 0; i < PLENGTH; i++) { Serial.print(__ch__); }
 #define PRINT_BEGIN_SUB_5(A_) _PRINT_BEGIN_SUB(5,A_,'+',30);
 #define PRINT_END_SUB_5 _PRINT_END_SUB(5);
 
-
-/*
-#define PRINT_BEGIN(A) {int NumTabs=0;int PLENGTH = 80; Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();Serial.print(A);Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();
-#define PRINT_END(B) Serial.print(" - ");Serial.print(B);Serial.println(); for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();}
-#define PRINT_BEGIN_SUB_1(A) {int NumTabs=1;Serial.print("\t");int QLENGTH = 60;for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();Serial.print("\t");Serial.println(A);Serial.print("\t");for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();
-#define PRINT_END_SUB_1 Serial.print("\t");for (int i=0;i<QLENGTH;i++){Serial.print('_');}Serial.println();}
-#define PRINT_BEGIN_SUB_2(A) {int NumTabs=2;Serial.print("\t\t");int RLENGTH = 50;for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();Serial.print("\t\t");Serial.println(A);Serial.print("\t\t");for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();
-#define PRINT_END_SUB_2 Serial.print("\t\t");for (int i=0;i<RLENGTH;i++){Serial.print('.');}Serial.println();}
-
-#define PRINT_BEGIN_SUB_3(A) { int NumTabs=3;Serial.print("\t\t\t");int SLENGTH = MAX(strlen(A),40); for (int i = 0; i < SLENGTH; i++) { Serial.print('~'); }Serial.println(); Serial.print("\t\t\t");Serial.println(A); Serial.print("\t\t\t");for (int i=0;i<SLENGTH;i++){Serial.print('~');}Serial.println();
-
-#define PRINT_END_SUB_3 Serial.print("\t\t\t");for (int i=0;i<SLENGTH;i++){Serial.print('~');}Serial.println();}
-
-#define PRINT_BEGIN_SUB_4(A) { NumTabs=4;Serial.print("\t\t\t\t");int TLENGTH = MAX(strlen(A),30); for (int i = 0; i < TLENGTH; i++) { Serial.print(','); }Serial.println(); Serial.print("\t\t\t\t");Serial.println(A); Serial.print("\t\t\t\t");for (int i=0;i<TLENGTH;i++){Serial.print(',');}Serial.println();
-
-#define PRINT_END_SUB_4 Serial.print("\t\t\t\t");for (int i=0;i<TLENGTH;i++){Serial.print(',');}Serial.println();}
-
-#define PRINT_BEGIN_SUB_5(A) {NumTabs=5;Serial.print("\t\t\t\t\t");int ULENGTH = MAX(strlen(A),20); for (int i = 0; i < ULENGTH; i++) { Serial.print('+'); }Serial.println();  Serial.print("\t\t\t\t\t");Serial.println(A); Serial.print("\t\t\t\t\t");for (int i = 0; i < ULENGTH; i++) { Serial.print('+'); }Serial.println();
-
-#define PRINT_END_SUB_5 Serial.print("\t\t\t\t\t");for (int i=0;i<ULENGTH;i++){Serial.print('+');}Serial.println();}
-*/
