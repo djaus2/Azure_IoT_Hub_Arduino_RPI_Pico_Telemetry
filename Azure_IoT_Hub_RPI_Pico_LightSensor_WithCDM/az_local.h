@@ -161,8 +161,8 @@ void build_reported_property_null(
 
 //#define MAX(a,b) (((a)>(b))?(a):(b))  ..is defined elsewhere
 
-#define SERIALPRINT(A,NumTabs) { for (int i=0;i<NumTabs;i++)Serial.print('\t');Serial.print(A);}
-#define SERIALPRINTLN(A,NumTabs) { for (int i=0;i<NumTabs;i++)Serial.print('\t');Serial.println(A);}
+#define SERIALPRINT(A) { for (int i=0;i<NumTabs;i++)Serial.print('\t');Serial.print(A);}
+#define SERIALPRINTLN(A) { for (int i=0;i<NumTabs;i++)Serial.print('\t');Serial.println(A);}
 
 #define PRINT_BEGIN(A) {int NumTabs=0;int PLENGTH = 80; Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();Serial.print(A);Serial.println();for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();
 #define PRINT_END(B) Serial.print(" - ");Serial.print(B);Serial.println(); for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();}

@@ -33,17 +33,17 @@ void PrintStructProperties()
 {
     PRINT_BEGIN("Print Device Properties (as per the struct):")
     {
-        Serial.print("IsRunning: ");
+        SERIALPRINT("IsRunning: ");
         Serial.println(Dev_Properties.IsRunning);
-        Serial.print("TelemetryFrequencyMilliseconds: ");
+        SERIALPRINT("TelemetryFrequencyMilliseconds: ");
         Serial.println(Dev_Properties.TelemetryFrequencyMilliseconds);
-        Serial.print("MethodsSubscribed: ");
+        SERIALPRINT("MethodsSubscribed: ");
         Serial.println(Dev_Properties.MethodsSubscribed);
-        Serial.print("CDMessagesSubscribed: ");
+        SERIALPRINT("CDMessagesSubscribed: ");
         Serial.println(Dev_Properties.CDMessagesSubscribed);
-        Serial.print("LEDIsOn: ");
+        SERIALPRINT("LEDIsOn: ");
         Serial.println(Dev_Properties.LEDIsOn);
-        Serial.print("fanOn: ");
+        SERIALPRINT("fanOn: ");
         Serial.println(Dev_Properties.fanOn);
     }
     PRINT_END("Properties print (as per struct) end.");
@@ -63,7 +63,6 @@ void SaveProperties()
       // Save properties as Json string to storage. Relying on DynamicJsonDocument can lead to memmory leaks.
       serializeJson(doc, PropsJson);
       serializeJsonPretty(doc, Serial);
-
       Serial.println();
   }
   PRINT_END("Saved properties.");
@@ -111,18 +110,17 @@ void PrintProperties()
                 JsonObject rootz = Props.as<JsonObject>();
 
                 for (JsonPair kv : rootz) {
-                    Serial.print(kv.key().c_str());
+                    SERIALPRINT(kv.key().c_str());
                     Serial.print(": ");
                     Serial.println(kv.value().as<String>());
                 }
             }
             else
             {
-                Serial.println("Empty Properties on Device.");
+                SERIALPRINTLN("Empty Properties on Device.");
             }
         }
-        PRINT_END_SUB_1
-        Serial.println();
+        PRINT_END_SUB_1;
     }
     PRINT_END("Properties print end")
 }
@@ -156,9 +154,8 @@ void get_device_twin_document(void)
           NULL);
       if (az_result_failed(rc))
       {
-          Serial.print(
-              " - Failed to get the Twin Document topic: az_result return code ");
-          Serial.println(rc, HEX);
+          SERIALPRINT(" - Failed to get the Twin Document topic: az_result return code ");
+          Serial.println(rc);
           exit(rc);
       }
       bool res;
@@ -167,12 +164,12 @@ void get_device_twin_document(void)
           twin_document_topic_buffer, NULL, 0, NULL);
       if (!res)
       {
-          Serial.println(" - FAILED to publish the Twin Document request. ");
+          SERIALPRINTLN(" - FAILED to publish the Twin Document request. ");
           exit(99);
       }
       else
       {
-          Serial.println(" - OK Published the Twin Document request. ");
+          SERIALPRINTLN(" - OK Published the Twin Document request. ");
       }
   }
   PRINT_END("Request done")
@@ -204,20 +201,17 @@ void SetProperties( char * payload)
                   JsonVariant jvv = kv.value();
                   if (strcmp("components", key) == 0)
                   {
-                      Serial.println("- Has Components");
+                      SERIALPRINTLN("- Has Components");
                       JsonObject jvComponents = jvv.as<JsonObject>();
                       size_t NumberOfElements = sizeof(components) / sizeof(components[0]);
                       for (int i = 0; i < NumberOfElements; i++)
                       {
                           JsonVariant jvComponent = jvComponents[components[i]];
                           JsonObject jvComponentObj = jvComponent.as<JsonObject>();
-                          Serial.print('\t');
-                          Serial.print(components[i]);
+                          SERIALPRINT(components[i]);
                           Serial.println(":");
                           for (JsonPair kv : jvComponentObj)
                           {
-                              Serial.print('\t');
-                              Serial.print('\t');
                               Serial.print(kv.key().c_str());
                               Serial.print(": ");
                               Serial.println(kv.value().as<String>().c_str());
@@ -226,7 +220,7 @@ void SetProperties( char * payload)
                   }
                   else  if (strcmp("modules", key) == 0)
                   {
-                      Serial.println(" - Has Modules");
+                      SERIALPRINTLN(" - Has Modules");
                   }
                   else
                   {
@@ -271,12 +265,12 @@ void SetProperties( char * payload)
                       else  if (jvv.is<unsigned char>())
                       {
                           iVal = (uint8_t)jvv.is<unsigned char>();
-                          Serial.print("<char>");
+                          SERIALPRINT("<char>");
                           Serial.println(jvv.as<unsigned char>());
                       }
                       else
                       {
-                          Serial.print("< ??? >");
+                          SERIALPRINT("< ??? >");
                           Serial.println(jvv.as<String>().c_str());
                       }
 
@@ -311,7 +305,7 @@ void SetProperties( char * payload)
   PRINT_END("Desired Properties Set")
 }
 
-#define IOT_SAMPLE_EXIT_IF_AZ_FAILED(A,B) if(allOK){ int rc = A; if (az_result_failed(rc)){Serial.print("Error - "); Serial.println(log); allOK = false;}}
+#define IOT_SAMPLE_EXIT_IF_AZ_FAILED(A,B) if(allOK){ int rc = A; if (az_result_failed(rc)){SERIALPRINT("Error - "); SERIALPRINTLN(log); allOK = false;}}
 
 void build_reported_property_int(
     const char * desired_property_name,
@@ -427,8 +421,8 @@ void send_reported_property(const char* propertyName, byte * propertyValue, uint
             NULL);
         if (az_result_failed(rc))
         {
-            Serial.print("ERROR Failed to get the Twin Patch topic: az_result return code :");
-            Serial.println(rc, HEX);
+            SERIALPRINT("ERROR Failed to get the Twin Patch topic: az_result return code :");
+            Serial.println(rc);
             return;
         }
 
@@ -450,7 +444,7 @@ void send_reported_property(const char* propertyName, byte * propertyValue, uint
             build_reported_property_double(propertyName, *((double*)propertyValue), reported_property_payload, &reported_property_payload);
             break;
         default:
-            Serial.println("Data Type DT_ not yet implemented");
+            SERIALPRINTLN("Data Type DT_ not yet implemented");
             return;
             break;
         }
@@ -464,15 +458,14 @@ void send_reported_property(const char* propertyName, byte * propertyValue, uint
         );
         if (!res)
         {
-            Serial.print(
-                "Failed to publish the Twin Patch reported property update: MQTTClient return code: ");
-            Serial.println(rc);
+            SERIALPRINT("Failed to publish the Twin Patch reported property update: MQTTClient return code: ");
+            Serial.println (rc);
             return;
         }
-        Serial.println(" - Client published the Twin reported property message.");
-        Serial.print("  - Sent Property: ");
+        SERIALPRINTLN(" - Client published the Twin reported property message.");
+        SERIALPRINT("  - Sent Property: ");
         Serial.println(propertyName);
-        Serial.print("    - ");
+        SERIALPRINT("    - ");
 
         switch (propertyType)
         {

@@ -92,8 +92,8 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
       strncpy(shortTopic, _topic, topicLen2);;
 
       //Serial.print("  Topic: ");
-      //Serial.println(_topic);
-      Serial.print("Got Topic: ");
+      //Serial.printLN(_topic);
+      SERIALPRINT("Got Topic: ");
       Serial.println(shortTopic);
 
       //Get a 'proper' string from the payload
@@ -101,12 +101,12 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
       if (length != 0)
       {
           strncpy(_payload, (char*)payload, length);
-          Serial.println("  Got Payload");
-          //Serial.println(_payload);
+          SERIALPRINTLN("  Got Payload");
+          //Serial.printLN(_payload);
       }
       else
       {
-          Serial.println("No Payload");
+          SERIALPRINTLN("No Payload");
       }
 
       if (strncmp(_topic, "$iothub/twin/", strlen("$iothub/twin/")) == 0)
@@ -129,7 +129,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
               if (az_result_failed(rc))
               {
                   Serial.print("ERROR - Message from unknown topic: az_result return code: ");
-                  Serial.println(rc, HEX);
+                  Serial.println(rc);
                   Serial.print("Topic: ");
                   Serial.println(_topic);
                   return;
@@ -138,31 +138,31 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
               {
                   PRINT_BEGIN_SUB_2(" Client received a valid TWIN topic response.")
                   {
-                      Serial.print("  Topic:");
+                      SERIALPRINT("  Topic:");
                       Serial.println(topic); //topic_span);
-                      Serial.print("  Status: ");
+                      SERIALPRINT("  Status: ");
                       int status = (int)out_twin_response.status;
                       Serial.print(status);
                       Serial.println(" 20X=OK");
-                      Serial.print("  ResponseType: ");
+                      SERIALPRINT("  ResponseType: ");
                       responseType = (int32_t)out_twin_response.response_type;
-                      Serial.print(responseType);
-                      Serial.println(" 1=Get,2=Desired,3=Reported,4-Error.");
+                      Serial.println(responseType);
+                      SERIALPRINTLN(" 1=Get,2=Desired,3=Reported,4-Error.");
                       if (responseType != 2)
                       {
-                          Serial.print("  RequestId: ");
+                          SERIALPRINT("  RequestId: ");
                           (void)az_span_to_str(requestId, sizeof(requestId), out_twin_response.request_id);
                           Serial.println(requestId);
                       }
                       if (status != 204)
                       {
-                          /*Serial.println("  Payload:");
-                          Serial.print("   ");
-                          Serial.println(_payload);*/
+                          /*SERIALPRINTLN("  Payload:");
+                          SERIALPRINT("   ");
+                          SERIALPRINTLN(_payload);*/
                       }
                       else
                       {
-                          Serial.println("  No Payload");
+                          SERIALPRINTLN("  No Payload");
                       }
 
                       if (strncmp(_topic, "$iothub/twin/res/", strlen("$iothub/twin/res/")) == 0)
@@ -173,7 +173,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                               {
                                   PRINT_BEGIN_SUB_4("   IoT Hub Twin Document GET Response: ")
                                   {
-                                      Serial.print("    Status: ");
+                                      SERIALPRINT("    Status: ");
                                       Serial.print((int)out_twin_response.status);
                                       Serial.println(" 200=OK, 204=OK and no return payload");
                                       SetProperties(_payload);
@@ -186,14 +186,14 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                   //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
                                   PRINT_BEGIN_SUB_4("  IoT Hub Twin Property Update Response: ")
                                   {
-                                      Serial.print("   Status: ");
+                                      SERIALPRINT("   Status: ");
                                       Serial.print((int)out_twin_response.status);
-                                      Serial.println(" 200=OK, 204=OK and no return payload");
-                                      Serial.print("   Version: ");
+                                      SERIALPRINTLN(" 200=OK, 204=OK and no return payload");
+                                      SERIALPRINT("   Version: ");
                                       uint32_t vern;
                                       az_result az = az_span_atou32(out_twin_response.version, &vern);
-                                      Serial.println(vern);
-                                      Serial.println(_payload);
+                                      SERIALPRINTLN(vern);
+                                      SERIALPRINTLN(_payload);
                                   }
                                   PRINT_END_SUB_4
                               }
@@ -202,10 +202,10 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                   //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
                                   PRINT_BEGIN_SUB_4("  IoT Hub Twin Property Desired: ")
                                   {
-                                      Serial.print("   Status: ");
+                                      SERIALPRINT("   Status: ");
                                       Serial.print((int)out_twin_response.status);
                                       Serial.println(" 200=OK, 204=OK and no return payload");
-                                      Serial.print("Version: ");
+                                      SERIALPRINT("Version: ");
                                       uint32_t vern;
                                       az_result az = az_span_atou32(out_twin_response.version, &vern);
                                       Serial.println(vern);
@@ -218,10 +218,10 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                   //Topic:$iothub/twin/res/204/?$rid=reported_prop&$version=59
                                   PRINT_BEGIN_SUB_4(" IoT Hub Twin Property Error: ")
                                   {
-                                      Serial.print("Status: ");
+                                      SERIALPRINT("Status: ");
                                       Serial.print((int)out_twin_response.status);
                                       Serial.println(" 200=OK, 204=OK and no return payload");
-                                      Serial.print("Version: ");
+                                      SERIALPRINT("Version: ");
                                       uint32_t vern;
                                       az_result az = az_span_atou32(out_twin_response.version, &vern);
                                       Serial.println(vern);
@@ -231,7 +231,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                               }
                               else
                               {
-                                  Serial.println("Unknown Twin Res");
+                                  SERIALPRINTLN("Unknown Twin Res");
                               }
                           }
                           PRINT_END_SUB_3
@@ -240,11 +240,11 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                       {
                           PRINT_BEGIN_SUB_3(" IoT Hub Document PATCH: ")
                           {
-                              Serial.println("Patch Document: ");
+                              SERIALPRINTLN("Patch Document: ");
                               DynamicJsonDocument patchDoc(512);
                               deserializeJson(patchDoc, _payload);
                               serializeJsonPretty(patchDoc, Serial);
-                              Serial.println();
+                              SERIALPRINTLN();
                               DynamicJsonDocument Props(512);
                               PRINT_BEGIN_SUB_4("Loading Current PropsJson on the device : ");
                               {
@@ -259,14 +259,14 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                       JsonObject rootz = Props.as<JsonObject>();
 
                                       for (JsonPair kv : rootz) {
-                                          Serial.print(kv.key().c_str());
+                                          SERIALPRINT(kv.key().c_str());
                                           Serial.print(": ");
                                           Serial.println(kv.value().as<String>());
                                       }
                                   }
                                   else
                                   {
-                                      Serial.println("Empty Properties on Device.");
+                                      SERIALPRINTLN("Empty Properties on Device.");
                                   }
                               }
                               PRINT_END_SUB_4
@@ -280,7 +280,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                           {
                                               JsonObject rootx = patchDoc.as<JsonObject>();
                                               for (JsonPair kv : rootx) {
-                                                  Serial.print(kv.key().c_str());
+                                                  SERIALPRINT(kv.key().c_str());
                                                   Serial.print(": ");
                                                   //JsonVariant val = kv.value();
                                                   //char* valStr = val.as<String>();
@@ -289,7 +289,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                               String patch = rootx["patchId"].as<String>();
                                               if (rootx["patchId"].isNull())
                                               {
-                                                  Serial.println("Null");
+                                                  SERIALPRINTLN("Null");
                                                   for (JsonPair kv : rootx) {
                                                       if (strncmp(kv.key().c_str(), "patchId", strlen("patchId")) == 0)
                                                       {
@@ -308,7 +308,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                               }
                                               else //if (strncmp(patch.c_str(),"Init",strlen("Init"))==0)
                                               {
-                                                  Serial.println("Init");
+                                                  SERIALPRINTLN("Init");
                                                   for (JsonPair kv : rootx)
                                                   {
                                                       if (strncmp(kv.key().c_str(), "patchId", strlen("patchId")) == 0)
@@ -330,13 +330,13 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                                               }
                                                               else if (strncmp(kv.key().c_str(), "components", strlen("components")) == 0)
                                                               {
-                                                                  //Serial.println("components");
+                                                                  //SERIALPRINTLN("components");
                                                                   //Props[kv.key().c_str()]= true; 
                                                                   continue;
                                                               }
                                                               else if (strncmp(kv.key().c_str(), "modules", strlen("modules")) == 0)
                                                               {
-                                                                  //Serial.println("modules");
+                                                                  //SERIALPRINTLN("modules");
                                                                   //Props[kv.key().c_str()]= true; 
                                                                   continue;
                                                               }
@@ -362,27 +362,27 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                                       {
                                                           if (kv.value().is<JsonObject>())
                                                           {
-                                                              Serial.println("Object");
+                                                              SERIALPRINTLN("Object");
                                                           }
                                                           if (kv.value().is<JsonArray>())
                                                           {
-                                                              Serial.println("Array");
+                                                              SERIALPRINTLN("Array");
                                                           }
                                                       }
                                                   }
                                                   JsonObject rooty = Props.as<JsonObject>();
-                                                  Serial.println("....");
+                                                  SERIALPRINTLN("....");
                                                   for (JsonPair kv : rooty) {
-                                                      Serial.print(kv.key().c_str());
+                                                      SERIALPRINT(kv.key().c_str());
                                                       Serial.print(": ");
                                                       Serial.println(kv.value().as<String>());
                                                   }
-                                                  Serial.println("....");
+                                                  SERIALPRINTLN("....");
                                                   char numm[128];
                                                   serializeJson(rooty, numm);
                                                   if (strncmp(numm, "{\"\":", strlen("{\"\":")) == 0)
                                                   {
-                                                      Serial.println("Issue");
+                                                      SERIALPRINTLN("Issue");
                                                       char temp[128];
                                                       char* tmp = numm + 0 + strlen("{\"\":");
                                                       strcpy(temp, "{\"fanOn\":");
@@ -391,19 +391,19 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                                       strcpy(numm, temp); //, strlen(temp));
                                                   }
                                                   strncpy(PropsJson, numm, strlen(numm));
-                                                  Serial.println("\t\t\t\t\t - Saved Patched PropsJson on device.");
+                                                  SERIALPRINTLN(" - Saved Patched PropsJson on device.");
                                               }
  /*                                             }
                                               else
                                               {
-                                                  Serial.print("?");
+                                                  SERIALPRINT("?");
                                               }*/
                                           }
                                           PRINT_END_SUB_5
                                       }
                                       else
                                       {
-                                          Serial.print("??");
+                                          SERIALPRINT("??");
                                       }
                                   }
                                   PRINT_END_SUB_4
@@ -431,27 +431,38 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
             {
                 memset(requestName, '\0', sizeof(requestName));
                 az_span_to_str(requestName, sizeof(requestName), request.name);
-                Serial.print("Received Method: [");
+                SERIALPRINT("Received Method: [");
                 Serial.print(requestName);
 
-                Serial.print("] ");
+                Serial.println("]");
 
                 //Get request id
                 uint32_t id;
                 res = az_span_relaxed_atou32(request.request_id, &id);
                 if (res == AZ_OK)
                 {
-                    Serial.print("request_id: ");
-                    Serial.print(id);
+                    SERIALPRINT("request_id: ");
+                    Serial.println(id);
                 }
                 else
                 {
-                    Serial.println(res);
+                    SERIALPRINT("az_span Error: ")
+                        Serial.println(res);
                 }
 
-                Serial.print(" ");
-                Serial.print("Payload: ");
-                Serial.println(_payload);
+                if (strlen(_payload) == 0)
+                {
+                    SERIALPRINTLN("No payload");
+                }
+                else if (strncmp(_payload,"\"\"",2)==0)
+                {
+                    SERIALPRINTLN("No payload");
+                }
+                else
+                {
+                    SERIALPRINT("Payload: ");
+                    Serial.println(_payload);
+                }
 
                 //Call method
                 bool methodResult = DoMethod(requestName, _payload);
@@ -461,11 +472,11 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                     free(methodResponseBuffer);
                 if (responseResponse)
                 {
-                    Serial.println("A_OK: CD Method Response to Cloud");
+                    SERIALPRINTLN("A_OK: CD Method Response to Cloud");
                 }
                 else
                 {
-                    Serial.println("N_OK: CD Method Response to Cloud");
+                    SERIALPRINTLN("N_OK: CD Method Response to Cloud");
                 }
                 //Need to send this result back ??
                 /*
@@ -483,12 +494,23 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
         // Is a Message
         PRINT_BEGIN_SUB_1("Received  Hub Message:");
         {
-            Serial.print("Topic: [");
+            SERIALPRINT("Topic: [");
             Serial.print(_topic);
             Serial.println("] ");
 
-            Serial.print("Payload: ");
-            Serial.println(_payload);
+            if (strlen(_payload) == 0)
+            {
+                SERIALPRINTLN("No payload with Message");
+            }
+            if (strcmp("\"\"", _payload))
+            {
+                SERIALPRINTLN("No payload with Message");
+            }
+            else
+            {
+                SERIALPRINT("Payload: ");
+                Serial.println(_payload);
+            }
 
             // Azure IOT Explorer sends an Ack property if optionally included
             // VS Code no option to do so.
@@ -501,7 +523,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                 if (strncmp(CD_Message_Ack[i], ackk, strlen(CD_Message_Ack[i])) == 0)
                 {
                     Ack_Mode = (CD_MESSAGE_ACKS)i;
-                    Serial.print("Ack: ");
+                    SERIALPRINT("Ack: ");
                     Serial.println(CD_Message_Ack[(int)Ack_Mode]);
                     break;
                 }
@@ -539,7 +561,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                         i++;
                     }
                     //strncpy(originalMessageId,messageId,3128);
-                    Serial.print("originalMessageId: ");
+                    SERIALPRINT("originalMessageId: ");
                     Serial.println(originalMessageId);
 
                     /*
