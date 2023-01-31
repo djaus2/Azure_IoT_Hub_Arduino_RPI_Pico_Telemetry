@@ -201,22 +201,27 @@ void SetProperties( char * payload)
                   JsonVariant jvv = kv.value();
                   if (strcmp("components", key) == 0)
                   {
-                      SERIALPRINTLN("- Has Components");
-                      JsonObject jvComponents = jvv.as<JsonObject>();
-                      size_t NumberOfElements = sizeof(components) / sizeof(components[0]);
-                      for (int i = 0; i < NumberOfElements; i++)
+                      PRINT_BEGIN_SUB_2("- Has Components");
                       {
-                          JsonVariant jvComponent = jvComponents[components[i]];
-                          JsonObject jvComponentObj = jvComponent.as<JsonObject>();
-                          SERIALPRINT(components[i]);
-                          Serial.println(":");
-                          for (JsonPair kv : jvComponentObj)
+                          JsonObject jvComponents = jvv.as<JsonObject>();
+                          size_t NumberOfElements = sizeof(components) / sizeof(components[0]);
+                          for (int i = 0; i < NumberOfElements; i++)
                           {
-                              Serial.print(kv.key().c_str());
-                              Serial.print(": ");
-                              Serial.println(kv.value().as<String>().c_str());
+                              JsonVariant jvComponent = jvComponents[components[i]];
+                              JsonObject jvComponentObj = jvComponent.as<JsonObject>();
+                              PRINT_BEGIN_SUB_3(components[i]);
+                              {
+                                  for (JsonPair kv : jvComponentObj)
+                                  {
+                                      SERIALPRINT(kv.key().c_str());
+                                      Serial.print(": ");
+                                      Serial.println(kv.value().as<String>().c_str());
+                                  }
+                              }
+                              PRINT_END_SUB_3
                           }
                       }
+                      PRINT_END_SUB_2
                   }
                   else  if (strcmp("modules", key) == 0)
                   {
@@ -228,7 +233,7 @@ void SetProperties( char * payload)
                       bool bVal;
                       double dVal;
                       String sVal;
-                      Serial.print(" - ");
+                      SERIALPRINT(" - ");
                       Serial.print(key);
                       Serial.print(": ");
 
@@ -265,7 +270,7 @@ void SetProperties( char * payload)
                       else  if (jvv.is<unsigned char>())
                       {
                           iVal = (uint8_t)jvv.is<unsigned char>();
-                          SERIALPRINT("<char>");
+                          Serial.print("<char>");
                           Serial.println(jvv.as<unsigned char>());
                       }
                       else

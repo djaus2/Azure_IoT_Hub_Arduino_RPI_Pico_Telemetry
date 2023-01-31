@@ -56,7 +56,7 @@
 #include "az_local.h"
 //void get_device_twin_document(void);
 
-// Additional sample headers
+ bool DoSetHardware = false;
 
 
 // When developing for your own Arduino-based platform,
@@ -370,13 +370,13 @@ void setup()
   InitProperties();
   SaveProperties();
   LoadProperties();
-  PrintProperties();
-  PrintStructProperties();
+  //PrintProperties();
+  //PrintStructProperties();
   next_telemetry_send_time_ms = 0;
   telemetry_send_count = 0;
   SentProp = false;
   delay(1000);
-  //get_device_twin_document();
+  get_device_twin_document();
 }
 
 void loop()
@@ -385,9 +385,13 @@ void loop()
   {
     if (!SentProp)
     {    
-        //ReportProperties();
+        ReportProperties();
         SentProp=true;
     }
+  }
+  if(DoSetHardware)
+  {
+    SetHardware();
   }
   if(Dev_Properties.IsRunning)
   {
@@ -408,6 +412,10 @@ void loop()
   // MQTT loop must be called to process Device-to-Cloud and Cloud-to-Device.
   mqtt_client.loop();
   delay(500);
+}
+
+void SetHardware()
+{
 }
 
 

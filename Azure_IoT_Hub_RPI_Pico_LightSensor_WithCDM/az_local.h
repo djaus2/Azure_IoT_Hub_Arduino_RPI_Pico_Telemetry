@@ -123,6 +123,8 @@ void PrintProperties();
 void PrintStructProperties();
 void get_device_twin_document(void);
 void SetProperties( char * payload);
+void SetHardware();
+extern bool DoSetHardware;
 
 // Desired Property Components
 const char * const components[] = {"system","climate"};

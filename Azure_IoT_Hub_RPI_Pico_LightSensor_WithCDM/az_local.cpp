@@ -188,7 +188,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                   {
                                       SERIALPRINT("   Status: ");
                                       Serial.print((int)out_twin_response.status);
-                                      SERIALPRINTLN(" 200=OK, 204=OK and no return payload");
+                                      Serial.println(" 200=OK, 204=OK and no return payload");
                                       SERIALPRINT("   Version: ");
                                       uint32_t vern;
                                       az_result az = az_span_atou32(out_twin_response.version, &vern);
