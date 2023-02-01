@@ -81,3 +81,5 @@ AZ_NODISCARD az_result az_span_relaxed_atou32(az_span source, uint32_t* out_numb
     *out_number = value;
     return AZ_OK;
 }
+
+

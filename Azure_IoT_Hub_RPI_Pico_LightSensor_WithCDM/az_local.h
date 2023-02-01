@@ -28,8 +28,7 @@ char* getCurrentLocalTimeString();
 
 
 
-// Publish 1 message every 2 seconds
-#define TELEMETRY_FREQUENCY_MILLISECS 10000
+
 
 #define WARNING "Status=Warning Value less than 100"
 #define NO_WARNING "Status=NO Warning Value greater 100"
@@ -101,14 +100,7 @@ char* get_Method_Response(
 
 enum CD_TWIN_PROPERTY_DATA_TYPE { DT_NULL, DT_INT, DT_BOOL, DT_DOUBLE, DT_STRING };
 
-struct Properties {
-  unsigned long TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
-  bool MethodsSubscribed = false;
-  bool CDMessagesSubscribed = false;
-  bool IsRunning = false;
-  bool LEDIsOn = false;
-  bool fanOn = false;
-};
+
 
 extern char  PropsJson[512];
 extern bool GotTwinDoc;
@@ -128,6 +120,8 @@ extern bool DoSetHardware;
 
 // Desired Property Components
 const char * const components[] = {"system","climate"};
+
+//#define USING_ARDUINO_IDE
 
 
 
