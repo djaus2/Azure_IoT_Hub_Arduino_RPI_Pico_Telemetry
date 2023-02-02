@@ -121,8 +121,8 @@ bool DoMethod(char* method, char* payload)
                 else
                 {
                     SERIALPRINT("Telemetry Period is now: ");
-                    SERIALPRINT(value);
-                    SERIALPRINTLN(" sec.");
+                    Serial.print(value);
+                    Serial.println(" sec.");
                     Dev_Properties.IsRunning = true;
                     SERIALPRINTLN("Telemtry is running.");
                 }
@@ -151,7 +151,8 @@ bool DoMethod(char* method, char* payload)
                 {
                     mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
                     MethodsSubscribed = true;
-                    SERIALPRINTLN("CD METHODS turned OMN.");
+                    SERIALPRINTLN("CD METHODS turned ON."); // Best to set to on at bootup.
+                    SERIALPRINTLN("CATCH 22: You need you have done this to do this!");
                 }
             }
             else if (value == 1)
@@ -163,12 +164,30 @@ bool DoMethod(char* method, char* payload)
                     SERIALPRINTLN("CD MESSAGES turned ON.");
                 }
             }
+            else  if (value == 2)
+            {
+                if (TwinResponseSubscribed == false)
+                {
+                    mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_TWIN_RESPONSE_SUBSCRIBE_TOPIC);
+                    TwinResponseSubscribed = true;
+                    SERIALPRINTLN("TWIN GET RESPONSES SUBSCRIBED.");
+                }
+            }
+            else  if (value == 3)
+            {
+                if (TwinPatchSubscribed == false)
+                {
+                    mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_TWIN_PATCH_SUBSCRIBE_TOPIC);
+                    TwinPatchSubscribed = true;
+                    SERIALPRINTLN("TWIN PATCHES RESPONSES SUBSCRIBED.");
+                }
+            }
             else
             {
                 SERIALPRINTLN("Invalid Subscription to turn on.");
             }
         }
-        else if (strncmp(method, "unsubcribe", 4) == 0)
+        else if (strncmp(method, "unsubscribe", 4) == 0)
         {
             if (value == 0)
             {
@@ -177,6 +196,7 @@ bool DoMethod(char* method, char* payload)
                     mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
                     MethodsSubscribed = false;
                     SERIALPRINTLN("CD METHODS turned OFF.");
+                    SERIALPRINTLN("WARNING: Only way to udo this is to reboot!");
                 }
             }
             else  if (value == 1)
@@ -186,6 +206,24 @@ bool DoMethod(char* method, char* payload)
                     mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
                     CDMessagesSubscribed = false;
                     SERIALPRINTLN("CD MESSAGES turned OFF.");
+                }
+            }
+            else  if (value == 2)
+            {
+                if (TwinResponseSubscribed == true)
+                {
+                    mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_TWIN_RESPONSE_SUBSCRIBE_TOPIC);
+                    TwinResponseSubscribed = false;
+                    SERIALPRINTLN("TWIN GET RESPONSES UN-SUBSCRIBED.");
+                }
+            }
+            else  if (TwinPatchSubscribed == 3)
+            {
+                if (MethodsSubscribed == true)
+                {
+                    mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_TWIN_PATCH_SUBSCRIBE_TOPIC);
+                    TwinPatchSubscribed = false;
+                    SERIALPRINTLN("TWIN PATCHES RESPONSES UN-SUBSCRIBED.");
                 }
             }
             else
