@@ -429,6 +429,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
 
             if (res == AZ_OK)
             {
+                int param = -1;
                 memset(requestName, '\0', sizeof(requestName));
                 az_span_to_str(requestName, sizeof(requestName), request.name);
                 SERIALPRINT("Received Method: [");
@@ -462,11 +463,29 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                 {
                     SERIALPRINT("Payload: ");
                     Serial.println(_payload);
+                    param = atoi(_payload);
                 }
 
                 //Call method
-                bool methodResult = DoMethod(requestName, _payload);
-                char* resp = get_Method_Response(request.request_id, requestName, _payload, id, 200);
+                char tempStr[20];
+                strcpy(tempStr, requestName);
+                char tempStr2[20];
+                strcpy(tempStr2, _payload);
+
+                bool methodResult = DoMethod(tempStr, tempStr2);
+
+                strcpy(tempStr, requestName);
+                strcpy(tempStr2, _payload);
+
+
+                
+                char * resp = get_Method_Response(request.request_id, requestName, _payload, id, 200);
+
+
+                Serial.println(requestName);
+                Serial.println(_payload);
+                Serial.println((char *)methodResponseBuffer);
+                Serial.println(resp);
                 bool responseResponse = mqtt_client.publish((char*)methodResponseBuffer, resp, false);
                 if (methodResponseBuffer != NULL)
                     free(methodResponseBuffer);

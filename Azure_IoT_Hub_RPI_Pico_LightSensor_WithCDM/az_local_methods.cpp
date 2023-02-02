@@ -25,12 +25,12 @@ bool DoMethod(char* method, char* payload)
         int value = -1;
         if (payload != NULL)
         {
-            // Actually should interpret as Json (2Do), but for simplicity just as a number fpr now. ???
+            // Actually should interpret as Json (2Do), but for simplicity just as a number for now. ???
             if (strcmp(payload, "\"\"") == 0)
             {
                 SERIALPRINTLN(" Mo Payload: ");
             }
-            if (strlen(payload) == 0)
+            else if (strlen(payload) == 0)
             {
                 SERIALPRINTLN(" Mo Payload: ");
             }
@@ -252,24 +252,26 @@ char* get_Method_Response(
     uint16_t status
 )
 {
-    char jsonResponseStr[100];
-    methodResponseBuffer = (char*)malloc(100);
+    char jsonResponseStr[256];
+    methodResponseBuffer = (char*)malloc(256);
     az_result rc = az_iot_hub_client_methods_response_get_publish_topic(
         &client, //&hub_client,
         az_span_id,
         status,
         methodResponseBuffer,
-        100,
+        256,
         NULL);
     if (az_result_failed(rc))
     {
         SERIALPRINTLN("Falied: az_iot_hub_client_methods_response_get_publish_topic");
     }
-    methodResponseDoc["request_id"] = id;
-    methodResponseDoc["mothod"] = method;
-    methodResponseDoc["parameter"] = parameter;
-    serializeJson(methodResponseDoc, jsonResponseStr);
+    DynamicJsonDocument methodResponseDoc2(128);
+    methodResponseDoc2["request_id"] = id;
+    methodResponseDoc2["method"] = method;
+    methodResponseDoc2["parameter"] = parameter;
+    serializeJson(methodResponseDoc2, jsonResponseStr);
     az_span temp_span = az_span_create_from_str(jsonResponseStr);
+    Serial.println(jsonResponseStr);
     az_span_to_str((char*)telemetry_payload, sizeof(telemetry_payload), temp_span);
     return (char*)telemetry_payload;
 }

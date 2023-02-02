@@ -37,6 +37,7 @@ namespace InvokeDirectMethod
         // Invoke the direct method on the device, passing the payload
         private static async Task InvokeMethod(int period)
         {
+            Console.WriteLine(period);
             var methodInvocation = new CloudToDeviceMethod("frequency") { ResponseTimeout = TimeSpan.FromSeconds(30) };
             methodInvocation.SetPayloadJson(period.ToString());
 
@@ -61,8 +62,14 @@ namespace InvokeDirectMethod
             Console.WriteLine("Press Enter to continue when the Simulated-Device-2 is sending messages.");
             Console.ReadLine();
             // Task.Delay(3000).Wait();
-            Console.WriteLine("1/4 Setting period to 10s");
+
+            InvokeMethod(0).GetAwaiter().GetResult();
+            Console.WriteLine("Period is now 0 which means it is stopped");
+
+            Console.WriteLine("1/4 Press Enter to change period to (10s)");
+            Console.ReadLine();
             InvokeMethod(10).GetAwaiter().GetResult();
+
 
             Console.WriteLine("2/4 Press Enter to change period again(15s)");
             Console.ReadLine();
