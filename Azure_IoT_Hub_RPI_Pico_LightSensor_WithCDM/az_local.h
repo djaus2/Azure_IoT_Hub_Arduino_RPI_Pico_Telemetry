@@ -107,6 +107,11 @@ extern bool GotTwinDoc;
 extern struct Properties Dev_Properties;
 extern int NumTabs;
 
+extern bool MethodsSubscribed;
+extern bool CDMessagesSubscribed;
+extern bool TwinResponseSubscribed;
+extern bool TwinPatchSubscribed;
+
 void InitProperties(void);
 void SaveProperties();
 void LoadProperties();

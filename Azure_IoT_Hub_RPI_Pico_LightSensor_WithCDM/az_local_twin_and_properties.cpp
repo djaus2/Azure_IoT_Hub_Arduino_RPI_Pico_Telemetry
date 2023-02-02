@@ -21,8 +21,8 @@ void InitProperties()
         memset(PropsJson, 0, strlen(PropsJson));
         Dev_Properties.IsRunning = false;
         Dev_Properties.TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
-        Dev_Properties.MethodsSubscribed = false;
-        Dev_Properties.CDMessagesSubscribed = false;
+        MethodsSubscribed = false;
+        CDMessagesSubscribed = false;
         Dev_Properties.LEDIsOn = false;
         Dev_Properties.fanOn = false;
     }
@@ -38,9 +38,9 @@ void PrintStructProperties()
         SERIALPRINT("TelemetryFrequencyMilliseconds: ");
         Serial.println(Dev_Properties.TelemetryFrequencyMilliseconds);
         SERIALPRINT("MethodsSubscribed: ");
-        Serial.println(Dev_Properties.MethodsSubscribed);
+        Serial.println(MethodsSubscribed);
         SERIALPRINT("CDMessagesSubscribed: ");
-        Serial.println(Dev_Properties.CDMessagesSubscribed);
+        Serial.println(CDMessagesSubscribed);
         SERIALPRINT("LEDIsOn: ");
         Serial.println(Dev_Properties.LEDIsOn);
         SERIALPRINT("fanOn: ");
@@ -56,8 +56,8 @@ void SaveProperties()
       DynamicJsonDocument doc(512);
       doc["IsRunning"] = Dev_Properties.IsRunning;
       doc["TelemetryFrequencyMilliseconds"] = Dev_Properties.TelemetryFrequencyMilliseconds;
-      doc["MethodsSubscribed"] = Dev_Properties.MethodsSubscribed;
-      doc["CDMessagesSubscribed"] = Dev_Properties.CDMessagesSubscribed;
+      doc["MethodsSubscribed"] = MethodsSubscribed;
+      doc["CDMessagesSubscribed"] = CDMessagesSubscribed;
       doc["LEDIsOn"] = Dev_Properties.LEDIsOn;
       doc["fanOn"] = Dev_Properties.fanOn;
       // Save properties as Json string to storage. Relying on DynamicJsonDocument can lead to memmory leaks.
@@ -82,8 +82,8 @@ void LoadProperties()
         deserializeJson(doc, temp);
         Dev_Properties.IsRunning = doc["IsRunning"];
         Dev_Properties.TelemetryFrequencyMilliseconds = doc["TelemetryFrequencyMilliseconds"] ;
-        Dev_Properties.MethodsSubscribed = doc["MethodsSubscribed"];
-        Dev_Properties.CDMessagesSubscribed = doc["CDMessagesSubscribed"];
+        MethodsSubscribed = doc["MethodsSubscribed"];
+        CDMessagesSubscribed = doc["CDMessagesSubscribed"];
         Dev_Properties.LEDIsOn = doc["LEDIsOn"];
         Dev_Properties.fanOn = doc["fanOn"];
     }
@@ -131,8 +131,8 @@ void ReportProperties()
     {
         send_reported_property("IsRunning", (byte*)&Dev_Properties.IsRunning, sizeof(Dev_Properties.IsRunning), DT_BOOL);
         send_reported_property("TelemetryFrequencyMilliseconds", (byte*)&Dev_Properties.TelemetryFrequencyMilliseconds, sizeof(Dev_Properties.TelemetryFrequencyMilliseconds), DT_INT);
-        send_reported_property("MethodsSubscribed", (byte*)&Dev_Properties.MethodsSubscribed, sizeof(Dev_Properties.MethodsSubscribed), DT_BOOL);
-        send_reported_property("CDMessagesSubscribed", (byte*)&Dev_Properties.CDMessagesSubscribed, sizeof(Dev_Properties.CDMessagesSubscribed), DT_BOOL);
+        send_reported_property("MethodsSubscribed", (byte*)&MethodsSubscribed, sizeof(MethodsSubscribed), DT_BOOL);
+        send_reported_property("CDMessagesSubscribed", (byte*)&CDMessagesSubscribed, sizeof(CDMessagesSubscribed), DT_BOOL);
         send_reported_property("LEDIsOn", (byte*)&Dev_Properties.LEDIsOn, sizeof(Dev_Properties.LEDIsOn), DT_BOOL);
     }
     PRINT_END("Reported")
@@ -290,11 +290,11 @@ void SetProperties( char * payload)
                       }
                       else if (strcmp(key, "MethodsSubscribed") == 0)
                       {
-                          Dev_Properties.MethodsSubscribed = bVal;
+                          MethodsSubscribed = bVal;
                       }
                       else if (strcmp(key, "CDMessagesSubscribed") == 0)
                       {
-                          Dev_Properties.CDMessagesSubscribed = bVal;
+                          CDMessagesSubscribed = bVal;
                       }
                       else if (strcmp(key, "LEDIsOn") == 0)
                       {

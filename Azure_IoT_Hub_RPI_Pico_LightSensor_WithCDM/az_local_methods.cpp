@@ -147,19 +147,19 @@ bool DoMethod(char* method, char* payload)
         {
             if (value == 0)
             {
-                if (Dev_Properties.MethodsSubscribed == false)
+                if (MethodsSubscribed == false)
                 {
                     mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
-                    Dev_Properties.MethodsSubscribed = true;
+                    MethodsSubscribed = true;
                     SERIALPRINTLN("CD METHODS turned OMN.");
                 }
             }
             else if (value == 1)
             {
-                if (Dev_Properties.CDMessagesSubscribed == false)
+                if (CDMessagesSubscribed == false)
                 {
                     mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
-                    Dev_Properties.CDMessagesSubscribed = true;
+                    CDMessagesSubscribed = true;
                     SERIALPRINTLN("CD MESSAGES turned ON.");
                 }
             }
@@ -172,19 +172,19 @@ bool DoMethod(char* method, char* payload)
         {
             if (value == 0)
             {
-                if (Dev_Properties.MethodsSubscribed == true)
+                if (MethodsSubscribed == true)
                 {
                     mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
-                    Dev_Properties.MethodsSubscribed = false;
+                    MethodsSubscribed = false;
                     SERIALPRINTLN("CD METHODS turned OFF.");
                 }
             }
             else  if (value == 1)
             {
-                if (Dev_Properties.MethodsSubscribed == true)
+                if (MethodsSubscribed == true)
                 {
                     mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
-                    Dev_Properties.CDMessagesSubscribed = false;
+                    CDMessagesSubscribed = false;
                     SERIALPRINTLN("CD MESSAGES turned OFF.");
                 }
             }

@@ -79,6 +79,11 @@ static const char* device_key = IOT_CONFIG_DEVICE_KEY;
 unsigned long next_telemetry_send_time_ms;
 uint32_t telemetry_send_count;
 
+bool MethodsSubscribed = false;
+bool CDMessagesSubscribed = false;
+bool TwinResponseSubscribed = false;
+bool TwinPatchSubscribed = false;
+
 static const int port = 8883;
 
 // Memory allocated for the sample's variables and structures.
@@ -279,11 +284,16 @@ static int connectToAzureIoTHub()
   }
 
   mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);  
-  Dev_Properties.MethodsSubscribed = true;
+  MethodsSubscribed = true;
+
   mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
-  Dev_Properties.CDMessagesSubscribed = true;
+  CDMessagesSubscribed = true;
+
   mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_TWIN_RESPONSE_SUBSCRIBE_TOPIC );
+  TwinResponseSubscribed = true;
+
   mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_TWIN_PATCH_SUBSCRIBE_TOPIC);
+  TwinPatchSubscribed = true;
   return 0;
 }
 
@@ -364,6 +374,12 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, false);
   GotTwinDoc=false;
+
+  MethodsSubscribed = false;
+  CDMessagesSubscribed = false;
+  TwinResponseSubscribed = false;
+  TwinPatchSubscribed = false;
+
   while(!Serial)
   {}
   establishConnection();
