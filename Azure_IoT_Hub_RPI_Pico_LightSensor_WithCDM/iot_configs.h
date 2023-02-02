@@ -23,8 +23,6 @@
 
 struct Properties {
 	unsigned long TelemetryFrequencyMilliseconds = TELEMETRY_FREQUENCY_MILLISECS;
-	bool MethodsSubscribed = false;
-	bool CDMessagesSubscribed = false;
 	bool IsRunning = false;
 	bool LEDIsOn = false;
 	bool fanOn = false;
