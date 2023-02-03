@@ -16,6 +16,7 @@ namespace InvokeDirectMethod
     {
         private static DeliveryAcknowledgement Ack = DeliveryAcknowledgement.Full;  // Can be None(Default),Full,PostiveOnly,NegativeOnly
         private static ServiceClient s_serviceClient;
+        private static string DeviceGenerationId = "";
 
         // Connection string for your IoT Hub
         // az iot hub connection-string show --hub-name {your iot hub name} --policy-name service
@@ -31,16 +32,22 @@ namespace InvokeDirectMethod
 
 
 
-        private async static Task SendCloudToDeviceMessageAsync(string msg)
+        private async static Task SendCloudToDeviceMessageAsync(string msg, bool IsJson)
         {
             var commandMessage = new
                 Message(Encoding.ASCII.GetBytes(msg));
+            commandMessage.ContentEncoding = "utf-8";
+            if (IsJson)
+            {
+                commandMessage.ContentType = "application/json";
+            }
             commandMessage.Ack = Ack; // Can be None(Default),Full,PostiveOnly,NegativeOnly
-            var guid = new Guid();
-            commandMessage.MessageId = guid.ToString();
+            //commandMessage.ExpiryTimeUtc = DateTime.UtcNow.AddSeconds(10)
+            
+            commandMessage.MessageId = Guid.NewGuid().ToString();
             await s_serviceClient.SendAsync(s_DeviceName, commandMessage);
 
-            Console.WriteLine("Message Sent");
+            Console.WriteLine($"Message Sent: {msg}");
             if (Ack != DeliveryAcknowledgement.None)
             {
                 Console.WriteLine("Wait for feedback");
@@ -60,20 +67,34 @@ namespace InvokeDirectMethod
             Console.WriteLine("\nReceiving c2d feedback from service");
             while (true)
             {
-                var feedbackBatch = await feedbackReceiver.ReceiveAsync();
+                var feedbackBatch = await feedbackReceiver.ReceiveAsync(CancellationToken.None);
                 if (feedbackBatch == null) continue;
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Received feedback: {0}",
-                  string.Join(", ", feedbackBatch.Records.Select(f => f.StatusCode)));
+
+                Console.WriteLine("Received feedback - StatusCode: {0}",
+                    string.Join(", ", feedbackBatch.Records.Select(f => f.StatusCode)));
+                Console.WriteLine("Received feedback - DeviceId: {0}",
+                    string.Join(", ", feedbackBatch.Records.Select(f => f.DeviceId)));
+                Console.WriteLine("Received feedback - DeviceGenerationId: {0}",
+                    string.Join(", ", feedbackBatch.Records.Select(f => f.DeviceGenerationId)));
+                Console.WriteLine("Received feedback - EnqueuedTimeUtc: {0}",
+                    string.Join(", ", feedbackBatch.Records.Select(f => f.EnqueuedTimeUtc)));
+                Console.WriteLine("Received feedback - Description: {0}",
+                    string.Join(", ", feedbackBatch.Records.Select(f => f.Description)));
+                Console.WriteLine("Received feedback - OriginalMessageId: {0}",
+                    string.Join(", ", feedbackBatch.Records.Select(f => f.OriginalMessageId)));
+                await feedbackReceiver.CompleteAsync(feedbackBatch, CancellationToken.None);
+
                 Console.ResetColor();
 
-                await feedbackReceiver.CompleteAsync(feedbackBatch);
+                DeviceGenerationId = feedbackBatch.Records.First().DeviceGenerationId;
+
                 Console.WriteLine("Press any key to continue.");
             }
         }
 
-        public static async Task SendCDMessage(string msg)
+        public static async Task SendCDMessage(string msg, bool IsJosn)
         {
             Console.WriteLine("Send Cloud-to-Device message\n");
 
@@ -81,7 +102,7 @@ namespace InvokeDirectMethod
 
             if (Ack != DeliveryAcknowledgement.None)  // Can be None(Default),Full,PostiveOnly,NegativeOnly
                 ReceiveFeedbackAsync();
-            await SendCloudToDeviceMessageAsync(msg);
+            await SendCloudToDeviceMessageAsync(msg, IsJosn);
         }
 
         public static async Task Main(string[] args)
@@ -96,11 +117,11 @@ namespace InvokeDirectMethod
             Console.WriteLine("Press any key to send a C2D message.");
             Console.ReadLine();
 
-            SendCDMessage("This is a Cloud to device message.").Wait();
+            SendCDMessage("This is a Cloud to device message.", false).Wait();
             Console.WriteLine("Press any key to send a second (Json) C2D message.");
             Console.ReadLine();
 
-            SendCDMessage("{\"Msg\":\"Some Json.\"}").Wait();
+            SendCDMessage("{\"Msg\":\"Some Json.\"}", true).Wait();
             Console.WriteLine("Press any key to finish.");
             Console.ReadLine();
         }

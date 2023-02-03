@@ -533,7 +533,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                 Serial.println(_payload);
             }
 
-            // Azure IOT Explorer sends an Ack property if optionally included
+            // Azure IOT Explorer sends an Ack property if optionally included  
             // VS Code no option to do so.
             // Sample app in this repository doesn't explicitly include it although the received rseponse there has it.
             Ack_Mode == none;
@@ -558,28 +558,66 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                     )
                 {
                     // Parse c2d message.
+                    // Yjis is a bit heuristic ...
+                    // Look for &messageId=
+                    // Or .mid="  in Topic
+                    char MessageId[] = "&messageId=";
+                    char MidId[] = ".mid=";
                     az_iot_hub_client_c2d_request c2d_request;
-                    int topic_len = strlen(_topic);
-                    char* messageId = strstr(topic, "&messageId=");
-                    messageId += strlen("&messageId=");
-
-                    // Azure IOT Explorer sends messageId if optionally included
-                    // VS Code has no option to do
-                    // Sample app in this repository doesn't explicitly include it although the received rseponse there has it.
                     if (originalMessageId != NULL)
                         free(originalMessageId);
-                    originalMessageId = (char*)malloc(64);
-                    memset(originalMessageId, '\0', 64);
-                    int i = 0;
-                    while ((i < strlen(messageId)) && (i < 63))
+                    int buffSize = 64;
+                    originalMessageId = (char*)malloc(buffSize);
+                    memset(originalMessageId, '\0', buffSize);
+                    int topic_len = strlen(_topic);
+
+                    // Looking for &messageId-
+                    char* messageId = strstr(topic, MessageId);
+
+                    if (messageId == NULL)
                     {
-                        if (!isalnum(messageId[i]))
+                        // Then check for .mid=
+                        // Example:
+                        // devices/Pico10Dev/messages/devicebound/%24.mid=f2ceb710-e3ae-4a22-a3b2-607774d701b7&%...
+                        // Looking for .mid=f2ceb710-e3ae-4a22-a3b2-607774d701b7& 
+                        // ie terminated by &
+
+                        messageId = strstr(topic, MidId);
+                        messageId += strlen(MidId);
+                        int i = 0;
+                        while ((i < strlen(messageId)) && (i < (buffSize-1)))
                         {
-                            if (messageId[i] != '-')
+                            // Accept alpjanumeric or - ... a Guid
+                            if (messageId[i] == '&')
                                 break;
+                            else if (!isalnum(messageId[i]))
+                            {
+                                if (messageId[i] != '-')
+                                    break;
+                            }
+                            originalMessageId[i] = messageId[i];
+                            i++;
                         }
-                        originalMessageId[i] = messageId[i];
-                        i++;
+                    }
+                    else
+                    {
+                        // devices/Pico10Dev/messages/devicebound/%24.to=%2Fdevices%2FPico10Dev%2Fmessages%2FdeviceBound&%24.ct=application%2Fjson&%24.ce=utf-8&messageId=823b1680-cebc-4752-b54f-bf57c7293d7e
+                        // 8&messageId=823b1680-cebc-4752-b54f-bf57c7293d7e on end of Topic ...
+                        messageId += strlen(MessageId);
+                        // Azure IOT Explorer sends messageId if optionally included
+                        // VS Code has no option to do
+                        // Sample app in this repository doesn't explicitly include it although the received rseponse there has it.
+                        int i = 0;
+                        while ((i < strlen(messageId)) && (i < 63))
+                        {
+                            if (!isalnum(messageId[i]))
+                            {
+                                if (messageId[i] != '-')
+                                    break;
+                            }
+                            originalMessageId[i] = messageId[i];
+                            i++;
+                        }
                     }
                     //strncpy(originalMessageId,messageId,3128);
                     SERIALPRINT("originalMessageId: ");
