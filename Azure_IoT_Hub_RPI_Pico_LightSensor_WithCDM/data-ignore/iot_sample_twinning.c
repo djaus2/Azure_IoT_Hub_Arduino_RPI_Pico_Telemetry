@@ -16,7 +16,7 @@
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-
+// From the SDK for reference (Ported here)
 #include <azure/az_core.h>
 #include <azure/az_iot.h>
 

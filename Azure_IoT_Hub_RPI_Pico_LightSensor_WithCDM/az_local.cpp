@@ -102,7 +102,6 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
       {
           strncpy(_payload, (char*)payload, length);
           SERIALPRINTLN("  Got Payload");
-          //Serial.printLN(_payload);
       }
       else
       {
@@ -516,14 +515,17 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
             SERIALPRINT("Topic: [");
             Serial.print(_topic);
             Serial.println("] ");
-
             if (strlen(_payload) == 0)
             {
                 SERIALPRINTLN("No payload with Message");
             }
-            if (strcmp("\"\"", _payload))
+            if (strcmp("\"\"", _payload)==0)
             {
-                SERIALPRINTLN("No payload with Message");
+                SERIALPRINTLN("Empty payload with Message");
+            }
+            if (strcmp("{}", _payload) == 0)
+            {
+                SERIALPRINTLN("Empty Hson payload with Message");
             }
             else
             {
