@@ -103,6 +103,9 @@ bool DoMethod(char* method, char* payload)
             SERIALPRINTLN(" Mo Payload: ");
         }
         SERIALPRINTLN();
+        Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
+        Serial.print("Direct Method: ");
+        Serial.println(method);
         if (strncmp(method, "start", 4) == 0)
         {
             if (!Dev_Properties.IsRunning)
@@ -111,12 +114,16 @@ bool DoMethod(char* method, char* payload)
                 {
                     next_telemetry_send_time_ms = millis();
                     Dev_Properties.IsRunning = true;
+
+                    Serial.println("Telemtry was started.");
+                    Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
+
                     SaveProperties();
-                    SERIALPRINTLN("Telemtry was started.");
                 }
                 else
                 {
-                    SERIALPRINTLN("Telemetry is still stopped as period set to 0");
+                    Serial.println("Telemetry is still stopped as period set to 0");
+                    Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
                     return false;
                 }
             }
@@ -126,15 +133,22 @@ bool DoMethod(char* method, char* payload)
             if (Dev_Properties.IsRunning)
             {
                 Dev_Properties.IsRunning = false;
+                Serial.println("Telemtry was stopped.");
+                Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
                 SaveProperties();
-                SERIALPRINTLN("Telemtry was stopped.");
+            }
+            else
+            {
+                Serial.println("Telemtry was already stopped.");
+                Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
             }
         }
         else if (strncmp(method, "frequency", 4) == 0)
         {
             if (value < 0)
             {
-                SERIALPRINTLN(("Invalid Telemetry Period value. Should be no. seconds."));
+                Serial.println(("Invalid Telemetry Period value. Should be no. seconds."));
+                Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
                 return false;
             }
             else
@@ -143,15 +157,17 @@ bool DoMethod(char* method, char* payload)
                 if (value == 0)
                 {
                     Dev_Properties.IsRunning = false;
-                    SERIALPRINTLN("Telemtry is stopped.");
+                    Serial.println("Telemtry is stopped.");
+                    Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
                 }
                 else
                 {
-                    SERIALPRINT("Telemetry Period is now: ");
-                    SERIAL_PRINT(value);
-                    SERIAL_PRINTLN(" sec.");
+                    Serial.print("Telemetry Period is now: ");
+                    Serial.print(value);
+                    Serial.println(" sec.");
                     Dev_Properties.IsRunning = true;
-                    SERIALPRINTLN("Telemtry is running.");
+                    Serial.println("Telemtry is running.");
+                    Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
                 }
                 SaveProperties();
             }
@@ -163,11 +179,15 @@ bool DoMethod(char* method, char* payload)
             {
                 digitalWrite(LED_BUILTIN, HIGH);
                 Dev_Properties.LEDIsOn = true;
+                Serial.println("LED is On.");
+                Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
             }
             else
             {
                 digitalWrite(LED_BUILTIN, LOW);
                 Dev_Properties.LEDIsOn = false;
+                Serial.println("LED is Off.");
+                Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
             }
             SaveProperties();
             SERIALPRINT("LED Toggled.");
@@ -176,16 +196,40 @@ bool DoMethod(char* method, char* payload)
         {
             if(Dev_Properties.fanOn)
             {
-                if (value==0)
+                if (value == 0)
+                {
                     Dev_Properties.fanOn = false;
+                    Serial.println("Fan turned Off.");
+                    Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
+                    SaveProperties();
+                    SERIALPRINT("Fan Off.");
+                }
+                else
+                {
+                    Serial.println("Fan Unchanged.");
+                    Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
+                    SERIALPRINT("Fan unchanged.");
+                }
             }
             else
             {
-                if (value==1)
+                if (value == 1)
+                {
                     Dev_Properties.fanOn = true;
+                    Serial.println("Fan turned On.");
+                    Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
+                    SaveProperties();
+                    SERIALPRINT("Fan On.");
+                }
+                else
+                {
+                    Serial.println("Fan Unchanged.");
+                    Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
+                    SERIALPRINT("Fan Unchanged.");
+                }
+
             }
-            SaveProperties();
-            SERIALPRINT("LED Toggled.");
+            
         }
         else if (strncmp(method, "print", 4) == 0)
         {
@@ -293,6 +337,8 @@ bool DoMethod(char* method, char* payload)
         }
         else
         {
+            Serial.println("Unrecognised Method: ");
+            Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
             SERIALPRINTLN("Unrecognised Method: ");
             retv = false;
         }

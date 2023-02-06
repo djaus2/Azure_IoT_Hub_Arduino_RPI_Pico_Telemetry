@@ -1,7 +1,7 @@
 #ifndef AZ_LOCAL_MSGLEVELS_H
 #define AZ_LOCAL_MSGLEVELS_H
 
-#define _MSGLevel_ 0
+#define _MSGLevel_ 5
 
 //#define MAX(a,b) (((a)>(b))?(a):(b))  ..is defined elsewhere
 

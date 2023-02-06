@@ -505,28 +505,34 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
       else
       {
         // Is a Message
-        PRINT_BEGIN_SUB_1("Received  Hub Message:");
+        PRINT_BEGIN_SUB_1("Received  CD Message:");
         {
             SERIALPRINT("Topic: [");
             SERIAL_PRINT(_topic);
             SERIAL_PRINTLN("] ");
+     
+            Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
+            // Display Message regardless of Level setting
+            Serial.println("CD Message:");
             if (strlen(_payload) == 0)
             {
-                SERIALPRINTLN("No payload with Message");
+                Serial.println("No Message");
             }
-            if (strcmp("\"\"", _payload)==0)
+            else if (strcmp("\"\"", _payload)==0)
             {
-                SERIALPRINTLN("Empty payload with Message");
+                Serial.println("Empty  Message");
             }
             if (strcmp("{}", _payload) == 0)
             {
-                SERIALPRINTLN("Empty Hson payload with Message");
+                Serial.println("Empty Json Message");
             }
             else
             {
-                SERIALPRINT("Payload: ");
-                SERIAL_PRINTLN(_payload);
+                Serial.print("Message: ");
+                Serial.println(_payload);
             }
+            Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
+            
 
             // Azure IOT Explorer sends an Ack property if optionally included  
             // VS Code no option to do so.

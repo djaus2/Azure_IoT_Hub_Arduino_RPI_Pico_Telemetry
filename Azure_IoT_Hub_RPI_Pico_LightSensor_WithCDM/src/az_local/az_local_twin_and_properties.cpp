@@ -52,7 +52,7 @@ void PrintStructProperties()
 
 void SaveProperties()
 {
-  PRINT_BEGIN("Save Device Properties on Device:");
+  PRINT_BEGIN_1("Save Device Properties on Device:");
   {
       DynamicJsonDocument doc(512);
       doc["IsRunning"] = Dev_Properties.IsRunning;
@@ -66,12 +66,12 @@ void SaveProperties()
       serializeJsonPretty(doc, Serial);
       SERIAL_PRINTLN();
   }
-  PRINT_END("Saved properties.");
+  PRINT_END_1;
 }
 
 void LoadProperties()
 {
-    PRINT_BEGIN("Load Device Properties from Device:");
+    PRINT_BEGIN_1("Load Device Properties from Device:");
     {
         DynamicJsonDocument doc(512);
         if (strlen(PropsJson) == 0)
@@ -88,18 +88,18 @@ void LoadProperties()
         Dev_Properties.LEDIsOn = doc["LEDIsOn"];
         Dev_Properties.fanOn = doc["fanOn"];
     }
-    PRINT_END("Loaded properties.");
+    PRINT_END_1("Loaded properties.");
 }
 
 void PrintProperties()
 {
-    PRINT_BEGIN("Print Device Properties on Device:")
+    PRINT_BEGIN_SUB_1("Print Device Properties on Device:")
     {
         if (strlen(PropsJson) == 0)
         {
             strcpy(PropsJson, "{}");
         }
-        PRINT_BEGIN_SUB_1("Print: Loading Current PropsJson on the device: ")
+        PRINT_BEGIN_SUB_2("Print: Loading Current PropsJson on the device: ")
         {
             if ((strlen(PropsJson) != 0) && (strcmp(PropsJson, "{}") != 0))
             {
@@ -121,9 +121,9 @@ void PrintProperties()
                 SERIALPRINTLN("Empty Properties on Device.");
             }
         }
-        PRINT_END_SUB_1;
+        PRINT_END_SUB_2;
     }
-    PRINT_END("Properties print end")
+    PRINT_END_SUB_1
 }
 
 void ReportProperties()
