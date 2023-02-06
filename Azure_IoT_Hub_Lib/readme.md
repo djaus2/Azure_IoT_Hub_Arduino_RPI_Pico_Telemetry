@@ -123,9 +123,7 @@ Save Device Properties on Device:
 ================================================================================
 {
   "IsRunning": true,
-  "TelemetryFrequencyMilliseconds": 111,
-  "MethodsSubscribed": false,
-  "CDMessagesSubscribed": false,
+  "TelemetryFrequencyMilliseconds": 2000,
   "LEDIsOn": false,
   "fanOn": false
 }
