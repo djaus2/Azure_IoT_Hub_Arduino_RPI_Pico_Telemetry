@@ -13,3 +13,5 @@ The base functionality is only Telemetry and CD Messages. This adds Direct Metho
 ```
 - Need to install the **Azure SDK for Embedded C**
   - See The ReadMe in the Azure_IoT_Hub_RPI_Pico_Base Sketch in this repository.
+- Note can set level of messaging 0 to 5 in ```az_local_msglevels.h``` 
+  - 0 only shows top level messages.
