@@ -12,6 +12,10 @@ Adds some functioanlity, such as reading environment telemetry to [Azure/azure-s
 ## Hardware
 Using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Base for further info.
 
+## Library
+The Azure__IoT_Hub_Lib folder contains extended Azure Embedded C SDK functionlity 
+as in Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM Sketch.
+
 ## Sketches
 - Azure_IoT_Hub_RPI_Pico_Base
   - The base version. Work through the ReadMe there to get the Pico up and running with Azure IoT Hub

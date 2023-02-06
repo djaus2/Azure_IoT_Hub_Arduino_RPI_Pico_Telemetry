@@ -1,7 +1,7 @@
 # The az_local Library
 
 ## About
-This is the library as used as source code in the **Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM Sketch**. 
+This is the library as used as source code in the **Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM** Sketch. 
 The base functionality is only Telemetry and CD Messages. This adds Direct Methods and Twinning.
 
 ## How to use this library
