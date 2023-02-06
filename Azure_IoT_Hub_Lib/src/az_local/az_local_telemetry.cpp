@@ -5,9 +5,10 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
+#include "az_local_msglevels.h"
 #include "az_local.h"
 
-#include "iot_configs.h"
+
 #include <string.h>
 
 ///

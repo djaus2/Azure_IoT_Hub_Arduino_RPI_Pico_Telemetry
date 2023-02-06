@@ -5,9 +5,10 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
+#include "az_local_msglevels.h"
 #include "az_local.h"
 
-#include "iot_configs.h"
+
 #include <string.h>
 
 char* methodResponseBuffer;
@@ -18,10 +19,10 @@ DynamicJsonDocument methodResponseDoc(64);
 bool DoMethod(char* method, char* payload)
 {
     bool retv = true;
-    PRINT_BEGIN_SUB_2("Doing Method");
+    PRINT_BEGIN_SUB_1("Doing Method");
     {
         SERIALPRINT("Method: ");
-        Serial.println(method);
+        SERIAL_PRINTLN(method);
         int value = -1;
         if (payload != NULL)
         {
@@ -34,16 +35,40 @@ bool DoMethod(char* method, char* payload)
             {
                 SERIALPRINTLN(" Mo Payload: ");
             }
-            else 
+            else
             {
                 SERIALPRINT(" Payload: ");
-                Serial.print(payload);
+                SERIAL_PRINT(payload);
 
                 if (isNumeric(payload))
                 {
                     value = atoi(payload);
-                    Serial.print(" which is the number: ");
-                    Serial.println(value);
+                    SERIAL_PRINT(" which is the number: ");
+                    SERIAL_PRINTLN(value);
+                }
+                else if (strcmp(payload,"true")==0)
+                {
+                    value = 1;
+                    SERIAL_PRINT(" which is the bool: ");
+                    SERIAL_PRINTLN(value);
+                }
+                else if (strcmp(payload, "false")==0)
+                {
+                    value = 0;
+                    SERIAL_PRINT(" which is the bool: ");
+                    SERIAL_PRINTLN(value);
+                }
+                else if (strcmp(payload, "on") == 0)
+                {
+                    value = 1;
+                    SERIAL_PRINT(" which is the bool: ");
+                    SERIAL_PRINTLN(value);
+                }
+                else if (strcmp(payload, "off") == 0)
+                {
+                    value = 0;
+                    SERIAL_PRINT(" which is the bool: ");
+                    SERIAL_PRINTLN(value);
                 }
                 else
                 {
@@ -86,6 +111,7 @@ bool DoMethod(char* method, char* payload)
                 {
                     next_telemetry_send_time_ms = millis();
                     Dev_Properties.IsRunning = true;
+                    SaveProperties();
                     SERIALPRINTLN("Telemtry was started.");
                 }
                 else
@@ -100,6 +126,7 @@ bool DoMethod(char* method, char* payload)
             if (Dev_Properties.IsRunning)
             {
                 Dev_Properties.IsRunning = false;
+                SaveProperties();
                 SERIALPRINTLN("Telemtry was stopped.");
             }
         }
@@ -121,11 +148,12 @@ bool DoMethod(char* method, char* payload)
                 else
                 {
                     SERIALPRINT("Telemetry Period is now: ");
-                    Serial.print(value);
-                    Serial.println(" sec.");
+                    SERIAL_PRINT(value);
+                    SERIAL_PRINTLN(" sec.");
                     Dev_Properties.IsRunning = true;
                     SERIALPRINTLN("Telemtry is running.");
                 }
+                SaveProperties();
             }
         }
         else if (strncmp(method, "toggle", 4) == 0)
@@ -141,7 +169,38 @@ bool DoMethod(char* method, char* payload)
                 digitalWrite(LED_BUILTIN, LOW);
                 Dev_Properties.LEDIsOn = false;
             }
+            SaveProperties();
             SERIALPRINT("LED Toggled.");
+        }
+        else if (strncmp(method, "fanOn", 4) == 0)
+        {
+            if(Dev_Properties.fanOn)
+            {
+                if (value==0)
+                    Dev_Properties.fanOn = false;
+            }
+            else
+            {
+                if (value==1)
+                    Dev_Properties.fanOn = true;
+            }
+            SaveProperties();
+            SERIALPRINT("LED Toggled.");
+        }
+        else if (strncmp(method, "print", 4) == 0)
+        {
+            if (value == 0)
+            {
+                PrintStructProperties();
+            }
+            if (value == 1)
+            {
+                PrintProperties();
+            }
+            else
+            {
+                PrintStructProperties();
+            }
         }
         else if (strncmp(method, "subscribe", 4) == 0)
         {
@@ -238,7 +297,7 @@ bool DoMethod(char* method, char* payload)
             retv = false;
         }
     }
-    PRINT_END_SUB_2
+    PRINT_END_SUB_1
     return retv;
 }
 
@@ -252,26 +311,31 @@ char* get_Method_Response(
     uint16_t status
 )
 {
-    char jsonResponseStr[256];
-    methodResponseBuffer = (char*)malloc(256);
-    az_result rc = az_iot_hub_client_methods_response_get_publish_topic(
-        &client, //&hub_client,
-        az_span_id,
-        status,
-        methodResponseBuffer,
-        256,
-        NULL);
-    if (az_result_failed(rc))
+    PRINT_BEGIN_SUB_1(" Get Method Response: ")
     {
-        SERIALPRINTLN("Falied: az_iot_hub_client_methods_response_get_publish_topic");
+        char jsonResponseStr[256];
+        methodResponseBuffer = (char*)malloc(256);
+        az_result rc = az_iot_hub_client_methods_response_get_publish_topic(
+            &client, //&hub_client,
+            az_span_id,
+            status,
+            methodResponseBuffer,
+            256,
+            NULL);
+        if (az_result_failed(rc))
+        {
+            Serial.println("Failed: az_iot_hub_client_methods_response_get_publish_topic");
+        }
+        DynamicJsonDocument methodResponseDoc2(128);
+        methodResponseDoc2["request_id"] = id;
+        methodResponseDoc2["method"] = method;
+        methodResponseDoc2["parameter"] = parameter;
+        serializeJson(methodResponseDoc2, jsonResponseStr);
+        az_span temp_span = az_span_create_from_str(jsonResponseStr);
+        SERIALPRINT("Json Method Response String: ")
+        SERIAL_PRINTLN(jsonResponseStr);
+        az_span_to_str((char*)telemetry_payload, sizeof(telemetry_payload), temp_span);
+        return (char*)telemetry_payload;
     }
-    DynamicJsonDocument methodResponseDoc2(128);
-    methodResponseDoc2["request_id"] = id;
-    methodResponseDoc2["method"] = method;
-    methodResponseDoc2["parameter"] = parameter;
-    serializeJson(methodResponseDoc2, jsonResponseStr);
-    az_span temp_span = az_span_create_from_str(jsonResponseStr);
-    Serial.println(jsonResponseStr);
-    az_span_to_str((char*)telemetry_payload, sizeof(telemetry_payload), temp_span);
-    return (char*)telemetry_payload;
+    PRINT_END_SUB_1
 }

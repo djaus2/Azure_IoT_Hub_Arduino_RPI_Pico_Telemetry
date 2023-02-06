@@ -6,9 +6,9 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
-#include "az_local.h"
 
-#include "iot_configs.h"
+#include "az_local_msglevels.h"
+#include "az_local.h"
 #include <string.h>
 
 struct Properties Dev_Properties;
@@ -91,10 +91,10 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
       memset(shortTopic, '\0', sizeof(shortTopic));
       strncpy(shortTopic, _topic, topicLen2);;
 
-      //Serial.print("  Topic: ");
-      //Serial.printLN(_topic);
+      //SERIAL_PRINT("  Topic: ");
+      //SERIAL_PRINTLN((_topic);
       SERIALPRINT("Got Topic: ");
-      Serial.println(shortTopic);
+      SERIAL_PRINTLN(shortTopic);
 
       //Get a 'proper' string from the payload
       memset(_payload, '\0', sizeof(_payload));
@@ -127,10 +127,10 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                   = az_iot_hub_client_twin_parse_received_topic(&client, topic_span, &out_twin_response);
               if (az_result_failed(rc))
               {
-                  Serial.print("ERROR - Message from unknown topic: az_result return code: ");
-                  Serial.println(rc);
-                  Serial.print("Topic: ");
-                  Serial.println(_topic);
+                  SERIAL_PRINT("ERROR - Message from unknown topic: az_result return code: ");
+                  SERIAL_PRINTLN(rc);
+                  SERIAL_PRINT("Topic: ");
+                  SERIAL_PRINTLN(_topic);
                   return;
               }
               else
@@ -138,20 +138,20 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                   PRINT_BEGIN_SUB_2(" Client received a valid TWIN topic response.")
                   {
                       SERIALPRINT("  Topic:");
-                      Serial.println(topic); //topic_span);
+                      SERIAL_PRINTLN(topic); //topic_span);
                       SERIALPRINT("  Status: ");
                       int status = (int)out_twin_response.status;
-                      Serial.print(status);
-                      Serial.println(" 20X=OK");
+                      SERIAL_PRINT(status);
+                      SERIAL_PRINTLN(" 20X=OK");
                       SERIALPRINT("  ResponseType: ");
                       responseType = (int32_t)out_twin_response.response_type;
-                      Serial.println(responseType);
+                      SERIAL_PRINTLN(responseType);
                       SERIALPRINTLN(" 1=Get,2=Desired,3=Reported,4-Error.");
                       if (responseType != 2)
                       {
                           SERIALPRINT("  RequestId: ");
                           (void)az_span_to_str(requestId, sizeof(requestId), out_twin_response.request_id);
-                          Serial.println(requestId);
+                          SERIAL_PRINTLN(requestId);
                       }
                       if (status != 204)
                       {
@@ -173,8 +173,8 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                   PRINT_BEGIN_SUB_4("   IoT Hub Twin Document GET Response: ")
                                   {
                                       SERIALPRINT("    Status: ");
-                                      Serial.print((int)out_twin_response.status);
-                                      Serial.println(" 200=OK, 204=OK and no return payload");
+                                      SERIAL_PRINT((int)out_twin_response.status);
+                                      SERIAL_PRINTLN(" 200=OK, 204=OK and no return payload");
                                       SetProperties(_payload);
                                       GotTwinDoc = true;
                                   }
@@ -186,8 +186,8 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                   PRINT_BEGIN_SUB_4("  IoT Hub Twin Property Update Response: ")
                                   {
                                       SERIALPRINT("   Status: ");
-                                      Serial.print((int)out_twin_response.status);
-                                      Serial.println(" 200=OK, 204=OK and no return payload");
+                                      SERIAL_PRINT((int)out_twin_response.status);
+                                      SERIAL_PRINTLN(" 200=OK, 204=OK and no return payload");
                                       SERIALPRINT("   Version: ");
                                       uint32_t vern;
                                       az_result az = az_span_atou32(out_twin_response.version, &vern);
@@ -202,13 +202,13 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                   PRINT_BEGIN_SUB_4("  IoT Hub Twin Property Desired: ")
                                   {
                                       SERIALPRINT("   Status: ");
-                                      Serial.print((int)out_twin_response.status);
-                                      Serial.println(" 200=OK, 204=OK and no return payload");
+                                      SERIAL_PRINT((int)out_twin_response.status);
+                                      SERIAL_PRINTLN(" 200=OK, 204=OK and no return payload");
                                       SERIALPRINT("Version: ");
                                       uint32_t vern;
                                       az_result az = az_span_atou32(out_twin_response.version, &vern);
-                                      Serial.println(vern);
-                                      Serial.println(_payload);
+                                      SERIAL_PRINTLN(vern);
+                                      SERIAL_PRINTLN(_payload);
                                   }
                                   PRINT_END_SUB_4
                               }
@@ -218,13 +218,13 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                   PRINT_BEGIN_SUB_4(" IoT Hub Twin Property Error: ")
                                   {
                                       SERIALPRINT("Status: ");
-                                      Serial.print((int)out_twin_response.status);
-                                      Serial.println(" 200=OK, 204=OK and no return payload");
+                                      SERIAL_PRINT((int)out_twin_response.status);
+                                      SERIAL_PRINTLN(" 200=OK, 204=OK and no return payload");
                                       SERIALPRINT("Version: ");
                                       uint32_t vern;
                                       az_result az = az_span_atou32(out_twin_response.version, &vern);
-                                      Serial.println(vern);
-                                      Serial.println(_payload);
+                                      SERIAL_PRINTLN(vern);
+                                      SERIAL_PRINTLN(_payload);
                                   }
                                   PRINT_END_SUB_4
                               }
@@ -259,8 +259,8 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
 
                                       for (JsonPair kv : rootz) {
                                           SERIALPRINT(kv.key().c_str());
-                                          Serial.print(": ");
-                                          Serial.println(kv.value().as<String>());
+                                          SERIAL_PRINT(": ");
+                                          SERIAL_PRINTLN(kv.value().as<String>());
                                       }
                                   }
                                   else
@@ -280,10 +280,10 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                               JsonObject rootx = patchDoc.as<JsonObject>();
                                               for (JsonPair kv : rootx) {
                                                   SERIALPRINT(kv.key().c_str());
-                                                  Serial.print(": ");
+                                                  SERIAL_PRINT(": ");
                                                   //JsonVariant val = kv.value();
                                                   //char* valStr = val.as<String>();
-                                                  Serial.println(kv.value().as<String>());
+                                                  SERIAL_PRINTLN(kv.value().as<String>());
                                               }
                                               String patch = rootx["patchId"].as<String>();
                                               if (rootx["patchId"].isNull())
@@ -373,8 +373,8 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                                   SERIALPRINTLN("....");
                                                   for (JsonPair kv : rooty) {
                                                       SERIALPRINT(kv.key().c_str());
-                                                      Serial.print(": ");
-                                                      Serial.println(kv.value().as<String>());
+                                                      SERIAL_PRINT(": ");
+                                                      SERIAL_PRINTLN(kv.value().as<String>());
                                                   }
                                                   SERIALPRINTLN("....");
                                                   char numm[128];
@@ -432,9 +432,9 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                 memset(requestName, '\0', sizeof(requestName));
                 az_span_to_str(requestName, sizeof(requestName), request.name);
                 SERIALPRINT("Received Method: [");
-                Serial.print(requestName);
+                SERIAL_PRINT(requestName);
 
-                Serial.println("]");
+                SERIAL_PRINTLN("]");
 
                 //Get request id
                 uint32_t id;
@@ -442,12 +442,12 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                 if (res == AZ_OK)
                 {
                     SERIALPRINT("request_id: ");
-                    Serial.println(id);
+                    SERIAL_PRINTLN(id);
                 }
                 else
                 {
                     SERIALPRINT("az_span Error: ")
-                        Serial.println(res);
+                        SERIAL_PRINTLN(res);
                 }
 
                 if (strlen(_payload) == 0)
@@ -461,7 +461,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                 else
                 {
                     SERIALPRINT("Payload: ");
-                    Serial.println(_payload);
+                    SERIAL_PRINTLN(_payload);
                     param = atoi(_payload);
                 }
 
@@ -479,12 +479,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
 
                 
                 char * resp = get_Method_Response(request.request_id, requestName, _payload, id, 200);
-
-
-                Serial.println(requestName);
-                Serial.println(_payload);
-                Serial.println((char *)methodResponseBuffer);
-                Serial.println(resp);
+               
                 bool responseResponse = mqtt_client.publish((char*)methodResponseBuffer, resp, false);
                 if (methodResponseBuffer != NULL)
                     free(methodResponseBuffer);
@@ -513,8 +508,8 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
         PRINT_BEGIN_SUB_1("Received  Hub Message:");
         {
             SERIALPRINT("Topic: [");
-            Serial.print(_topic);
-            Serial.println("] ");
+            SERIAL_PRINT(_topic);
+            SERIAL_PRINTLN("] ");
             if (strlen(_payload) == 0)
             {
                 SERIALPRINTLN("No payload with Message");
@@ -530,7 +525,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
             else
             {
                 SERIALPRINT("Payload: ");
-                Serial.println(_payload);
+                SERIAL_PRINTLN(_payload);
             }
 
             // Azure IOT Explorer sends an Ack property if optionally included  
@@ -545,7 +540,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                 {
                     Ack_Mode = (CD_MESSAGE_ACKS)i;
                     SERIALPRINT("Ack: ");
-                    Serial.println(CD_Message_Ack[(int)Ack_Mode]);
+                    SERIAL_PRINTLN(CD_Message_Ack[(int)Ack_Mode]);
                     break;
                 }
             }
@@ -621,7 +616,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                     }
                     //strncpy(originalMessageId,messageId,3128);
                     SERIALPRINT("originalMessageId: ");
-                    Serial.println(originalMessageId);
+                    SERIAL_PRINTLN(originalMessageId);
 
                     /*
                     *  Construct feedback msg here and send to

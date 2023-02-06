@@ -53,7 +53,7 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
-#include "az_local.h"
+#include "src/az_local/az_local.h"
 //void get_device_twin_document(void);
 
  bool DoSetHardware = false;
@@ -397,6 +397,7 @@ void setup()
 
 void loop()
 {
+
   if (GotTwinDoc)
   {
     if (!SentProp)
@@ -411,23 +412,27 @@ void loop()
   }
   if(Dev_Properties.IsRunning)
   {
-  if (millis() > next_telemetry_send_time_ms)
-  {
-      // Check if connected, reconnect if needed.
-      if (!mqtt_client.connected())
+      if (millis() > next_telemetry_send_time_ms)
       {
-        establishConnection();
+          // Check if connected, reconnect if needed.
+          if (!mqtt_client.connected())
+          {
+            establishConnection();
+          }
+
+          sendTelemetry();
+
+          next_telemetry_send_time_ms = millis() + Dev_Properties.TelemetryFrequencyMilliseconds;
       }
-
-      sendTelemetry();
-
-      next_telemetry_send_time_ms = millis() + Dev_Properties.TelemetryFrequencyMilliseconds;
-    }
   }
 
   // MQTT loop must be called to process Device-to-Cloud and Cloud-to-Device.
   mqtt_client.loop();
   delay(500);
+  //if (Dev_Properties.fanOn)
+  //Serial.print('+');
+  //else
+  //Serial.print('-');
 }
 
 void SetHardware()

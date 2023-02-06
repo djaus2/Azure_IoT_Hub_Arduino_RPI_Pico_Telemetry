@@ -1,10 +1,24 @@
+#ifndef az_local_h
+#define az_local_h
 #include <Arduino.h>
 
 
 
 // Azure IoT SDK for C includes
 
+struct Properties {
+    unsigned long TelemetryFrequencyMilliseconds;
+    bool IsRunning = false;
+    bool LEDIsOn = false;
+    bool fanOn = false;
+};
 
+//Nb: By default, Acknoweledgement is not required for CD Messages. So use none
+#define ACK_MODE full
+#define CD_MESSAGE_OUTCOME success
+
+// Publish 1 message every 10 seconds
+#define TELEMETRY_FREQUENCY_MILLISECS 10000;
 
 // Move to header if needed:
 bool isNumeric(const char* s);
@@ -158,45 +172,5 @@ void build_reported_property_null(
     az_span reported_property_payload,
     az_span* out_reported_property_payload);
 
-/////////////////////////////
 
-//#define MAX(a,b) (((a)>(b))?(a):(b))  ..is defined elsewhere
-
-#define InsertTabs(_numtabs_) for (int i=0;i<_numtabs_;i++)Serial.print('\t')
-
-#define SERIALPRINT(A) { InsertTabs(NumTabs);Serial.print(A);}
-#define SERIALPRINTLN(A) { InsertTabs(NumTabs);Serial.println(A);}
-
-#define _PRINT_BEGIN_SUB(_noTabs_,_A_,_ch_,_PLENGTH_) \
-{ \
-int NumTabs = _noTabs_;if (NumTabs == 0) { Serial.println(); } \
-int PLENGTH = _PLENGTH_; \
-char __ch__=_ch_; \
-InsertTabs(NumTabs); for (int i = 0; i < PLENGTH; i++) { Serial.print(__ch__); }Serial.println(); \
-InsertTabs(NumTabs); Serial.println(_A_); \
-InsertTabs(NumTabs); for (int i = 0; i < PLENGTH; i++) { Serial.print(__ch__); }Serial.println(); \
-
-
-#define _PRINT_END_SUB(_noTabs_) \
-if (NumTabs != _noTabs_) {Serial.println("Number of tabs don't match!");} \
-InsertTabs(NumTabs); for (int i = 0; i < PLENGTH; i++) { Serial.print(__ch__); }Serial.println(); \
-} \
-
-#define PRINT_BEGIN(A_) _PRINT_BEGIN_SUB(0,A_,'=',80);
-#define PRINT_END(B) Serial.print(" - ");Serial.print(B);Serial.println(); for (int i=0;i<PLENGTH;i++){Serial.print('=');}Serial.println();}
-
-#define PRINT_BEGIN_SUB_1(A_) _PRINT_BEGIN_SUB(1,A_,'*',60);
-#define PRINT_END_SUB_1 _PRINT_END_SUB(1);
-
-#define PRINT_BEGIN_SUB_2(A_) _PRINT_BEGIN_SUB(2,A_,'-',60);
-#define PRINT_END_SUB_2 _PRINT_END_SUB(2);
-
-#define PRINT_BEGIN_SUB_3(A_) _PRINT_BEGIN_SUB(3,A_,'.',50);
-#define PRINT_END_SUB_3 _PRINT_END_SUB(3);
-
-#define PRINT_BEGIN_SUB_4(A_) _PRINT_BEGIN_SUB(4,A_,'_',40);
-#define PRINT_END_SUB_4 _PRINT_END_SUB(4);
-
-#define PRINT_BEGIN_SUB_5(A_) _PRINT_BEGIN_SUB(5,A_,'+',30);
-#define PRINT_END_SUB_5 _PRINT_END_SUB(5);
-
+#endif
