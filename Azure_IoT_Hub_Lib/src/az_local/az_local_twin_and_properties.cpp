@@ -52,7 +52,7 @@ void PrintStructProperties()
 
 void SaveProperties()
 {
-  PRINT_BEGIN_1("Save Device Properties on Device:");
+  PRINT_BEGIN_SUB_1("Save Device Properties on Device:");
   {
       DynamicJsonDocument doc(512);
       doc["IsRunning"] = Dev_Properties.IsRunning;
@@ -66,12 +66,12 @@ void SaveProperties()
       serializeJsonPretty(doc, Serial);
       SERIAL_PRINTLN();
   }
-  PRINT_END_1;
+  PRINT_END_SUB_1;
 }
 
 void LoadProperties()
 {
-    PRINT_BEGIN_1("Load Device Properties from Device:");
+    PRINT_BEGIN_SUB_1("Load Device Properties from Device:");
     {
         DynamicJsonDocument doc(512);
         if (strlen(PropsJson) == 0)
@@ -88,7 +88,7 @@ void LoadProperties()
         Dev_Properties.LEDIsOn = doc["LEDIsOn"];
         Dev_Properties.fanOn = doc["fanOn"];
     }
-    PRINT_END_1("Loaded properties.");
+    PRINT_END_SUB_1("Loaded properties.");
 }
 
 void PrintProperties()
