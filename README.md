@@ -1,7 +1,7 @@
 # Azure IoT Hub Arduino Raspberry Pi Pico with Telemetry
 
-# Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM SKETCH is now largely complete,
-Have Direct Methods, CD Messages, Patches, Twins and Desired/Reported Properties.  
+# Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM SKETCH is now largely complete.
+Has Direct Methods, CD Messages, Patches, Twins and Desired/Reported Properties.  
 Refactoring all bar Messages into separate source files.  
 Has been separated into a source library that could be added to another Sketch
 
