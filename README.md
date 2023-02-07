@@ -1,10 +1,9 @@
 # Azure IoT Hub Arduino Raspberry Pi Pico with Telemetry
 
-# Light Sensor CD SKETCH IS A WORK IN PROGRESS
+# Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM SKETCH is now largely complete,
 Have Direct Methods, CD Messages, Patches, Twins and Desired/Reported Properties.  
-Refactoring all bar Messages into separate source files.
-2Do: One Sketch for all with this functioanlity as above
-     Then option in specific telemetry hardware.
+Refactoring all bar Messages into separate source files.  
+Has been separated into a source library that could be added to another Sketch
 
 ## About
 Adds some functioanlity, such as reading environment telemetry to [Azure/azure-sdk-for-c-arduino](https://github.com/Azure/azure-sdk-for-c-arduino) Rpi Pico example. This example has been added as a Pull Request to that repository which was pulled from the fork at [djaus2/azure-sdk-for-c-arduino](https://github.com/djaus2/azure-sdk-for-c-arduino). The first Sketch here (base) is that same proposed example Sketch and is in  ```examples/Azure_IoT_Hub_RPI_Pico``` in the djaus2 fork. (When merged in the origninal, it should be in the matching folder).
@@ -14,7 +13,7 @@ Using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Base f
 
 ## Library
 The Azure__IoT_Hub_Lib folder contains extended Azure Embedded C SDK functionlity 
-as in Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM Sketch.
+as in Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM Sketch as a soutrce library,
 
 ## Sketches
 - Azure_IoT_Hub_RPI_Pico_Base
