@@ -1,11 +1,17 @@
 #ifndef AZ_LOCAL_MSGLEVELS_H
 #define AZ_LOCAL_MSGLEVELS_H
 
-#define _MSGLevel_ 5
+//#define _USEOUTLINING_
+
+#define _MSGLevel_ 0
 
 //#define MAX(a,b) (((a)>(b))?(a):(b))  ..is defined elsewhere
 
+#ifdef _USEOUTLINING_ 
 #define InsertTabs(_numtabs_) for (int i=0;i<_numtabs_;i++)Serial.print('\t')
+#else
+#define InsertTabs(_numtabs_) {}
+#endif
 
 #define SERIALPRINT(A) {if (NumTabs<=_MSGLevel_){ InsertTabs(NumTabs);Serial.print(A);}}
 #define SERIALPRINTLN(A) {if (NumTabs<=_MSGLevel_){ InsertTabs(NumTabs);Serial.println(A);}}
@@ -53,6 +59,8 @@
 		} \
 	} \
 } \
+
+
 
 #define PRINT_BEGIN_SUB_1(A_) _PRINT_BEGIN_SUB(1,A_,'*',60);
 #define PRINT_END_SUB_1 _PRINT_END_SUB(1);

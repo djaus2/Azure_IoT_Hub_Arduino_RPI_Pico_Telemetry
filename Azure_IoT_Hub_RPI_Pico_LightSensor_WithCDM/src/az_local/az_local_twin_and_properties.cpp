@@ -88,7 +88,7 @@ void LoadProperties()
         Dev_Properties.LEDIsOn = doc["LEDIsOn"];
         Dev_Properties.fanOn = doc["fanOn"];
     }
-    PRINT_END_SUB_1("Loaded properties.");
+    PRINT_END_SUB_1;
 }
 
 void PrintProperties()

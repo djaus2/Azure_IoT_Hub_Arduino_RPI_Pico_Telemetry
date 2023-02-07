@@ -16,18 +16,26 @@ The base functionality is only Telemetry and CD Messages. This adds Direct Metho
 - Note can set level of messaging 0 to 5 in ```az_local_msglevels.h``` 
   - 0 only shows top level messages.
 
-## Sample output
-At startup Level=0
+## Sample output at startup
+At startup with``` _MSGLevel_=0 and _USEOUTLINING_```, in az_local_msglevels.h
 
+### 1. Initial WiFi and MQTT Setup
+```
+Connecting to WIFI SSID APQLZM
+............WiFi connected, IP address: 192.168.0.2
+Setting time using SNTP......done!
+Current time: Tue Feb  7 12:02:01 2023
+                                      Client ID: Pico12Dev
+Username: Pico12Hub.azure-devices.net/Pico12Dev/?api-version=2020-09-30&DeviceClientType=c%2F1.5.0-beta.1(ard;rpipico)
+MQTT connecting ... connected.
+```
+
+### 2. Setup device with local property set
 ```
 ================================================================================
 Set Inital Device Properties on Device:
 ================================================================================
  - Default properties set.
-================================================================================
-
-================================================================================
-Save Device Properties on Device:
 ================================================================================
 {
   "IsRunning": false,
@@ -37,22 +45,20 @@ Save Device Properties on Device:
   "LEDIsOn": false,
   "fanOn": false
 }
- - Saved properties.
-================================================================================
+```
 
-================================================================================
-Load Device Properties from Device:
-================================================================================
- - Loaded properties.
-================================================================================
-
+### 3. Request Twin document from the IoT Hub
+```
 ================================================================================
 Client requesting device twin document from service:
 ================================================================================
- - OK Published the Twin Document request. 
+ - OK Published the Twin Document request.
  - Request done
 ================================================================================
+```
 
+### 4. Got Twin document, set Desired properties
+```
 ================================================================================
 Got IoT Hub Doc-Message-Method-Response
 ================================================================================
@@ -64,43 +70,50 @@ Set Desired Properties:
 ================================================================================
 {
   "desired": {
-    "TelemetryFrequencyMilliseconds": 111,
     "IsRunning": false,
-    "fanOn": false,
-    "$version": 28
+    "TelemetryFrequencyMilliseconds": 4567,
+    "$version": 30
   },
   "reported": {
-    "IsRunning": true,
-    "TelemetryFrequencyMilliseconds": 111,
+    "IsRunning": false,
+    "TelemetryFrequencyMilliseconds": 4567,
     "MethodsSubscribed": false,
     "CDMessagesSubscribed": false,
     "LEDIsOn": false,
-    "$version": 306
+    "$version": 161
   }
-}
-
-================================================================================
-Save Device Properties on Device:
-================================================================================
-{
+}{
   "IsRunning": false,
-  "TelemetryFrequencyMilliseconds": 111,
+  "TelemetryFrequencyMilliseconds": 4567,
   "MethodsSubscribed": false,
   "CDMessagesSubscribed": false,
   "LEDIsOn": false,
   "fanOn": false
-}
- - Saved properties.
-================================================================================
- - Desired Properties Set
+} - Desired Properties Set
 ================================================================================
  - END Callback
 ================================================================================
+```
 
+### 5. Report back properties
+```
 ================================================================================
 Reporting Device Properties to Hub:
 ================================================================================
  - Reported
+================================================================================
+```
+
+### 6. Get acknowledgement back from Hub
+- One acknowledgement for each property.
+- Reported properties were sent individually.
+```
+================================================================================
+Got IoT Hub Doc-Message-Method-Response
+================================================================================
+Got Topic: $iothub/twin/res/204
+No Payload
+ - END Callback
 ================================================================================
 
 ================================================================================
@@ -109,32 +122,14 @@ Got IoT Hub Doc-Message-Method-Response
 Got Topic: $iothub/twin/res/204
 No Payload
  - END Callback
-===============================================================================
-
+================================================================================
 
 ================================================================================
 Got IoT Hub Doc-Message-Method-Response
 ================================================================================
-Got Topic: $iothub/methods/POST/start  <--start Method Call
-  Got Payload
-
-================================================================================
-Save Device Properties on Device:
-================================================================================
-{
-  "IsRunning": true,
-  "TelemetryFrequencyMilliseconds": 2000,
-  "LEDIsOn": false,
-  "fanOn": false
-}
- - Saved properties.
-================================================================================
+Got Topic: $iothub/twin/res/204
+No Payload
  - END Callback
 ================================================================================
-337871 RPI Pico (Arduino) Sending telemetry . . . devices/Pico10Dev/messages/events/StatD
-{"LightIntensity":89,"msgCount":0}
-OK
-338640 RPI Pico (Arduino) Sending telemetry . . . devices/Pico10Dev/messages/events/StatD
-{"LightIntensity":89,"msgCount":1}
-OK
+
 ```
