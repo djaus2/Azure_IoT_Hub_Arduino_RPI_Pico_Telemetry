@@ -6,9 +6,9 @@
 #define IOT_CONFIG_WIFI_PASSWORD "silly1371"
 
 // Azure IoT
-#define IOT_CONFIG_IOTHUB_FQDN  "Pico12Hub.azure-devices.net"
-#define IOT_CONFIG_DEVICE_ID  "Pico12Dev"
-#define IOT_CONFIG_DEVICE_KEY  "a+ec3EqVDHVxn213sJTItwnTkrSyje/rdrhfXKi4lwU="
+#define IOT_CONFIG_IOTHUB_FQDN  "<Insert>"
+#define IOT_CONFIG_DEVICE_ID  "<Insert>"
+#define IOT_CONFIG_DEVICE_KEY  "<Insert>"
 
 #define PIN_ADC0   26
 

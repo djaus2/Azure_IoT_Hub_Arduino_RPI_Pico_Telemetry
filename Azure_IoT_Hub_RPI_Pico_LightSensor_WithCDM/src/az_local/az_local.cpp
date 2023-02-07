@@ -281,12 +281,46 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                               for (JsonPair kv : rootx) {
                                                   SERIALPRINT(kv.key().c_str());
                                                   SERIAL_PRINT(": ");
-                                                  //JsonVariant val = kv.value();
+                                                  if (kv.value().isNull())
+                                                  {
+                                                      SERIAL_PRINTLN("null");
+                                                  }
+                                                  else
+                                                  {                                                  //JsonVariant val = kv.value();
                                                   //char* valStr = val.as<String>();
-                                                  SERIAL_PRINTLN(kv.value().as<String>());
+                                                      SERIAL_PRINTLN(kv.value().as<String>());
+                                                  }
                                               }
-                                              String patch = rootx["patchId"].as<String>();
-                                              if (rootx["patchId"].isNull())
+                                              SERIALPRINTLN("----");
+                                              bool isNullCall = false;
+                                              if (rootx.containsKey("patchId"))
+                                              {
+                                                  String patch = rootx["patchId"].as<String>();
+                                                  SERIALPRINT("patchId: ")
+                                                  SERIAL_PRINTLN(patch);
+                                                  if (strcmp(patch.c_str(), "null"))
+                                                  {
+                                                      isNullCall = true;
+                                                  }
+                                                  else if (strcmp(patch.c_str(), "Null"))
+                                                  {
+                                                      isNullCall = true;
+                                                  }
+                                                  else if (strcmp(patch.c_str(), "NULL"))
+                                                  {
+                                                      isNullCall = true;
+                                                  }
+                                                  else if(rootx["patchId"].isNull())
+                                                  {
+                                                      isNullCall = true;
+                                                  }
+                                              }
+                                              else
+                                              {
+                                                  SERIALPRINTLN("No patchId!");
+                                                  isNullCall = false;
+                                              }
+                                              if (isNullCall)
                                               {
                                                   SERIALPRINTLN("Null");
                                                   for (JsonPair kv : rootx) {
@@ -307,7 +341,7 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                               }
                                               else //if (strncmp(patch.c_str(),"Init",strlen("Init"))==0)
                                               {
-                                                  SERIALPRINTLN("Init");
+                                                  SERIALPRINTLN("Patching Twin Properties.");
                                                   for (JsonPair kv : rootx)
                                                   {
                                                       if (strncmp(kv.key().c_str(), "patchId", strlen("patchId")) == 0)
@@ -390,13 +424,18 @@ void receivedCallback(char* topic, byte* payload, unsigned int length)
                                                       strcpy(numm, temp); //, strlen(temp));
                                                   }
                                                   strncpy(PropsJson, numm, strlen(numm));
+                                                  SERIALPRINT("PropsJson is now: ");
+                                                  SERIAL_PRINTLN(PropsJson);
+                                                  LoadProperties();
                                                   SERIALPRINTLN(" - Saved Patched PropsJson on device.");
+
+                                                  Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
+                                                  Serial.println("Patched Twin Properties to device.");
+                                                  Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
+
+                                                  ReportProperties();
+                                                  SERIALPRINTLN(" - Reported Props on device.");
                                               }
- /*                                             }
-                                              else
-                                              {
-                                                  SERIALPRINT("?");
-                                              }*/
                                           }
                                           PRINT_END_SUB_5
                                       }
