@@ -71,7 +71,7 @@ void SaveProperties()
 
 void LoadProperties()
 {
-    PRINT_BEGIN_SUB_1("Load Device Properties from Device:");
+    PRINT_BEGIN_SUB_1("Load Device Properties from PropsJson to Props(struct) on Device:");
     {
         DynamicJsonDocument doc(512);
         if (strlen(PropsJson) == 0)
@@ -132,8 +132,8 @@ void ReportProperties()
     {
         send_reported_property("IsRunning", (byte*)&Dev_Properties.IsRunning, sizeof(Dev_Properties.IsRunning), DT_BOOL);
         send_reported_property("TelemetryFrequencyMilliseconds", (byte*)&Dev_Properties.TelemetryFrequencyMilliseconds, sizeof(Dev_Properties.TelemetryFrequencyMilliseconds), DT_INT);
-        send_reported_property("MethodsSubscribed", (byte*)&MethodsSubscribed, sizeof(MethodsSubscribed), DT_BOOL);
-        send_reported_property("CDMessagesSubscribed", (byte*)&CDMessagesSubscribed, sizeof(CDMessagesSubscribed), DT_BOOL);
+       // send_reported_property("MethodsSubscribed", (byte*)&MethodsSubscribed, sizeof(MethodsSubscribed), DT_BOOL);
+       // send_reported_property("CDMessagesSubscribed", (byte*)&CDMessagesSubscribed, sizeof(CDMessagesSubscribed), DT_BOOL);
         send_reported_property("LEDIsOn", (byte*)&Dev_Properties.LEDIsOn, sizeof(Dev_Properties.LEDIsOn), DT_BOOL);
     }
     PRINT_END("Reported")
