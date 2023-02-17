@@ -66,7 +66,7 @@ In get-iothub, Menu 6 then 1. Info at bottom.
 
 ![get-iothub.ps1](./get-iothub.png)
 
-= Select the subscription and login
+- Select the subscription and login
 - Create a new Group
 - Create a new IoT Hub
 - Create a new Device
