@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Devices;
 
 
-namespace InvokeDirectMethod
+namespace TwiningDesiredProperties
 {
     /// <summary>
     /// A sample to illustrate reading Device-to-Cloud messages from a service app.
@@ -31,21 +31,22 @@ namespace InvokeDirectMethod
         {
             var twin = await registryManager.GetTwinAsync(s_DeviceName);
             var patch =
-        @"{
-            tags: {
-                location: {
-                    region: 'AU',
-                    plant: 'Melbourne137'
+            @"{
+                tags: {
+                    location: {
+                        region: 'AU',
+                        plant: 'Melbourne137'
+                    }
+                },
+               properties: {
+                     desired: {
+                        TelemetryFrequencyMilliseconds: 6000,
+                    }
                 }
-            },
-           properties: {
-                 desired: {
-                    TelemetryFrequencyMilliseconds: 6000,
-                }
-            }
-        }";
+            }";
             await registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
 
+            Thread.Sleep(5000);
             var query = registryManager.CreateQuery(
               "SELECT * FROM devices WHERE tags.location.plant = 'Melbourne137'", 100);
             var twinsMelbourne137 = await query.GetNextAsTwinAsync();
