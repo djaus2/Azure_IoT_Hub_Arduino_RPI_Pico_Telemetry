@@ -11,6 +11,8 @@
 
 #include <string.h>
 
+void(*resetFunc) (void) = 0;
+
 char* methodResponseBuffer;
 DynamicJsonDocument methodResponseDoc(64);
 
@@ -106,7 +108,23 @@ bool DoMethod(char* method, char* payload)
         Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" );
         Serial.print("Direct Method: ");
         Serial.println(method);
-        if (strncmp(method, "start", 4) == 0)
+        if (strncmp(method, "reset", 4) == 0)
+        {
+            Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
+            Serial.println("Device is restarting in 5");
+            Serial.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
+
+            for (int i = 5; i > -1; i--)
+            {
+                Serial.println(i);
+                delay(1000);
+            }
+            Serial.println("Restarting");
+            delay(500);
+            //resetFunc(); <-- This did not work!
+            Restart();
+        }
+        else if (strncmp(method, "start", 4) == 0)
         {
             if (!Dev_Properties.IsRunning)
             {

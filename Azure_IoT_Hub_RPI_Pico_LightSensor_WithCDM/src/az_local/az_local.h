@@ -2,6 +2,7 @@
 #define az_local_h
 #include <Arduino.h>
 
+void Restart();
 
 
 // Azure IoT SDK for C includes
@@ -52,6 +53,7 @@ char* getCurrentLocalTimeString();
 // Digits are HEX as per _az_NUMBER_OF_DECIMAL_VALUES
 #define _az_NUMBER_OF_DECIMAL_VALUES 16
 
+extern bool isRestarting;
 extern bool IsRunning;
 extern bool LEDIsOn;
 extern unsigned long TelemetryFrequencyMilliseconds ;

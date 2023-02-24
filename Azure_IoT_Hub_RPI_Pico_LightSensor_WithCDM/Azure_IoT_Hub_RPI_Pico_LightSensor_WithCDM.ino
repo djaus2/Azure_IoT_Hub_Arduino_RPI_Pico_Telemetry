@@ -57,6 +57,7 @@
 //void get_device_twin_document(void);
 
  bool DoSetHardware = false;
+ bool isRestarting= false;
 
 
 // When developing for your own Arduino-based platform,
@@ -331,6 +332,8 @@ static char* getTelemetryPayload(const char * propertyName, int * value )
 
 static void sendTelemetry()
 {
+  if(isRestarting)
+    return;
   digitalWrite(LED_BUILTIN, HIGH);
   Dev_Properties.LEDIsOn = true;
 
@@ -367,6 +370,8 @@ static void sendTelemetry()
 bool SentProp;
 // Arduino setup and loop main functions.
 
+
+
 void setup()
 {
   Serial.begin(115200);
@@ -393,11 +398,16 @@ void setup()
   SentProp = false;
   delay(1000);
   get_device_twin_document();
+  isRestarting= false;
 }
 
 void loop()
 {
-
+  if (isRestarting)
+  {
+    delay(500);
+    return;
+  }
   if (GotTwinDoc)
   {
     if (!SentProp)
@@ -437,6 +447,32 @@ void loop()
 
 void SetHardware()
 {
+}
+
+
+void Restart()
+{
+    
+    isRestarting = true;
+    Dev_Properties.IsRunning = false;
+     delay(2000);
+      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);  
+      MethodsSubscribed = false;
+
+      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
+      CDMessagesSubscribed = false;
+
+      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_TWIN_RESPONSE_SUBSCRIBE_TOPIC );
+      TwinResponseSubscribed = false;
+
+      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_TWIN_PATCH_SUBSCRIBE_TOPIC);
+      TwinPatchSubscribed = false;
+    mqtt_client.disconnect();
+    wifi_client.stop();
+    WiFi.end();
+    if (Serial)
+        Serial.end();
+    setup();
 }
 
 
