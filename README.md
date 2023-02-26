@@ -52,8 +52,9 @@ as in Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM Sketch as a soutrce library,
    - Work in progress wrt Message Replies/Feedback
      - This app displays Feedback but thus far not able to customise..
  
-## 2Do
+## 2Do's
  - Handle ~~CD Messages~~, ~~Methods~~, ~~Device Twins~~ . _All done_.
+ - Component Properties in Device Twin Document.
 
 ## Setting up the IoT Hub
 
