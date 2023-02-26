@@ -14,6 +14,8 @@ peripherals:
 Includes Direcy Methods, Cloud to Device Messages, Patches, as well as Desired/Reported Properties and Patches  
 Refactored each into separate source file.
 
+## Documentation
+Detailed docmentation _(16 posts)_ is now available on [my blog site](https://davidjones.sportronics.com.au/cats/ardpico/)
 
 # Azure IoT Hub RPI Pico LDR with Cloud to Device Methods
 
