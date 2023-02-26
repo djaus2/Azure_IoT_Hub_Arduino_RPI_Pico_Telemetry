@@ -40,17 +40,16 @@ as in Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM Sketch as a soutrce library,
   - A Thermistor temperature sensor as per the DHT11 template.
   - Circuit and code quite similar to the LDR.
  - Azure_IoT_Hub_RPI_Pico_BME280 *Coming*
- - Azure IoT Hub RPI Pico LDR with Cloud to Device Messages and Commands
+ - Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM with Cloud to Device Messages and Commands
    - Messages: All Sketches will display Cloud to Device Messages to it. Unchanged
      - Custom CD Msg feedback is a work in progress.
-   - This version will interpret a number of Cloud to Device Commands (Methods) and run them. Added
+   - This version will interpret a number of Cloud to Device Commands (Methods) and run them.
      - Now sends acknowledgment back to the cloud.
- - CS_CDMessagesIoTHub
-   - A C# Console app to test sending a Cloud To Device Message
-   - Have logged an issue with Azure IoT Explorer: "[BUG] Unexpected end of JSON - CD Message #598" 
-   - Sending CD Messages from this app and sending CD Messages from VS Code don't get that error.
-   - Work in progress wrt Message Replies/Feedback
-     - This app displays Feedback but thus far not able to customise..
+   - Device Twins
+     - Device can GET the Device Twin Document and set teh desired properties
+     - The Device can receive and implement PATCHED properties 
+ - Console Apps
+   - Four console apps for exercisiong various IoT features.
  
 ## 2Do's
  - Handle ~~CD Messages~~, ~~Methods~~, ~~Device Twins~~ . _All done_.
