@@ -2,7 +2,7 @@
 
 **Have started as blog on this** [here](https://davidjones.sportronics.com.au/ardpico/RPI-Pico-Arduino-AzSDK-Context-pic-ard.html)
 
-### Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM SKETCH is now largely complete.
+### Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM SKETCH is complete.
 Has Direct Methods, CD Messages, Patches, Twins and Desired/Reported Properties.  
 Refactoring all bar Messages into separate source files.  
 Has been separated into a source library that could be added to another Sketch
