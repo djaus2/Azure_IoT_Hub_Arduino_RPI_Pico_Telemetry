@@ -10,9 +10,9 @@ peripherals:
 - Light Dependat Resistor (LDR)
 ---
 
-# THIS SKETCH IS A WORK IN PROGRESS
-Adding Methods, Messages, Patches, Twins and Desired/Reported Properties.  
-Also refactoring each into separate source file.
+
+Includes Direcy Methods, Cloud to Device Messages, Patches, as well as Desired/Reported Properties and Patches  
+Refactored each into separate source file.
 
 
 # Azure IoT Hub RPI Pico LDR with Cloud to Device Methods
