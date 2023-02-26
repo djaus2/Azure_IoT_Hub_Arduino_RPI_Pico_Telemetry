@@ -12,13 +12,11 @@ Detailed docmentation _(16 posts)_ is now available on [my blog site](https://da
 
 ## About
 Adds some functioanlity, such as reading environment telemetry to [Azure/azure-sdk-for-c-arduino](https://github.com/Azure/azure-sdk-for-c-arduino) Rpi Pico example. This example has been added as a Pull Request to that repository which was pulled from the fork at [djaus2/azure-sdk-for-c-arduino](https://github.com/djaus2/azure-sdk-for-c-arduino). 
-```diff
-+ The pull request was declined as third party sofwtare is used that is not under Microsoft's remit to keep updated. Hence the need to expand upon it here!
-```  
-The first Sketch here (base) is that same proposed example Sketch and is in  ```examples/Azure_IoT_Hub_RPI_Pico``` in the djaus2 fork. 
-```diff
-- (When merged in the origninal, it should be in the matching folder).
-```
+**_The pull request was declined as third party sofwtare is used that is not under Microsoft's remit to keep updated. Hence the need to expand upon it here!_**
+ ~~(When merged in the original, it should be in the matching folder)~~ 
+
+The first Sketch here (base) is that same proposed example Sketch and is in  ```examples/Azure_IoT_Hub_RPI_Pico``` in the djaus2 fork.  
+
 
 ## Hardware
 Using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Base for further info.
@@ -55,7 +53,7 @@ as in Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM Sketch as a soutrce library,
      - This app displays Feedback but thus far not able to customise..
  
 ## 2Do
- - Handle ~~CD Messages~~, ~~Methods~~, Properties etc.
+ - Handle ~~CD Messages~~, ~~Methods~~, ~~Device Twins~~ . _All done_.
 
 ## Setting up the IoT Hub
 
