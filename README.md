@@ -2,13 +2,21 @@
 
 **Have started as blog on this** [here](https://davidjones.sportronics.com.au/ardpico/RPI-Pico-Arduino-AzSDK-Context-pic-ard.html)
 
-### Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM SKETCH is now largely complete.
+### Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM SKETCH is complete.
 Has Direct Methods, CD Messages, Patches, Twins and Desired/Reported Properties.  
 Refactoring all bar Messages into separate source files.  
 Has been separated into a source library that could be added to another Sketch
 
+## Documentation
+Detailed docmentation _(16 posts)_ is now available on [my blog site](https://davidjones.sportronics.com.au/cats/ardpico/)
+
 ## About
-Adds some functioanlity, such as reading environment telemetry to [Azure/azure-sdk-for-c-arduino](https://github.com/Azure/azure-sdk-for-c-arduino) Rpi Pico example. This example has been added as a Pull Request to that repository which was pulled from the fork at [djaus2/azure-sdk-for-c-arduino](https://github.com/djaus2/azure-sdk-for-c-arduino). The first Sketch here (base) is that same proposed example Sketch and is in  ```examples/Azure_IoT_Hub_RPI_Pico``` in the djaus2 fork. (When merged in the origninal, it should be in the matching folder).
+Adds some functioanlity, such as reading environment telemetry to [Azure/azure-sdk-for-c-arduino](https://github.com/Azure/azure-sdk-for-c-arduino) Rpi Pico example. This example has been added as a Pull Request to that repository which was pulled from the fork at [djaus2/azure-sdk-for-c-arduino](https://github.com/djaus2/azure-sdk-for-c-arduino). 
+**_The pull request was declined as third party sofwtare is used that is not under Microsoft's remit to keep updated. Hence the need to expand upon it here!_**
+ ~~(When merged in the original, it should be in the matching folder)~~ 
+
+The first Sketch here (base) is that same proposed example Sketch and is in  ```examples/Azure_IoT_Hub_RPI_Pico``` in the djaus2 fork.  
+
 
 ## Hardware
 Using a Freenove Ultimate Starter Kit and Rpi Pico. See the ReadMe in the Base for further info.
@@ -32,20 +40,20 @@ as in Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM Sketch as a soutrce library,
   - A Thermistor temperature sensor as per the DHT11 template.
   - Circuit and code quite similar to the LDR.
  - Azure_IoT_Hub_RPI_Pico_BME280 *Coming*
- - Azure IoT Hub RPI Pico LDR with Cloud to Device Messages and Commands
+ - Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM with Cloud to Device Messages and Commands
    - Messages: All Sketches will display Cloud to Device Messages to it. Unchanged
      - Custom CD Msg feedback is a work in progress.
-   - This version will interpret a number of Cloud to Device Commands (Methods) and run them. Added
+   - This version will interpret a number of Cloud to Device Commands (Methods) and run them.
      - Now sends acknowledgment back to the cloud.
- - CS_CDMessagesIoTHub
-   - A C# Console app to test sending a Cloud To Device Message
-   - Have logged an issue with Azure IoT Explorer: "[BUG] Unexpected end of JSON - CD Message #598" 
-   - Sending CD Messages from this app and sending CD Messages from VS Code don't get that error.
-   - Work in progress wrt Message Replies/Feedback
-     - This app displays Feedback but thus far not able to customise..
+   - Device Twins
+     - Device can GET the Device Twin Document and set teh desired properties
+     - The Device can receive and implement PATCHED properties 
+ - Console Apps
+   - Four console apps for exercisiong various IoT features.
  
-## 2Do
- - Handle ~~CD Messages~~, ~~Methods~~, Properties etc.
+## 2Do's
+ - Handle ~~CD Messages~~, ~~Methods~~, ~~Device Twins~~ . _All done_.
+ - Component Properties in Device Twin Document.
 
 ## Setting up the IoT Hub
 
