@@ -29,40 +29,74 @@ namespace TwiningDesiredProperties
 
         public static async Task AddTagsAndQuery()
         {
-            var twin = await registryManager.GetTwinAsync(s_DeviceName);
-            var patch =
+            
+            var patchOff =
             @"{
                 tags: {
                     location: {
                         region: 'AU',
-                        plant: 'Melbourne137'
+                        plant: 'Melb'
                     }
                 },
                properties: {
                      desired: {
-                        TelemetryFrequencyMilliseconds: 6000,
+                        IsRunning : false,
+                        TelemetryFrequencyMilliseconds: 6000
                     }
                 }
             }";
-            await registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
+            var patchOn =
+            @"{
+               properties: {
+                     desired: {
+                        IsRunning : true,
+                        TelemetryFrequencyMilliseconds: 3000
+                    }
+                }
+            }";
 
-            Thread.Sleep(5000);
-            var query = registryManager.CreateQuery(
-              "SELECT * FROM devices WHERE tags.location.plant = 'Melbourne137'", 100);
-            var twinsMelbourne137 = await query.GetNextAsTwinAsync();
-            Console.WriteLine("Devices in Redmond43: {0}",
-              string.Join(", ", twinsMelbourne137.Select(t => t.DeviceId)));
+            for (int i = 0; i < 2; i++)
+            {
+                if (i == 0)
+                {
+                    //Off
+                    var twin = await registryManager.GetTwinAsync(s_DeviceName);
+                    await registryManager.UpdateTwinAsync(twin.DeviceId, patchOff, twin.ETag);
+                    Console.WriteLine("Telemetry Off");
+                }
+                else
+                {
+                    //On
+                    var twin = await registryManager.GetTwinAsync(s_DeviceName);
+                    await registryManager.UpdateTwinAsync(twin.DeviceId, patchOn, twin.ETag);
+                    Console.WriteLine("Telemetry On");
+                }
+                Thread.Sleep(5000);
+                var query = registryManager.CreateQuery(
+                  "SELECT * FROM devices WHERE tags.location.plant = 'Melb'", 100);
+                var twinsMelb = await query.GetNextAsTwinAsync();
+                Console.WriteLine("Devices in Melb: {0}",
+                  string.Join(", ", twinsMelb.Select(t => t.DeviceId)));
 
-            query = registryManager.CreateQuery("SELECT * FROM devices WHERE tags.location.plant = 'Melbourne137' AND properties.reported.IsRunning = false", 100);
-            var twinsInRedmond43UsingCellular = await query.GetNextAsTwinAsync();
-            Console.WriteLine("Devices in Redmond43 using cellular network: {0}",
-              string.Join(", ", twinsInRedmond43UsingCellular.Select(t => t.DeviceId)));
+                {
+                    query = registryManager.CreateQuery("SELECT * FROM devices WHERE tags.location.plant = 'Melb' AND properties.reported.IsRunning = false", 100);
+                    var twinsInMelbourneRunningNotRunningTelemetry = await query.GetNextAsTwinAsync();
+                    Console.WriteLine("Devices in Melb and not running Telemetry: {0}",
+                      string.Join(", ", twinsInMelbourneRunningNotRunningTelemetry.Select(t => t.DeviceId)));
+                }
+                {
+                    query = registryManager.CreateQuery("SELECT * FROM devices WHERE tags.location.plant = 'Melb' AND properties.reported.IsRunning = true", 100);
+                    var twinsInMelbourneRunningRunningTelemetry = await query.GetNextAsTwinAsync();
+                    Console.WriteLine("Devices in Melb and  running Telemetry: {0}",
+                      string.Join(", ", twinsInMelbourneRunningRunningTelemetry.Select(t => t.DeviceId)));
+                }
+            }
         }
 
         public static async Task Main(string[] args)
         {
             registryManager = RegistryManager.CreateFromConnectionString(s_connectionString);
-            AddTagsAndQuery().Wait();
+            await AddTagsAndQuery();
             Console.WriteLine("Press Enter to exit.");
             Console.ReadLine();
         }
