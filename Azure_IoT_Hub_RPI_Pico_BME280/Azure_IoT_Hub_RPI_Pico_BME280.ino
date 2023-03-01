@@ -26,16 +26,10 @@
 
 // Sensors etc
 /*
-BME280 I2C Test.ino
 
 This code shows how to record data from the BME280 environmental sensor
-using I2C interface. This file is an example file, part of the Arduino
-BME280 library.
+using I2C interface. 
 
-GNU General Public License
-
-Written: Dec 30 2015.
-Last Updated: Oct 07 2017.
 
 Connecting the BME280 Sensor:
 Sensor              ->  Board
