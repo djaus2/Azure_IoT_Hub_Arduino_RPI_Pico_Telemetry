@@ -11,7 +11,12 @@ peripherals:
 ---
 
 
-# Azure IoT Hub RPI Pico BME280
+
+
+# Azure IoT Hub RPI Pico BME280 with CDM
+
+### This BME280 version has Direct Methods and Device Twins
+
 
 -   [Getting Started](#Getting-Started)
     
