@@ -132,26 +132,76 @@ az iot hub monitor-events --login <your Azure IoT Hub owner connection string in
 
 ## Code
 
-The main code change here is to getTelemetryPayload() :
-```
+### Declarations
+
+```c
 // Sensors etc
-#include <dht.h>
+#include <BME280I2C.h>
+#include <Wire.h>
+BME280I2C::Settings settings(
+   BME280::OSR_X1,
+   BME280::OSR_X1,
+   BME280::OSR_X1,
+   BME280::Mode_Forced,
+   BME280::StandbyTime_1000ms,
+   BME280::Filter_Off,
+   BME280::SpiEnable_False,
+   //BME280I2C::I2CAddr_0x76 
+   BME280I2C::I2CAddr_0x77
+);
+//BME280I2C bme;    // Default : forced mode, standby time = 1000 ms
+                  // Oversampling = pressure �1, temperature �1, humidity �1, filter off,
+
+//////////////////////////////////////////////////////////////////
+BME280I2C bme(settings);
 #include <ArduinoJson.h>
+```
 
-int dhtPin = 15;                  // the number of the DHT11 sensor pin
-dht DHT;
+### hwSetup()
+Called from Setup()
 
+```c
+void hwSetup()
+{
+  while (!Serial){}
+
+  Wire.begin();
+
+  while(!bme.begin())
+  {
+    Serial.println("Could not find BME280 sensor!");
+    delay(1000);
+  }
+
+  switch(bme.chipModel())
+  {
+     case BME280::ChipModel_BME280:
+       Serial.println("Found BME280 sensor! Success.");
+       break;
+     case BME280::ChipModel_BMP280:
+       Serial.println("Found BMP280 sensor! No Humidity available.");
+       break;
+     default:
+       Serial.println("Found UNKNOWN sensor! Error!");
+  }
+}
+```
+
+### getTelemetryPayload()
+
+```c
 DynamicJsonDocument doc(1024);
-char jsonStr[64];
+char jsonStr[128]; // Meeded to bigger as more data
 char ret[64];
 
 static char* getTelemetryPayload()
 {
-  int chk = DHT.read11(dhtPin);
-  if (chk == DHTLIB_OK) {
+  bool chk = ReadSensor(); // See below
+  if (chk) {
     doc["msgCount"]   = telemetry_send_count ++;
-    doc["temp"]   = DHT.temperature;
-    doc["humidity"]   = DHT.humidity;
+    doc["temperature"]   = temperature;
+    doc["humidity"]   = humidity;
+    doc["pressure"]   = pressure;
     serializeJson(doc, jsonStr);
     az_span temp_span = az_span_create_from_str(jsonStr);
     az_span_to_str((char *)telemetry_payload, sizeof(telemetry_payload), temp_span);
@@ -159,5 +209,29 @@ static char* getTelemetryPayload()
   else
     telemetry_payload[0] = 0;
   return (char*)telemetry_payload;
+}
+```
+
+### ReadSensor() separates out Sensor code:
+
+```c
+double temperature(NAN), humidity(NAN), pressure(NAN);
+
+static bool ReadSensor()
+{
+  Stream* client = &Serial;
+   float temp(NAN), hum(NAN), press(NAN);
+
+   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+   BME280::PresUnit presUnit(BME280::PresUnit_Pa);
+
+   bme.read(press, temp, hum, tempUnit, presUnit);
+   
+   //ArduinoJson requires double not float as get extra spurious dps
+   temperature = Round4Places(temp);
+   pressure = Round4Places(press);   
+   humidity = Round4Places(hum);
+
+   return true;
 }
 ```
