@@ -51,15 +51,18 @@ Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repository)
 - Upload then switch to the Serial Monitor.
 - You should see something like:
 ```
-.........WiFi connected, IP address: 192.168.0.14
-Setting time using SNTP......done!
-Current time: Sun Jan  1 04:30:55 2023
-Client ID: PicoDev137
-Username: PicoHub137.azure-devices.net/PicoDev137/?api-version=2020-09-30&DeviceClientType=c%2F1.5.0-beta.1(ard;rpipico)
-MQTT connecting ... connected.
-11352 RPI Pico (Arduino) Sending telemetry . . . OK
-14052 RPI Pico (Arduino) Sending telemetry . . . OK
-16947 RPI Pico (Arduino) Sending telemetry . . . OK
+1752934 RPI Pico (Arduino) Sending telemetry . . . 
+Temperature: 20.64�C		Humidity: 62.61% RH		Pressure: 100975.83Pa
+{"msgCount":679,"temperature":20.64,"humidity":62.6064,"pressure":100975.8281}
+OK
+1755698 RPI Pico (Arduino) Sending telemetry . . . 
+Temperature: 20.65�C		Humidity: 62.63% RH		Pressure: 100974.90Pa
+{"msgCount":680,"temperature":20.65,"humidity":62.6309,"pressure":100974.8984}
+OK
+1758398 RPI Pico (Arduino) Sending telemetry . . . 
+Temperature: 20.64�C		Humidity: 62.63% RH		Pressure: 100974.94Pa
+{"msgCount":681,"temperature":20.64,"humidity":62.6279,"pressure":100974.9375}
+OK
 ```
 
 ## Monitor Telemetry
