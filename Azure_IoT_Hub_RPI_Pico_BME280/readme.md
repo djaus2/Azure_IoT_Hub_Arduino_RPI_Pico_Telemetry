@@ -15,7 +15,7 @@ peripherals:
 
 -   [Getting Started](#Getting-Started)
     
--   [Setup for the DHT11](#Setup-for-the-DHT11)
+-   [Setup for the BME280](#Setup-for-the-DHT11)
 
 ## About
 
