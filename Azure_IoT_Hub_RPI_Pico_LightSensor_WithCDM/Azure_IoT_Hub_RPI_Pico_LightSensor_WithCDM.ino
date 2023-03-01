@@ -46,6 +46,7 @@
 #include <bearssl/bearssl_hmac.h>
 #include <libb64/cdecode.h>
 
+// Azure IoT SDK for C includes
 #include <az_core.h>
 #include <az_iot.h>
 #include <azure_ca.h>
@@ -102,6 +103,7 @@ static char base64_decoded_device_key[32];
 
 static void connectToWiFi()
 {
+  while(!Serial){}
   Serial.println();
   Serial.print("Connecting to WIFI SSID ");
   Serial.println(ssid);
@@ -375,9 +377,9 @@ bool SentProp;
 void setup()
 {
   Serial.begin(115200);
-
+  while(!Serial){}	
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, false);
+  digitalWrite(LED_BUILTIN, HIGH);
   GotTwinDoc=false;
 
   MethodsSubscribed = false;
@@ -439,10 +441,6 @@ void loop()
   // MQTT loop must be called to process Device-to-Cloud and Cloud-to-Device.
   mqtt_client.loop();
   delay(500);
-  //if (Dev_Properties.fanOn)
-  //Serial.print('+');
-  //else
-  //Serial.print('-');
 }
 
 void SetHardware()

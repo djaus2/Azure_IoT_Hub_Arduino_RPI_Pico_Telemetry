@@ -17,8 +17,10 @@ struct Properties {
 #define ACK_MODE full
 #define CD_MESSAGE_OUTCOME success
 
+#ifndef TELEMETRY_FREQUENCY_MILLISECS
 // Publish 1 message every 10 seconds
 #define TELEMETRY_FREQUENCY_MILLISECS 10000;
+#endif
 
 // Move to header if needed:
 bool isNumeric(const char* s);

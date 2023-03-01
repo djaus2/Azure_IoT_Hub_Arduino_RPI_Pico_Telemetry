@@ -24,6 +24,8 @@
  * file.
  */
 
+#include "iot_configs.h"
+
 // Sensors etc
 /*
 
@@ -61,8 +63,6 @@ BME280I2C::Settings settings(
 BME280I2C bme(settings);
 
 
-#include <ArduinoJson.h>
-
 // C99 libraries
 #include <cstdlib>
 #include <stdbool.h>
@@ -73,7 +73,7 @@ BME280I2C bme(settings);
 
 #include <WiFi.h>
 
-#include <PubSubClient.h>
+
 #include <WiFiClientSecure.h>
 #include <base64.h>
 #include <bearssl/bearssl.h>
@@ -84,9 +84,16 @@ BME280I2C bme(settings);
 #include <az_core.h>
 #include <az_iot.h>
 #include <azure_ca.h>
+#include <az_iot_hub_client.h>
+#include <PubSubClient.h>
+#include <ArduinoJson.h>
 
-// Additional sample headers
-#include "iot_configs.h"
+#include "src/az_local/az_local.h"
+//void get_device_twin_document(void);
+
+ bool DoSetHardware = false;
+ bool isRestarting= false;
+
 
 // When developing for your own Arduino-based platform,
 // please follow the format '(ard;<platform>)'. (Modified this)
@@ -104,21 +111,27 @@ static const char* password = IOT_CONFIG_WIFI_PASSWORD;
 static const char* host = IOT_CONFIG_IOTHUB_FQDN;
 static const char* device_id = IOT_CONFIG_DEVICE_ID;
 static const char* device_key = IOT_CONFIG_DEVICE_KEY;
+
+unsigned long next_telemetry_send_time_ms;
+uint32_t telemetry_send_count;
+
+bool MethodsSubscribed = false;
+bool CDMessagesSubscribed = false;
+bool TwinResponseSubscribed = false;
+bool TwinPatchSubscribed = false;
+
 static const int port = 8883;
 
 // Memory allocated for the sample's variables and structures.
 static WiFiClientSecure wifi_client;
 static X509List cert((const char*)ca_pem);
-static PubSubClient mqtt_client(wifi_client);
-static az_iot_hub_client client;
+PubSubClient mqtt_client(wifi_client);
+az_iot_hub_client client;
 static char sas_token[200];
 static uint8_t signature[512];
 static unsigned char encrypted_signature[32];
 static char base64_decoded_device_key[32];
-static unsigned long next_telemetry_send_time_ms = 0;
-static char telemetry_topic[128];
-static uint8_t telemetry_payload[100];
-static uint32_t telemetry_send_count = 0;
+
 
 // Auxiliary functions
 
@@ -157,7 +170,7 @@ static void initializeTime()
   Serial.println("done!");
 }
 
-static char* getCurrentLocalTimeString()
+ char* getCurrentLocalTimeString()
 {
   time_t now = time(NULL);
   return ctime(&now);
@@ -169,17 +182,7 @@ static void printCurrentTime()
   Serial.print(getCurrentLocalTimeString());
 }
 
-void receivedCallback(char* topic, byte* payload, unsigned int length)
-{
-  Serial.print("Received [");
-  Serial.print(topic);
-  Serial.print("]: ");
-  for (int i = 0; i < length; i++)
-  {
-    Serial.print((char)payload[i]);
-  }
-  Serial.println("");
-}
+
 
 static void initializeClients()
 {
@@ -317,8 +320,17 @@ static int connectToAzureIoTHub()
     }
   }
 
-  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);
+  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);  
+  MethodsSubscribed = true;
 
+  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
+  CDMessagesSubscribed = true;
+
+  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_TWIN_RESPONSE_SUBSCRIBE_TOPIC );
+  TwinResponseSubscribed = true;
+
+  mqtt_client.subscribe(AZ_IOT_HUB_CLIENT_TWIN_PATCH_SUBSCRIBE_TOPIC);
+  TwinPatchSubscribed = true;
   return 0;
 }
 
@@ -342,27 +354,33 @@ static void establishConnection()
   }
 
   digitalWrite(LED_BUILTIN, LOW);
+  Dev_Properties.LEDIsOn = false;
 }
-
 
 DynamicJsonDocument doc(1024);
 char jsonStr[128];
 char ret[64];
 
 
+
 // Don't want too many decimal plces in the json string
-double Round(float value, long trunc)
+double Round(float value, long n)
 {
+    long trunc  = 1;
+    for (int i=0;i<n;i++)
+    {
+      trunc *=10;
+    }    
     double dValue = value;
     long ret = round(dValue* trunc);
     return (((double) ret) / trunc);
 }
 
-double Round4Places(float value)
+double Round2Places(float value)
 {
     if (value == NAN)
       return NAN;
-    double ret = Round(value,10000);
+    double ret = Round(value,2);
     return ret;
 }
 
@@ -378,13 +396,13 @@ static bool ReadSensor()
 
    bme.read(press, temp, hum, tempUnit, presUnit);
 
-   temperature = Round4Places(temp);
-   pressure = Round4Places(press);   
-   humidity = Round4Places(hum);
+   temperature = Round2Places(temp);
+   pressure = Round2Places(press);   
+   humidity = Round2Places(hum);
 
    client->print("Temperature: ");
    client->print(temperature);
-   client->print("�"+ String(tempUnit == BME280::TempUnit_Celsius ? 'C' :'F'));
+   client->print("?"+ String(tempUnit == BME280::TempUnit_Celsius ? 'C' :'F'));
    client->print("\t\tHumidity: ");
    client->print(humidity);
    client->print("% RH");
@@ -413,21 +431,32 @@ static char* getTelemetryPayload()
 
 static void sendTelemetry()
 {
+  if(isRestarting)
+    return;
   digitalWrite(LED_BUILTIN, HIGH);
+  Dev_Properties.LEDIsOn = true;
+
   Serial.print(millis());
   
   Serial.println(" RPI Pico (Arduino) Sending telemetry . . . ");
- 
+
+
+  char *   payload = getTelemetryPayload();
+  
+  // Add a property to the message  
+  az_iot_message_properties * properties = GetProperties(temperature);
+  
   if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(
-          &client, NULL, telemetry_topic, sizeof(telemetry_topic), NULL)))
+          &client, properties, telemetry_topic, sizeof(telemetry_topic), NULL)))
   {
     Serial.println("Failed az_iot_hub_client_telemetry_get_publish_topic");
     return;
   }
-  char *   payload = getTelemetryPayload();
+
+  Serial.println(telemetry_topic);
+  Serial.println(payload);
   if (strlen(payload)!= 0)
   {
-    Serial.println(payload);
     mqtt_client.publish(telemetry_topic, payload, false);
     Serial.println("OK");
   }
@@ -435,10 +464,10 @@ static void sendTelemetry()
     Serial.println(" NOK");
   delay(100);
   digitalWrite(LED_BUILTIN, LOW);
+  Dev_Properties.LEDIsOn = false;
 }
-
+bool SentProp;
 // Arduino setup and loop main functions.
-
 
 
 void hwSetup()
@@ -466,31 +495,107 @@ void hwSetup()
   }
 }
 
+
 void setup()
 {
   Serial.begin(115200);
   while(!Serial){}	
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
+  GotTwinDoc=false;
+
+  MethodsSubscribed = false;
+  CDMessagesSubscribed = false;
+  TwinResponseSubscribed = false;
+  TwinPatchSubscribed = false;
+
+  while(!Serial)
+  {}
   establishConnection();
+  InitProperties();
+  SaveProperties();
+  LoadProperties();
+  //PrintProperties();
+  //PrintStructProperties();
+  next_telemetry_send_time_ms = 0;
+  telemetry_send_count = 0;
+  SentProp = false;
+  delay(1000);
+  get_device_twin_document();
+  isRestarting= false;
+  
   hwSetup();
 }
 
 void loop()
 {
-  if (millis() > next_telemetry_send_time_ms)
+  if (isRestarting)
   {
-    // Check if connected, reconnect if needed.
-    if (!mqtt_client.connected())
-    {
-      establishConnection();
+    delay(500);
+    return;
+  }
+  if (GotTwinDoc)
+  {
+    if (!SentProp)
+    {    
+        ReportProperties();
+        SentProp=true;
     }
+  }
+  if(DoSetHardware)
+  {
+    SetHardware();
+  }
+  if(Dev_Properties.IsRunning)
+  {
+      if (millis() > next_telemetry_send_time_ms)
+      {
+          // Check if connected, reconnect if needed.
+          if (!mqtt_client.connected())
+          {
+            establishConnection();
+          }
 
-    sendTelemetry();
-    next_telemetry_send_time_ms = millis() + TELEMETRY_FREQUENCY_MILLISECS;
+          sendTelemetry();
+
+          next_telemetry_send_time_ms = millis() + Dev_Properties.TelemetryFrequencyMilliseconds;
+      }
   }
 
   // MQTT loop must be called to process Device-to-Cloud and Cloud-to-Device.
   mqtt_client.loop();
   delay(500);
 }
+
+void SetHardware()
+{
+}
+
+
+void Restart()
+{
+    
+    isRestarting = true;
+    Dev_Properties.IsRunning = false;
+     delay(2000);
+      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_C2D_SUBSCRIBE_TOPIC);  
+      MethodsSubscribed = false;
+
+      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_METHODS_SUBSCRIBE_TOPIC);
+      CDMessagesSubscribed = false;
+
+      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_TWIN_RESPONSE_SUBSCRIBE_TOPIC );
+      TwinResponseSubscribed = false;
+
+      mqtt_client.unsubscribe(AZ_IOT_HUB_CLIENT_TWIN_PATCH_SUBSCRIBE_TOPIC);
+      TwinPatchSubscribed = false;
+    mqtt_client.disconnect();
+    wifi_client.stop();
+    WiFi.end();
+    if (Serial)
+        Serial.end();
+    setup();
+}
+
+
+

@@ -48,8 +48,12 @@ as in Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM Sketch as a soutrce library,
    - This version will interpret a number of Cloud to Device Commands (Methods) and run them.
      - Now sends acknowledgment back to the cloud.
    - Device Twins
-     - Device can GET the Device Twin Document and set teh desired properties
+     - Device can GET the Device Twin Document and set the desired properties
      - The Device can receive and implement PATCHED properties 
+ - Azure_IoT_Hub_RPI_Pico_BME280_WithCDM_
+   - As per BME280 above 
+   - Also Direct Methods and Device Twins as above.
+   - Get Temperature, Pressure and Humidity, in I2C mode
  - Console Apps
    - Four console apps for exercisiong various IoT features.
  
