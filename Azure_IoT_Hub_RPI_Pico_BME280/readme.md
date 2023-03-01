@@ -144,7 +144,27 @@ az iot hub monitor-events -n <your hub name>
 - Right click on that and select "Start Monitoring Built-In Endpoint"
 
 ```
-//Coming 2Do
+IoTHubMonitor] [3:43:55 PM] Message received from [PicoDev7]:
+{
+  "msgCount": 343,
+  "temperature": 22.43,
+  "humidity": 56.915,
+  "pressure": 100860.5313
+}
+[IoTHubMonitor] [3:43:57 PM] Message received from [PicoDev7]:
+{
+  "msgCount": 344,
+  "temperature": 22.43,
+  "humidity": 56.916,
+  "pressure": 100871.9922
+}
+[IoTHubMonitor] [3:43:59 PM] Message received from [PicoDev7]:
+{
+  "msgCount": 345,
+  "temperature": 22.42,
+  "humidity": 56.915,
+  "pressure": 100870.2891
+}
 ```
 
 ## Code
