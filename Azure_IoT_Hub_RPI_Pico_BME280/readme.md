@@ -44,7 +44,7 @@ This example addes a BME280 Temperature-Pressure-Humidity Sensor to generate rea
 
 ## Circuit
 
-![BME280 Circuit Coming](./DHT11-Circuit.png) IGNORE (Coming)
+![BME280 Circuit Coming](./BME280-Circuit.png) 2Do
 
 Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repository) 
 
