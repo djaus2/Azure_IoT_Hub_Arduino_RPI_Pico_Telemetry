@@ -97,11 +97,41 @@ Wed Mar 01 2023 12:06:39 GMT+1100 (Australian Eastern Daylight Time):
 ### In a Terminal
 - In a desktop terminal context that has AzureCli with the IoT Extensiomn installed (See Base ReadMe):  
 ```
-az iot hub monitor-events --login <your Azure IoT Hub owner connection string in quotes> --device-id <your device id>
+az login
+```
+...first, then.... 
+``` 
+az iot hub monitor-events -n <your hub name>
 ```
 
 ```
-//Coming 2Do
+{
+    "event": {
+        "origin": "PicoDev7",
+        "module": "",
+        "interface": "",
+        "component": "",
+        "payload": "{\"msgCount\":164,\"temperature\":22.62,\"humidity\":56.1025,\"pressure\":100862.1328}"
+    }
+}
+{
+    "event": {
+        "origin": "PicoDev7",
+        "module": "",
+        "interface": "",
+        "component": "",
+        "payload": "{\"msgCount\":165,\"temperature\":22.62,\"humidity\":56.0801,\"pressure\":100859.4844}"
+    }
+}
+{
+    "event": {
+        "origin": "PicoDev7",
+        "module": "",
+        "interface": "",
+        "component": "",
+        "payload": "{\"msgCount\":166,\"temperature\":22.62,\"humidity\":56.1025,\"pressure\":100867.4375}"
+    }
+}
 ```
 
 ### In VS Code
