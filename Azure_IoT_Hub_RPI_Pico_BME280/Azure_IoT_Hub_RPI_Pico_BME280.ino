@@ -25,6 +25,48 @@
  */
 
 // Sensors etc
+/*
+BME280 I2C Test.ino
+
+This code shows how to record data from the BME280 environmental sensor
+using I2C interface. This file is an example file, part of the Arduino
+BME280 library.
+
+GNU General Public License
+
+Written: Dec 30 2015.
+Last Updated: Oct 07 2017.
+
+Connecting the BME280 Sensor:
+Sensor              ->  Board
+-----------------------------
+Vin (Voltage In)    ->  3.3V
+Gnd (Ground)        ->  Gnd
+SDA (Serial Data)   ->  4
+SCK (Serial Clock)  ->  5
+
+ */
+
+#include <BME280I2C.h>
+#include <Wire.h>
+BME280I2C::Settings settings(
+   BME280::OSR_X1,
+   BME280::OSR_X1,
+   BME280::OSR_X1,
+   BME280::Mode_Forced,
+   BME280::StandbyTime_1000ms,
+   BME280::Filter_Off,
+   BME280::SpiEnable_False,
+   //BME280I2C::I2CAddr_0x76 
+   BME280I2C::I2CAddr_0x77
+);
+//BME280I2C bme;    // Default : forced mode, standby time = 1000 ms
+                  // Oversampling = pressure �1, temperature �1, humidity �1, filter off,
+
+//////////////////////////////////////////////////////////////////
+BME280I2C bme(settings);
+
+
 #include <ArduinoJson.h>
 
 // C99 libraries
@@ -308,21 +350,67 @@ static void establishConnection()
   digitalWrite(LED_BUILTIN, LOW);
 }
 
-#define PIN_ADC0   26
 
 DynamicJsonDocument doc(1024);
-char jsonStr[64];
+char jsonStr[128];
 char ret[64];
+
+
+// Don't want too many decimal plces in the json string
+double Round(float value, long trunc)
+{
+    double dValue = value;
+    long ret = round(dValue* trunc);
+    return (((double) ret) / trunc);
+}
+
+double Round4Places(float value)
+{
+    if (value == NAN)
+      return NAN;
+    double ret = Round(value,10000);
+    return ret;
+}
+
+double temperature(NAN), humidity(NAN), pressure(NAN);
+
+static bool ReadSensor()
+{
+  Stream* client = &Serial;
+   float temp(NAN), hum(NAN), press(NAN);
+
+   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+   BME280::PresUnit presUnit(BME280::PresUnit_Pa);
+
+   bme.read(press, temp, hum, tempUnit, presUnit);
+
+   temperature = Round4Places(temp);
+   pressure = Round4Places(press);   
+   humidity = Round4Places(hum);
+
+   client->print("Temperature: ");
+   client->print(temperature);
+   client->print("�"+ String(tempUnit == BME280::TempUnit_Celsius ? 'C' :'F'));
+   client->print("\t\tHumidity: ");
+   client->print(humidity);
+   client->print("% RH");
+   client->print("\t\tPressure: ");
+   client->print(pressure);
+   client->println("Pa");
+   return true;
+}
 
 static char* getTelemetryPayload()
 {
-    int adcValue = analogRead(PIN_ADC0);                            //read ADC pin
-    if(adcValue>-1) {
-      doc["msgCount"]   = telemetry_send_count ++;
-      doc["value"]   = map(adcValue, 0, 1023, 0, 255);
-      serializeJson(doc, jsonStr);
-      az_span temp_span = az_span_create_from_str(jsonStr);
-      az_span_to_str((char *)telemetry_payload, sizeof(telemetry_payload), temp_span);
+  bool chk = ReadSensor();
+  if (chk) {
+    doc["msgCount"]   = telemetry_send_count ++;
+    doc["temperature"]   = temperature;
+    doc["humidity"]   = humidity;
+    doc["pressure"]   = pressure;
+    serializeJson(doc, jsonStr);
+    az_span temp_span = az_span_create_from_str(jsonStr);
+    az_span_to_str((char *)telemetry_payload, sizeof(telemetry_payload), temp_span);
   }
   else
     telemetry_payload[0] = 0;
@@ -334,7 +422,7 @@ static void sendTelemetry()
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.print(millis());
   
-  Serial.print(" RPI Pico (Arduino) Sending telemetry . . . ");
+  Serial.println(" RPI Pico (Arduino) Sending telemetry . . . ");
  
   if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(
           &client, NULL, telemetry_topic, sizeof(telemetry_topic), NULL)))
@@ -343,7 +431,6 @@ static void sendTelemetry()
     return;
   }
   char *   payload = getTelemetryPayload();
-
   if (strlen(payload)!= 0)
   {
     Serial.println(payload);
@@ -358,11 +445,39 @@ static void sendTelemetry()
 
 // Arduino setup and loop main functions.
 
+
+
+void hwSetup()
+{
+  while (!Serial){}
+
+  Wire.begin();
+
+  while(!bme.begin())
+  {
+    Serial.println("Could not find BME280 sensor!");
+    delay(1000);
+  }
+
+  switch(bme.chipModel())
+  {
+     case BME280::ChipModel_BME280:
+       Serial.println("Found BME280 sensor! Success.");
+       break;
+     case BME280::ChipModel_BMP280:
+       Serial.println("Found BMP280 sensor! No Humidity available.");
+       break;
+     default:
+       Serial.println("Found UNKNOWN sensor! Error!");
+  }
+}
+
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   establishConnection();
+  hwSetup();
 }
 
 void loop()

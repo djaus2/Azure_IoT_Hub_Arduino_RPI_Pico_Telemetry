@@ -331,16 +331,7 @@ static char* getTelemetryPayload()
     telemetry_payload[0] = 0;
   return (char*)telemetry_payload;
 }
-/*
-static char* getTelemetryPayload()
-{
-  ReadSensor();
-  az_span temp_span = az_span_create_from_str(jsonStr);
-  az_span temp_span = az_span_create(telemetry_payload, sizeof(telemetry_payload));
-  temp_span = az_span_copy(temp_span, AZ_SPAN_FROM_STR(" "));
-  temp_span = az_span_copy_u8(temp_span, '\0');
-  return (char*)telemetry_payload;
-}*/
+
 
 static void sendTelemetry()
 {
