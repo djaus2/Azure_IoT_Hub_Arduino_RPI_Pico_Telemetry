@@ -40,7 +40,7 @@ as in Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM Sketch as a soutrce library,
   - A Thermistor temperature sensor as per the DHT11 template.
   - Circuit and code quite similar to the LDR.
  - Azure_IoT_Hub_RPI_Pico_BME280
-   - **_Done_**
+   - **_Done_**  Basic Mode _(Telemetry only)_
    - Get Temperature, Pressure and Humidity, in I2C mode
  - Azure_IoT_Hub_RPI_Pico_LightSensor_WithCDM with Cloud to Device Messages and Commands
    - Messages: All Sketches will display Cloud to Device Messages to it. Unchanged
