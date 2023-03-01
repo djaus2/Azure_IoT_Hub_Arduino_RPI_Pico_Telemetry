@@ -30,8 +30,8 @@ This example addes a BME280 Temperature-Pressure-Humidity Sensor to generate rea
 ## Setup for the BME280
 
 ![BME280](bme280.jpg)
-- Pico Pin 4 to SDA on BME280
-- Pico Pin 5 to SDI on BME280
+- Pico Pin 4 to SDI on BME280
+- Pico Pin 5 to SCL on BME280
 - Setup the WiFi and Azure IoT Hub connection in iot_configs.h as per the Base._ 
 - Add this BME280 library:
   - Search for BME280
