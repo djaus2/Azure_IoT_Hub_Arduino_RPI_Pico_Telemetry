@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // SPDX-License-Identifier: MIT
 
-#define IOT_CONFIG_WIFI_SSID "APQLZM"
-#define IOT_CONFIG_WIFI_PASSWORD "silly1371"
+#define IOT_CONFIG_WIFI_SSID "SSID"
+#define IOT_CONFIG_WIFI_PASSWORD "PWD"
 
 // Azure IoT
-#define IOT_CONFIG_IOTHUB_FQDN  "PicoHub7.azure-devices.net"
-#define IOT_CONFIG_DEVICE_ID  "PicoDev7"
-#define IOT_CONFIG_DEVICE_KEY  "WiMJBAZbaMircmUtg+0aFiUChVxys7EwWC0Ygn8keZI="
+#define IOT_CONFIG_IOTHUB_FQDN "[your Azure IoT host name].azure-devices.net"
+#define IOT_CONFIG_DEVICE_ID "Device ID"
+#define IOT_CONFIG_DEVICE_KEY "Device Key"
 
 
 // Publish 1 message every 2 seconds

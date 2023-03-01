@@ -11,7 +11,7 @@ peripherals:
 ---
 
 
-# Azure IoT Hub RPI Pico DHT11
+# Azure IoT Hub RPI Pico BME280
 
 -   [Getting Started](#Getting-Started)
     
@@ -19,7 +19,7 @@ peripherals:
 
 ## About
 
-This example addes a DHT11 Temperature-Pressure Sensor to geneerate real Telemetry data.
+This example addes a BME280 Temperature-Pressure-Humidity Sensor to generate real Telemetry data.
 
 > Nb: THe SDK API is documented [here](https://azuresdkdocs.blob.core.windows.net/$web/c/az_iot/1.1.0-beta.2/index.html)
 
@@ -27,14 +27,13 @@ This example addes a DHT11 Temperature-Pressure Sensor to geneerate real Telemet
 
 - Get the Pico sending some simulated data as per the Base project ReadMe.
 
-## Setup for the DHT11
+## Setup for the BME280
 - Setup the WiFi and Azure IoT Hub connection in iot_configs.h as per the Base._ 
-- Add this DHT11 library:
-  - As previuosly mentioned, the FrenoveStarter Kit for the Rpi Pico was used:
-    - Clone the repoitory https://github.com/Freenove/Freenove_Ultimate_Starter_Kit_for_Raspberry_Pi_Pico
-  - Open Arduino>Sketch>Include Library>Add .ZIP Library...
-  - Starting at the root of the clone locally, select the provided```Freenove_Ultimate_Starter_Kit_for_Raspberry_Pi_Pico\C\Libraries\DHT.zip```。
-    - Ps: You might like to run Sketch_25.1_Temperature_and_Humidity_Sensor from ```Freenove_Ultimate_Starter_Kit_for_Raspberry_Pi_Pico-master\C\Sketches\Sketch_25.1_Temperature_and_Humidity_Sensor``` in the cloned contents first to test the DHT11.
+- Add this BME280 library:
+  - Search for BME280
+    - Select and install the one by Tyler Glenn
+- Pico Pin 4 to SDA on BME280
+- Pico Pin 5 to SDI on BME280
 - Add The ArduinoJson Library:
   - Ref: https://arduinojson.org/
   - In the Arduino Library Manager search for “ArduinoJson”
