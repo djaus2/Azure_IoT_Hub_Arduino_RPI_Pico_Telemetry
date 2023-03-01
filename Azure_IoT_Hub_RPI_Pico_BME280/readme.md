@@ -42,7 +42,7 @@ This example addes a BME280 Temperature-Pressure-Humidity Sensor to generate rea
 
 ## Circuit
 
-![DHT11-Circuit](./DHT11-Circuit.png)
+![DHT11-Circuit](./DHT11-Circuit.png) IGNORE (Coming)
 
 
 Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repository) 
@@ -67,6 +67,32 @@ OK
 
 ## Monitor Telemetry
 
+### In Azure IoT Explorer
+```
+Wed Mar 01 2023 12:06:41 GMT+1100 (Australian Eastern Daylight Time):
+{
+  "body": {
+    "msgCount": 683,
+    "temperature": 20.65,
+    "humidity": 62.6289,
+    "pressure": 100976.6875
+  },
+  "enqueuedTime": "Wed Mar 01 2023 12:06:41 GMT+1100 (Australian Eastern Daylight Time)",
+  "properties": {}
+}
+Wed Mar 01 2023 12:06:39 GMT+1100 (Australian Eastern Daylight Time):
+{
+  "body": {
+    "msgCount": 682,
+    "temperature": 20.64,
+    "humidity": 62.6406,
+    "pressure": 100981.1172
+  },
+  "enqueuedTime": "Wed Mar 01 2023 12:06:39 GMT+1100 (Australian Eastern Daylight Time)",
+  "properties": {}
+}
+```
+
 ### In a Terminal
 - In a desktop terminal context that has AzureCli with the IoT Extensiomn installed (See Base ReadMe):  
 ```
@@ -74,33 +100,7 @@ az iot hub monitor-events --login <your Azure IoT Hub owner connection string in
 ```
 
 ```
-{
-    "event": {
-        "origin": "PicoDev137",
-        "module": "",
-        "interface": "",
-        "component": "",
-        "payload": "{\"msgCount\":163,\"temp\":31.2,\"humidity\":45}"
-    }
-}
-{
-    "event": {
-        "origin": "PicoDev137",
-        "module": "",
-        "interface": "",
-        "component": "",
-        "payload": "{\"msgCount\":164,\"temp\":31.2,\"humidity\":45}"
-    }
-}
-{
-    "event": {
-        "origin": "PicoDev137",
-        "module": "",
-        "interface": "",
-        "component": "",
-        "payload": "{\"msgCount\":165,\"temp\":31.2,\"humidity\":44}"
-    }
-}
+//Coming 2Do
 ```
 
 ### In VS Code
@@ -113,24 +113,7 @@ az iot hub monitor-events --login <your Azure IoT Hub owner connection string in
 - Right click on that and select "Start Monitoring Built-In Endpoint"
 
 ```
-[IoTHubMonitor] [3:40:22 PM] Message received from [PicoDev137]:
-{
-  "msgCount": 216,
-  "temp": 31.2,
-  "humidity": 44
-}
-[IoTHubMonitor] [3:40:25 PM] Message received from [PicoDev137]:
-{
-  "msgCount": 217,
-  "temp": 31.2,
-  "humidity": 44
-}
-[IoTHubMonitor] [3:40:28 PM] Message received from [PicoDev137]:
-{
-  "msgCount": 218,
-  "temp": 31.2,
-  "humidity": 44
-}
+//Coming 2Do
 ```
 
 ## Code
