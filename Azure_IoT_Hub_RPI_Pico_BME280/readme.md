@@ -7,7 +7,7 @@ products:
 - azure-iot
 - azure-iot-hub
 peripherals:
-- DHT11
+- BME280
 ---
 
 
