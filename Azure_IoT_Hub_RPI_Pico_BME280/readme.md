@@ -29,7 +29,7 @@ This example addes a BME280 Temperature-Pressure-Humidity Sensor to generate rea
 
 ## Setup for the BME280
 
-![BME280](bme280.jpeg)
+![BME280](bme280.jpg)
 
 - Setup the WiFi and Azure IoT Hub connection in iot_configs.h as per the Base._ 
 - Add this BME280 library:
