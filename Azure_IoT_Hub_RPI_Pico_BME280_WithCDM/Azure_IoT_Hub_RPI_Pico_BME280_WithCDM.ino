@@ -361,6 +361,97 @@ DynamicJsonDocument doc(1024);
 char jsonStr[128];
 char ret[64];
 
+static char telemetryNamesStr[] = TELEMETRY_NAMES;
+double * telemetry;
+char ** telemetryNames;
+int numTelemetryNames=0;
+
+
+char** str_split(char* a_str, const char a_delim)
+{
+    char** result    = 0;
+    size_t count     = 0;
+    char* tmp        = a_str;
+    char* last_comma = 0;
+    char delim[2];
+    delim[0] = a_delim;
+    delim[1] = 0;
+
+    /* Count how many elements will be extracted. */
+    while (*tmp)
+    {
+        if (a_delim == *tmp)
+        {
+            count++;
+            last_comma = tmp;
+        }
+        tmp++;
+    }
+
+    /* Add space for trailing token. */
+    count += last_comma < (a_str + strlen(a_str) - 1);
+
+    /* Add space for terminating null string so caller
+       knows where the list of returned strings ends. 
+       Also note number of token not including last empty string.
+       */
+    count++;
+    numTelemetryNames = count-1;
+ 
+    result = (char **) malloc(sizeof(char*) * count);
+    telemetry = (double *) malloc(sizeof(double) * numTelemetryNames);
+    if (result)
+    {
+        size_t idx  = 0;
+        char* token = strtok(a_str, delim);
+
+        while (token)
+        {
+            assert(idx < count);
+            *(result + idx++) = strdup(token);
+            token = strtok(0, delim);
+        }
+        assert(idx == count - 1);
+        *(result + idx) = 0;
+    }
+
+    return result;
+}
+
+
+void getTelemetryNames()
+{
+   telemetryNames = str_split(telemetryNamesStr, ',');
+  Serial.println();
+  Serial.println("Telemetry:");
+  Serial.println("============");
+  /* int i=0;
+   while (telemetryNames[i] != NULL)
+   {
+        Serial.print(">>");
+        Serial.print(telemetryNames[i++]);
+        Serial.println("<<");
+   }
+
+   i=0;
+   while (strlen(telemetryNames[i]) != 0)
+   {
+        Serial.print(">>");
+        Serial.print(telemetryNames[i++]);
+        Serial.println("<<");
+   }*/
+
+   for (int i=0;i<numTelemetryNames;i++)
+   {
+        Serial.println(telemetryNames[i]);
+   }
+ /*
+   Serial.println(telemetryNames[otemp]);
+   Serial.println(telemetryNames[opres]);
+   Serial.println(telemetryNames[ohum]);
+  */
+}
+
 
 
 // Don't want too many decimal plces in the json string
@@ -384,7 +475,6 @@ double Round2Places(float value)
     return ret;
 }
 
-double temperature(NAN), humidity(NAN), pressure(NAN);
 
 static bool ReadSensor()
 {
@@ -396,19 +486,33 @@ static bool ReadSensor()
 
    bme.read(press, temp, hum, tempUnit, presUnit);
 
-   temperature = Round2Places(temp);
-   pressure = Round2Places(press);   
-   humidity = Round2Places(hum);
+    telemetry[otemp] = Round2Places(temp);
+    telemetry[opres] = Round2Places(press);   
+    telemetry[ohum] = Round2Places(hum);
 
-   client->print("Temperature: ");
-   client->print(temperature);
-   client->print("?"+ String(tempUnit == BME280::TempUnit_Celsius ? 'C' :'F'));
-   client->print("\t\tHumidity: ");
-   client->print(humidity);
-   client->print("% RH");
-   client->print("\t\tPressure: ");
-   client->print(pressure);
-   client->println("Pa");
+    for (int i=0;i<numTelemetryNames;i++)
+    {
+      if (i!=0)
+      {
+        client->print("\t");
+      }
+      client->print(telemetryNames[i]);
+      client->print(": ");
+      client->print(telemetry[i]);
+      switch (i)
+      {
+        case otemp:
+          client->print("°" + String(tempUnit == BME280::TempUnit_Celsius ? 'C' :'F'));
+          break;
+        case ohum:
+          client->print("% RH");
+          break;
+        case opres:
+          client->println("Pa");
+          break;
+      }
+    }
+    Serial.println();
    return true;
 }
 
@@ -417,9 +521,10 @@ static char* getTelemetryPayload()
   bool chk = ReadSensor();
   if (chk) {
     doc["msgCount"]   = telemetry_send_count ++;
-    doc["temperature"]   = temperature;
-    doc["humidity"]   = humidity;
-    doc["pressure"]   = pressure;
+    for (int i=0;i<numTelemetryNames;i++)
+    {
+      doc[telemetryNames[i]]   = telemetry[i];
+    }
     serializeJson(doc, jsonStr);
     az_span temp_span = az_span_create_from_str(jsonStr);
     az_span_to_str((char *)telemetry_payload, sizeof(telemetry_payload), temp_span);
@@ -444,7 +549,7 @@ static void sendTelemetry()
   char *   payload = getTelemetryPayload();
   
   // Add a property to the message  
-  az_iot_message_properties * properties = GetProperties(temperature);
+  az_iot_message_properties * properties = GetProperties(telemetry[otemp]);
   
   if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(
           &client, properties, telemetry_topic, sizeof(telemetry_topic), NULL)))
@@ -500,6 +605,7 @@ void setup()
 {
   Serial.begin(115200);
   while(!Serial){}	
+  getTelemetryNames();
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   GotTwinDoc=false;
