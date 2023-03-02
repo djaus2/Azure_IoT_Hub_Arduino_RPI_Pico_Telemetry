@@ -16,6 +16,7 @@ peripherals:
 # Azure IoT Hub RPI Pico BME280 with CDM
 
 ### This BME280 version has Direct Methods and Device Twins
+- Update: Telemetry is 90% generic. Just add/remove in list in iot_configs.h_
 
 
 -   [Getting Started](#Getting-Started)
