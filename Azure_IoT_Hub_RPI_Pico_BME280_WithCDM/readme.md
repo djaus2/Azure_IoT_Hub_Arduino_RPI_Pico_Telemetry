@@ -33,19 +33,12 @@ This example addes a BME280 Temperature-Pressure-Humidity Sensor to generate rea
 
 - Get the Pico sending some simulated data as per the Base project ReadMe.
 
-## Setup for the BME280
-
-![BME280](bme280-500.jpg)
-- Pico Pin 4 to SDI on BME280
-- Pico Pin 5 to SCL on BME280
-
-===
-
-### Update 24/12/2023
+> Updated 24/12/2023
 
 ![BME280](bme280-500Update.jpg)
 
-Upon revisting this, found needed different connections:
+> Upon revisting this, found needed corection to connections from previous:
+
 - Using [Altronics Z6455](https://www.altronics.com.au/p/z6455-bme280-temperature-humidity-pressure-sensor/)
   - Pico ----- BME280
   - 3.3V ----- VCC _(There are 2. Only one needs connection)_
@@ -60,6 +53,25 @@ Upon revisting this, found needed different connections:
   - NC&nbsp;&nbsp;&nbsp;----- SCK
   - NC&nbsp;&nbsp;&nbsp;----- SDI  
   _NC: No connection_
+
+  ### Alternative Device
+
+> Alternative devices are locked into using I2C rather than SPI and therefore, as a package, have less pins.
+
+For example, the [Altronics PiicoDev BME280 Atmospheric Sensor](https://www.altronics.com.au/p/z6581-picodev-BME280-atmospheric-sensor-board/):
+
+![picodev-BME280](Z6581.jpg)
+
+- Besides solderable pins, this has the [Qwiic 4 pin connector](https://www.sparkfun.com/qwiic)
+  - Black GND
+  - Red Vcc
+  - Blue SDA _Cf White for Grove connector_
+  - Yellow SCL
+- Note that its default address is 0x77 but is onboard switcable to 0x75  
+
+<hr/>
+
+
 
 - Setup the WiFi and Azure IoT Hub connection in iot_configs.h as per the Base._ 
 - Add this BME280 library:
