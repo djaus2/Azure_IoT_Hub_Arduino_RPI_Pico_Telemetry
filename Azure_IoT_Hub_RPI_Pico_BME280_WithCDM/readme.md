@@ -54,7 +54,7 @@ This example addes a BME280 Temperature-Pressure-Humidity Sensor to generate rea
   - NC&nbsp;&nbsp;&nbsp;----- SDI  
   _NC: No connection_
 
-  ### Alternative Device
+### Alternative Device
 
 > Alternative devices are locked into using I2C rather than SPI and therefore, as a package, have less pins.
 
@@ -67,11 +67,10 @@ For example, the [Altronics PiicoDev BME280 Atmospheric Sensor](https://www.altr
   - Red Vcc
   - Blue SDA _Cf White for Grove connector_
   - Yellow SCL
-- Note that its default address is 0x77 but is onboard switcable to 0x75  
+- Note that its default address is 0x77 but is onboard switchable to 0x75
+- Further info: [https://piico.dev/p2](https://piico.dev/p2)  
 
-<hr/>
-
-
+----
 
 - Setup the WiFi and Azure IoT Hub connection in iot_configs.h as per the Base._ 
 - Add this BME280 library:

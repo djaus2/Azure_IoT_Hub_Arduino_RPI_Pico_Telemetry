@@ -55,6 +55,24 @@ Upon revisting this, found needed different connections:
   - NC&nbsp;&nbsp;&nbsp;----- SDI  
   _NC: No connection_
 
+### Alternative Device
+
+> Alternative devices are locked into using I2C rather than SPI and therefore, as a package, have less pins.
+
+For example, the [Altronics PiicoDev BME280 Atmospheric Sensor](https://www.altronics.com.au/p/z6581-picodev-BME280-atmospheric-sensor-board/):
+
+![picodev-BME280](Z6581.jpg)
+
+- Besides solderable pins, this has the [Qwiic 4 pin connector](https://www.sparkfun.com/qwiic)
+  - Black GND
+  - Red Vcc
+  - Blue SDA _Cf White for Grove connector_
+  - Yellow SCL
+- Note that its default address is 0x77 but is onboard switchable to 0x75
+- Further info: [https://piico.dev/p2](https://piico.dev/p2)  
+
+----
+
 
 - Setup the WiFi and Azure IoT Hub connection in iot_configs.h as per the Base._ 
 - Add this BME280 library:
