@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // SPDX-License-Identifier: MIT
 
+// Note update: Update 24/12/2023 for connectivity below.
+
 /*
  * This is an Arduino-based Azure IoT Hub sample for RPI Pico with Arduino installed. Based upon the ESPRESSIF ESP8266 board version.
  * It uses our Azure Embedded SDK for C to help interact with Azure IoT.
@@ -34,12 +36,28 @@ using I2C interface.
 
 
 Connecting the BME280 Sensor:
+(See below)
 Sensor              ->  Board
 -----------------------------
 Vin (Voltage In)    ->  3.3V
 Gnd (Ground)        ->  Gnd
 SDA (Serial Data)   ->  4
 SCK (Serial Clock)  ->  5
+
+===================================
+Update 24/12/2023
+===================================
+Using Altronics Z-64555 BME280 Sensor:
+https://www.altronics.com.au/p/z6455-bme280-temperature-humidity-pressure-sensor/
+On revisiting this found the connections needed to be:
+
+// 3.3V ---- VCC (There are 2: Only one needs connection)
+// GND ----- GND (There are 2: Only one needs connection)
+// SDA ----- SDA
+// SCL ----- SCL 
+// 3.3v----- CSB (enables the I2C interface) <-- Important
+// GND ----- SDO (I2C Address 0x76)
+// 3.3v----- SDO (I2C Address 0x77)
 
  */
 

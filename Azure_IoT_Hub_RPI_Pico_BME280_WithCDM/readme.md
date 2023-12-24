@@ -38,6 +38,29 @@ This example addes a BME280 Temperature-Pressure-Humidity Sensor to generate rea
 ![BME280](bme280-500.jpg)
 - Pico Pin 4 to SDI on BME280
 - Pico Pin 5 to SCL on BME280
+
+===
+
+### Update 24/12/2023
+
+![BME280](bme280-500Update.jpg)
+
+Upon revisting, this found needed different connections:
+- Using [Altronics Z6455](https://www.altronics.com.au/p/z6455-bme280-temperature-humidity-pressure-sensor/)
+  - Pico ----- BME280
+  - 3.3V ----- VCC _(There are 2. Only one needs connection)_
+  - GND  ----- GND _(There are 2. Only one needs connection)_
+  - Pico Pin 4
+    - SDA  ----- SDA
+  - Pico Pin 5
+    - SCL  ----- SCL
+  - 3.3V ----- CSB (enables the I2C interface)
+  - GND  ----- SDO (I2C Address 0x76)
+  - 3.3V ----- SDO (I2C Address 0x77)
+  - NC&nbsp;&nbsp;&nbsp;----- SCK
+  - NC&nbsp;&nbsp;&nbsp;----- SDI  
+  _NC: No connection_
+
 - Setup the WiFi and Azure IoT Hub connection in iot_configs.h as per the Base._ 
 - Add this BME280 library:
   - Search for BME280
@@ -50,7 +73,7 @@ This example addes a BME280 Temperature-Pressure-Humidity Sensor to generate rea
 
 ## Circuit
 
-![BME280 Circuit Coming](./BME280-Circuit.png) 2Do
+![BME280 Circuit Coming](./BME280-Circuit.png) 
 
 Ref: Freenove ```./C/C_Tutorial.pdf``` document (in repository) 
 
