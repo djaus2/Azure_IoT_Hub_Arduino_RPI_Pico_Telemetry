@@ -45,7 +45,7 @@ This example addes a BME280 Temperature-Pressure-Humidity Sensor to generate rea
 
 ![BME280](bme280-500Update.jpg)
 
-Upon revisting, this found needed different connections:
+Upon revisting this, found needed different connections:
 - Using [Altronics Z6455](https://www.altronics.com.au/p/z6455-bme280-temperature-humidity-pressure-sensor/)
   - Pico ----- BME280
   - 3.3V ----- VCC _(There are 2. Only one needs connection)_
